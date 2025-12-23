@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations */
+@keyframes moveClouds {
+  0% { background-position: 0 0; }
+  100% { background-position: 200px 200px; }
+}
+
+.animate-clouds {
+  animation: moveClouds 60s linear infinite;
+}
+
+/* Animation delays for blob effect */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+  background-color: rgb(204 251 241); /* teal-100 */
+}
