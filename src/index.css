@@ -26,7 +26,20 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Dark mode background */
+html.dark {
+  background-color: #0f172a; /* slate-900 */
+}
+
+body {
+  transition: background-color 0.3s ease;
+}
+
 /* Selection styling */
 ::selection {
   background-color: rgb(204 251 241); /* teal-100 */
+}
+
+html.dark ::selection {
+  background-color: rgb(19 78 74); /* teal-900 */
 }

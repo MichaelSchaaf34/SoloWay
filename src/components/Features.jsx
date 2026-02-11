@@ -4,11 +4,11 @@ import FeatureCard from './ui/FeatureCard';
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 bg-white relative z-10">
+    <section id="features" className="py-24 bg-white dark:bg-slate-900 relative z-10">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">Your Solo Operating System</h2>
-          <p className="text-slate-500 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Your Solo Operating System</h2>
+          <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
             We replace the 10 tabs you usually have open with one intelligent interface that learns how you like to travel.
           </p>
         </div>

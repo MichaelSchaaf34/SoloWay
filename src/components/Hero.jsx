@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Coffee, MapPin, Shield, Users, ChevronRight, CheckCircle } from 'lucide-react';
 import ItineraryItem from './ItineraryItem';
+import useAuth from '../hooks/useAuth';
 
 const Hero = () => {
   const [tripMood, setTripMood] = useState('chill');
+  const { isAuthenticated } = useAuth();
 
   return (
     <header className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32">
@@ -28,9 +31,9 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-900 dark:bg-teal-600 text-white font-semibold hover:bg-slate-800 dark:hover:bg-teal-500 transition-all shadow-xl shadow-slate-200/50 dark:shadow-teal-900/30">
+              <Link to={isAuthenticated ? '/start' : '/auth'} className="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-900 dark:bg-teal-600 text-white font-semibold hover:bg-slate-800 dark:hover:bg-teal-500 transition-all shadow-xl shadow-slate-200/50 dark:shadow-teal-900/30 text-center">
                 Start Your Journey
-              </button>
+              </Link>
               <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 group">
                 Watch Demo <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>

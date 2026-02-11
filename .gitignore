@@ -37,3 +37,7 @@ coverage/
 # Misc
 *.local
 .eslintcache
+
+# Backend specific
+backend/.env
+backend/node_modules/
