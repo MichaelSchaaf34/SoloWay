@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Application configuration
  * Centralizes all environment variables and configuration settings
  */
@@ -46,9 +46,14 @@ export const config = {
 
   // JWT
   jwt: {
-    secret: process.env.JWT_SECRET || 'development-secret-change-me',
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    secret: process.env.JWT_SECRET || null,
+    refreshSecret: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || null,
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
+    algorithm: 'HS256',
+    issuer: process.env.JWT_ISSUER || 'soloway-api',
+    accessAudience: process.env.JWT_ACCESS_AUDIENCE || 'soloway-client',
+    refreshAudience: process.env.JWT_REFRESH_AUDIENCE || 'soloway-refresh',
   },
 
   // Rate Limiting
@@ -70,9 +75,9 @@ export const config = {
   },
 };
 
-// Validate required configuration in production
+// Validate required configuration in non-test environments
 export function validateConfig() {
-  const requiredInProduction = [
+  const requiredInNonTest = [
     'SUPABASE_URL',
     'SUPABASE_ANON_KEY',
     'SUPABASE_SERVICE_ROLE_KEY',
@@ -81,8 +86,8 @@ export function validateConfig() {
     'JWT_SECRET',
   ];
 
-  if (config.env === 'production') {
-    const missing = requiredInProduction.filter(key => !process.env[key]);
+  if (config.env !== 'test') {
+    const missing = requiredInNonTest.filter(key => !process.env[key]);
     if (missing.length > 0) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
     }

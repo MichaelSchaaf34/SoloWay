@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Safety service - Safety Guardian feature
  * Handles check-ins, safety scores, and emergency alerts
  */
@@ -7,7 +7,7 @@ import { getSupabaseAdmin } from '../../shared/database/supabase.js';
 import { query } from '../../shared/database/index.js';
 import { cache, cacheKeys } from '../../shared/cache/redis.js';
 import { emitToContacts, emitToUser } from '../../shared/realtime/websocket.js';
-import { NotFoundError, AuthorizationError } from '../../shared/middleware/errorHandler.js';
+import { NotFoundError } from '../../shared/middleware/errorHandler.js';
 
 /**
  * Create an immediate check-in (user is safe)
@@ -326,7 +326,7 @@ export async function triggerEmergency(userId, data) {
     userId,
     checkinId: checkin.id,
     message: data.message,
-    location: data.latitude && data.longitude ? { latitude: data.latitude, longitude: data.longitude } : null,
+    location: data.latitude !== undefined && data.longitude !== undefined ? { latitude: data.latitude, longitude: data.longitude } : null,
     timestamp: new Date().toISOString(),
   });
 
@@ -433,3 +433,4 @@ function formatCheckin(checkin) {
     createdAt: checkin.created_at,
   };
 }
+

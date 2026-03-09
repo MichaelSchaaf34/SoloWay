@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication middleware
  * Verifies JWT tokens and attaches user to request
  */
@@ -7,6 +7,22 @@ import jwt from 'jsonwebtoken';
 import { config } from '../../config/index.js';
 import { AuthenticationError, AuthorizationError } from './errorHandler.js';
 import { getSupabaseAdmin } from '../database/supabase.js';
+
+const accessVerifyOptions = {
+  algorithms: [config.jwt.algorithm],
+  issuer: config.jwt.issuer,
+  audience: config.jwt.accessAudience,
+};
+
+function verifyAccessToken(token) {
+  const decoded = jwt.verify(token, config.jwt.secret, accessVerifyOptions);
+
+  if (decoded.type && decoded.type !== 'access') {
+    throw new AuthenticationError('Invalid token type');
+  }
+
+  return decoded;
+}
 
 /**
  * Authenticate request using JWT token
@@ -22,7 +38,7 @@ export async function authenticate(req, res, next) {
     const token = authHeader.split(' ')[1];
 
     // Verify JWT token
-    const decoded = jwt.verify(token, config.jwt.secret);
+    const decoded = verifyAccessToken(token);
 
     // Get user from database to ensure they still exist and are active
     const supabase = getSupabaseAdmin();
@@ -42,7 +58,7 @@ export async function authenticate(req, res, next) {
 
     next();
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
+    if (error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') {
       next(new AuthenticationError('Invalid token'));
     } else if (error.name === 'TokenExpiredError') {
       next(new AuthenticationError('Token expired'));
@@ -53,7 +69,7 @@ export async function authenticate(req, res, next) {
 }
 
 /**
- * Optional authentication - doesn't fail if no token
+ * Optional authentication - does not fail if no token
  */
 export async function optionalAuth(req, res, next) {
   try {
@@ -64,7 +80,7 @@ export async function optionalAuth(req, res, next) {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, config.jwt.secret);
+    const decoded = verifyAccessToken(token);
 
     const supabase = getSupabaseAdmin();
     const { data: user } = await supabase

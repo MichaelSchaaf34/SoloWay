@@ -90,3 +90,14 @@
 - Replaced city `datalist` inputs with a true suggestion dropdown component to deliver Google-like city search behavior
 - Switched `/start` flow pages to a lighter/whiter visual tone and updated cards/forms for better readability on bright overlays
 - Fixed itinerary background rendering resilience by using a new image source and hiding failed background images without showing alt text
+
+## 2026-03-07 - Interval 22
+- Completed backend security hardening pass across auth/config/realtime modules with stricter JWT handling (access vs refresh token separation, issuer/audience/algorithm verification, shorter access token TTL, and refresh-token-specific secret)
+- Enforced safer startup defaults in backend bootstrap (`validateConfig()` on startup, disabled `x-powered-by`, reduced request body limits, and strict non-test env variable checks)
+- Added missing Joi validation for previously unvalidated route params/queries in auth/users/itineraries/social/safety endpoints
+- Strengthened password and credential handling: stronger password policy (12+ with complexity), hashed password reset tokens in cache, revoked all active refresh tokens on logout/password reset/password change, and blocked no-op password changes
+- Hardened WebSocket input handling and room joins with UUID/geohash validation plus payload sanitization for check-ins/emergency events
+- Synced frontend auth UX/session behavior with backend rules (register password guidance and session-backed storage guards for browser-only access)
+- Validation: `node --check` passed for modified backend `.js` files
+- Validation blocked in sandbox: frontend `npm run build` and backend `npm test` hit `spawn EPERM` in this environment
+- Dependency remediation status: attempted `react-router-dom@latest` update was not completed because the session ended pending install approval

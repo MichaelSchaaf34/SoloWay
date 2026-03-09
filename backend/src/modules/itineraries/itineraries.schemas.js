@@ -1,8 +1,21 @@
-/**
+﻿/**
  * Itinerary validation schemas
  */
 
 import Joi from 'joi';
+
+export const itineraryIdParamsSchema = {
+  params: Joi.object({
+    itineraryId: Joi.string().uuid().required(),
+  }),
+};
+
+export const itineraryItemParamsSchema = {
+  params: Joi.object({
+    itineraryId: Joi.string().uuid().required(),
+    itemId: Joi.string().uuid().required(),
+  }),
+};
 
 export const createItinerarySchema = {
   body: Joi.object({

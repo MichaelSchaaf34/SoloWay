@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Safety routes - Safety Guardian feature
  */
 
@@ -12,6 +12,8 @@ import {
   scheduleCheckinSchema,
   getSafetyScoreSchema,
   triggerEmergencySchema,
+  getCheckinHistorySchema,
+  checkinIdSchema,
 } from './safety.schemas.js';
 
 const router = Router();
@@ -43,6 +45,7 @@ router.post(
 
 router.get(
   '/checkins',
+  validate(getCheckinHistorySchema),
   safetyController.getCheckinHistory
 );
 
@@ -53,11 +56,13 @@ router.get(
 
 router.post(
   '/checkins/:checkinId/complete',
+  validate(checkinIdSchema),
   safetyController.completeScheduledCheckin
 );
 
 router.delete(
   '/checkins/:checkinId',
+  validate(checkinIdSchema),
   safetyController.cancelCheckin
 );
 

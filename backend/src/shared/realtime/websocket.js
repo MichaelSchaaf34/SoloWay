@@ -1,16 +1,44 @@
-/**
+﻿/**
  * WebSocket server for real-time features
  * Handles Safety Guardian check-ins, Social Radar updates, and notifications
  */
 
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import { createAdapter } from '@socket.io/redis-adapter';
 import { config } from '../../config/index.js';
 import { getPubSubClients } from '../cache/redis.js';
-import { createAdapter } from '@socket.io/redis-adapter';
 import { getSupabaseAdmin } from '../database/supabase.js';
 
 let io = null;
+
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const geohashRegex = /^[a-z0-9]{3,12}$/i;
+
+const accessVerifyOptions = {
+  algorithms: [config.jwt.algorithm],
+  issuer: config.jwt.issuer,
+  audience: config.jwt.accessAudience,
+};
+
+function isValidCoordinate(value, min, max) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+}
+
+function sanitizeText(value, maxLength) {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return trimmed.slice(0, maxLength);
+}
+
+function verifyAccessToken(token) {
+  const decoded = jwt.verify(token, config.jwt.secret, accessVerifyOptions);
+  if (decoded.type && decoded.type !== 'access') {
+    throw new Error('Invalid token type');
+  }
+  return decoded;
+}
 
 /**
  * Initialize WebSocket server
@@ -42,7 +70,7 @@ export function initializeWebSocket(httpServer) {
         return next(new Error('Authentication required'));
       }
 
-      const decoded = jwt.verify(token, config.jwt.secret);
+      const decoded = verifyAccessToken(token);
       socket.userId = decoded.userId;
       socket.user = decoded;
 
@@ -65,7 +93,7 @@ export function initializeWebSocket(httpServer) {
       try {
         if (!Array.isArray(contactIds) || contactIds.length === 0) return;
 
-        const sanitizedIds = contactIds.filter(id => typeof id === 'string' && /^[0-9a-f-]{36}$/i.test(id));
+        const sanitizedIds = contactIds.filter(id => typeof id === 'string' && uuidRegex.test(id));
         if (sanitizedIds.length === 0) return;
 
         const supabase = getSupabaseAdmin();
@@ -100,6 +128,11 @@ export function initializeWebSocket(httpServer) {
 
     socket.on('join:itinerary', async (itineraryId) => {
       try {
+        if (typeof itineraryId !== 'string' || !uuidRegex.test(itineraryId)) {
+          socket.emit('error', { code: 'ROOM_JOIN_DENIED', message: 'Invalid itinerary id' });
+          return;
+        }
+
         const supabase = getSupabaseAdmin();
         const { data: itinerary } = await supabase
           .from('itineraries')
@@ -118,9 +151,8 @@ export function initializeWebSocket(httpServer) {
     });
 
     socket.on('join:area', (geohash) => {
-      // Join geohash-based room for nearby travelers (validate input)
-      const isValid = typeof geohash === 'string' && /^[a-z0-9]{3,12}$/i.test(geohash);
-      if (isValid) {
+      // Join geohash-based room for nearby travelers
+      if (typeof geohash === 'string' && geohashRegex.test(geohash)) {
         socket.join(`area:${geohash}`);
       } else {
         socket.emit('error', { code: 'ROOM_JOIN_DENIED', message: 'Invalid area identifier' });
@@ -129,12 +161,18 @@ export function initializeWebSocket(httpServer) {
 
     // Handle leaving rooms
     socket.on('leave:area', (geohash) => {
-      socket.leave(`area:${geohash}`);
+      if (typeof geohash === 'string' && geohashRegex.test(geohash)) {
+        socket.leave(`area:${geohash}`);
+      }
     });
 
     // Handle location updates for Social Radar
     socket.on('location:update', async (data) => {
+      if (!data || typeof data !== 'object') return;
+
       const { latitude, longitude, geohash } = data;
+      if (!isValidCoordinate(latitude, -90, 90) || !isValidCoordinate(longitude, -180, 180)) return;
+      if (typeof geohash !== 'string' || !geohashRegex.test(geohash)) return;
 
       // Broadcast to others in the same area
       socket.to(`area:${geohash}`).emit('traveler:nearby', {
@@ -146,21 +184,36 @@ export function initializeWebSocket(httpServer) {
 
     // Handle check-in events
     socket.on('checkin:create', (checkinData) => {
+      const safePayload = {
+        locationName: sanitizeText(checkinData?.locationName, 200),
+        notes: sanitizeText(checkinData?.notes, 500),
+      };
+
       // Broadcast to trusted contacts
       io.to(`contacts:${socket.userId}`).emit('checkin:received', {
         userId: socket.userId,
-        ...checkinData,
+        ...safePayload,
         timestamp: new Date().toISOString(),
       });
     });
 
     // Handle emergency alerts
     socket.on('emergency:trigger', (data) => {
+      const latitude = data?.latitude;
+      const longitude = data?.longitude;
+
+      const safePayload = {
+        message: sanitizeText(data?.message, 500),
+        location: isValidCoordinate(latitude, -90, 90) && isValidCoordinate(longitude, -180, 180)
+          ? { latitude, longitude }
+          : null,
+      };
+
       // Broadcast to trusted contacts with high priority
       io.to(`contacts:${socket.userId}`).emit('emergency:alert', {
         userId: socket.userId,
         type: 'emergency',
-        ...data,
+        ...safePayload,
         timestamp: new Date().toISOString(),
       });
     });

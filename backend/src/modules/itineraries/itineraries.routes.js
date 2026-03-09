@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Itinerary routes
  */
 
@@ -14,6 +14,8 @@ import {
   updateItemSchema,
   listItinerariesSchema,
   nearbyItinerariesSchema,
+  itineraryIdParamsSchema,
+  itineraryItemParamsSchema,
 } from './itineraries.schemas.js';
 
 const router = Router();
@@ -53,6 +55,7 @@ router.get(
 
 router.get(
   '/:itineraryId',
+  validate(itineraryIdParamsSchema),
   itinerariesController.getItinerary
 );
 
@@ -64,6 +67,7 @@ router.patch(
 
 router.delete(
   '/:itineraryId',
+  validate(itineraryIdParamsSchema),
   itinerariesController.deleteItinerary
 );
 
@@ -82,22 +86,26 @@ router.patch(
 
 router.delete(
   '/:itineraryId/items/:itemId',
+  validate(itineraryItemParamsSchema),
   itinerariesController.deleteItem
 );
 
 // Itinerary actions
 router.post(
   '/:itineraryId/activate',
+  validate(itineraryIdParamsSchema),
   itinerariesController.activateItinerary
 );
 
 router.post(
   '/:itineraryId/complete',
+  validate(itineraryIdParamsSchema),
   itinerariesController.completeItinerary
 );
 
 router.post(
   '/:itineraryId/duplicate',
+  validate(itineraryIdParamsSchema),
   itinerariesController.duplicateItinerary
 );
 

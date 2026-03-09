@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { ImmersivePage } from '../components';
+
+const PASSWORD_RULE_TEXT = '12+ chars with upper, lower, number, and symbol';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ const Auth = () => {
       contentClassName="flex min-h-screen items-center justify-center px-6 py-24"
     >
       <section className="w-full max-w-md bg-slate-900/75 border border-slate-700 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
-        <Link to="/" className="text-teal-400 text-sm hover:text-teal-300">← Back to landing</Link>
+        <Link to="/" className="text-teal-400 text-sm hover:text-teal-300">{'<-'} Back to landing</Link>
         <h1 className="text-3xl font-bold mt-4">{mode === 'login' ? 'Welcome back' : 'Create your SoloWay account'}</h1>
         <div className="grid grid-cols-2 bg-slate-800 rounded-xl p-1 mt-6 mb-6">
           <button type="button" onClick={() => setMode('login')} className={`py-2 rounded-lg text-sm font-semibold ${mode === 'login' ? 'bg-teal-500 text-white' : 'text-slate-300'}`}>Login</button>
@@ -56,7 +58,20 @@ const Auth = () => {
             <input type="text" placeholder="Display name" value={form.displayName} onChange={e => updateField('displayName', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
           )}
           <input type="email" placeholder="Email" required value={form.email} onChange={e => updateField('email', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
-          <input type="password" placeholder="Password" required minLength={8} value={form.password} onChange={e => updateField('password', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              minLength={mode === 'register' ? 12 : 1}
+              value={form.password}
+              onChange={e => updateField('password', e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+            {mode === 'register' && (
+              <p className="mt-2 text-xs text-slate-300">{PASSWORD_RULE_TEXT}</p>
+            )}
+          </div>
           {error && <p className="text-rose-400 text-sm">{error}</p>}
           <button type="submit" disabled={isSubmitting} className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-70 disabled:cursor-not-allowed text-white font-semibold">
             {isSubmitting ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
@@ -68,3 +83,4 @@ const Auth = () => {
 };
 
 export default Auth;
+

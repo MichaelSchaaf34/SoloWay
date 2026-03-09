@@ -1,4 +1,4 @@
-/**
+﻿/**
  * User validation schemas
  */
 
@@ -31,5 +31,11 @@ export const addContactSchema = {
     contactEmail: Joi.string().email().optional().allow(null),
     notifyOnCheckin: Joi.boolean().default(true),
     notifyOnEmergency: Joi.boolean().default(true),
+  }),
+};
+
+export const removeContactSchema = {
+  params: Joi.object({
+    contactId: Joi.string().uuid().required(),
   }),
 };

@@ -1,8 +1,16 @@
-/**
+﻿/**
  * Authentication validation schemas
  */
 
 import Joi from 'joi';
+
+const strongPassword = Joi.string()
+  .min(12)
+  .max(128)
+  .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/)
+  .messages({
+    'string.pattern.base': 'Password must include uppercase, lowercase, number, and symbol',
+  });
 
 export const registerSchema = {
   body: Joi.object({
@@ -10,8 +18,8 @@ export const registerSchema = {
       'string.email': 'Please provide a valid email address',
       'any.required': 'Email is required',
     }),
-    password: Joi.string().min(8).max(128).required().messages({
-      'string.min': 'Password must be at least 8 characters',
+    password: strongPassword.required().messages({
+      'string.min': 'Password must be at least 12 characters',
       'any.required': 'Password is required',
     }),
     displayName: Joi.string().min(2).max(100).optional(),
@@ -40,13 +48,13 @@ export const forgotPasswordSchema = {
 export const resetPasswordSchema = {
   body: Joi.object({
     token: Joi.string().required(),
-    password: Joi.string().min(8).max(128).required(),
+    password: strongPassword.required(),
   }),
 };
 
 export const changePasswordSchema = {
   body: Joi.object({
     currentPassword: Joi.string().required(),
-    newPassword: Joi.string().min(8).max(128).required(),
+    newPassword: strongPassword.required(),
   }),
 };

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Social routes - Social Radar feature
  */
 
@@ -11,6 +11,9 @@ import {
   sendConnectionSchema,
   respondConnectionSchema,
   sendMessageSchema,
+  connectionIdSchema,
+  userIdParamSchema,
+  getConversationSchema,
 } from './social.schemas.js';
 
 const router = Router();
@@ -50,17 +53,20 @@ router.post(
 
 router.delete(
   '/connections/:connectionId',
+  validate(connectionIdSchema),
   socialController.removeConnection
 );
 
 router.post(
   '/connections/:userId/block',
+  validate(userIdParamSchema),
   socialController.blockUser
 );
 
 // Messages
 router.get(
   '/messages/:userId',
+  validate(getConversationSchema),
   socialController.getConversation
 );
 
@@ -72,12 +78,14 @@ router.post(
 
 router.post(
   '/messages/:userId/read',
+  validate(userIdParamSchema),
   socialController.markAsRead
 );
 
 // Profile visibility
 router.get(
   '/profile/:userId',
+  validate(userIdParamSchema),
   socialController.getPublicProfile
 );
 

@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   createContext,
   useCallback,
   useEffect,
@@ -12,9 +12,20 @@ import * as authService from '../utils/authService';
 const STORAGE_KEY = 'soloway.auth.session';
 export const AuthContext = createContext(null);
 
+function getStorage() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return window.sessionStorage;
+}
+
 function readStoredSession() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const storage = getStorage();
+    if (!storage) return null;
+
+    const raw = storage.getItem(STORAGE_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
   } catch {
@@ -23,11 +34,15 @@ function readStoredSession() {
 }
 
 function writeStoredSession(session) {
+  const storage = getStorage();
+  if (!storage) return;
+
   if (!session) {
-    localStorage.removeItem(STORAGE_KEY);
+    storage.removeItem(STORAGE_KEY);
     return;
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+
+  storage.setItem(STORAGE_KEY, JSON.stringify(session));
 }
 
 export function AuthProvider({ children }) {

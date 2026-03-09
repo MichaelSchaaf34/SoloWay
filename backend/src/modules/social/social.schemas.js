@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Social validation schemas
  */
 
@@ -20,12 +20,34 @@ export const sendConnectionSchema = {
   }),
 };
 
+export const connectionIdSchema = {
+  params: Joi.object({
+    connectionId: Joi.string().uuid().required(),
+  }),
+};
+
+export const userIdParamSchema = {
+  params: Joi.object({
+    userId: Joi.string().uuid().required(),
+  }),
+};
+
 export const respondConnectionSchema = {
   params: Joi.object({
     connectionId: Joi.string().uuid().required(),
   }),
   body: Joi.object({
     accept: Joi.boolean().required(),
+  }),
+};
+
+export const getConversationSchema = {
+  params: Joi.object({
+    userId: Joi.string().uuid().required(),
+  }),
+  query: Joi.object({
+    limit: Joi.number().integer().min(1).max(100).default(50),
+    cursor: Joi.string().optional(),
   }),
 };
 

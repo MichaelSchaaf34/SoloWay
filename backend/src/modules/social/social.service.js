@@ -1,11 +1,10 @@
-/**
+﻿/**
  * Social service - Social Radar feature
  * Handles nearby travelers, connections, and messaging
  */
 
 import { getSupabaseAdmin } from '../../shared/database/supabase.js';
 import { query } from '../../shared/database/index.js';
-import { cache, cacheKeys } from '../../shared/cache/redis.js';
 import { emitToUser } from '../../shared/realtime/websocket.js';
 import { NotFoundError, AuthorizationError, ConflictError } from '../../shared/middleware/errorHandler.js';
 
@@ -478,3 +477,4 @@ async function verifyConnection(userId1, userId2) {
 
   return connection;
 }
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Safety validation schemas
  */
 
@@ -20,6 +20,19 @@ export const scheduleCheckinSchema = {
     longitude: Joi.number().min(-180).max(180).optional(),
     locationName: Joi.string().max(200).optional(),
     notes: Joi.string().max(500).optional(),
+  }),
+};
+
+export const getCheckinHistorySchema = {
+  query: Joi.object({
+    limit: Joi.number().integer().min(1).max(100).default(20),
+    cursor: Joi.string().optional(),
+  }),
+};
+
+export const checkinIdSchema = {
+  params: Joi.object({
+    checkinId: Joi.string().uuid().required(),
   }),
 };
 

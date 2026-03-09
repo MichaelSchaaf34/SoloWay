@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,7 +6,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { createServer } from 'http';
 
-import { config } from './config/index.js';
+import { config, validateConfig } from './config/index.js';
 import { errorHandler, notFoundHandler } from './shared/middleware/errorHandler.js';
 import { rateLimiter } from './shared/middleware/rateLimiter.js';
 import { initializeDatabase } from './shared/database/index.js';
@@ -26,17 +26,25 @@ const httpServer = createServer(app);
 // Initialize services
 async function bootstrap() {
   try {
+    validateConfig();
+
+    // Security defaults
+    app.disable('x-powered-by');
+    if (config.env === 'production') {
+      app.set('trust proxy', 1);
+    }
+
     // Initialize database connection pool
     await initializeDatabase();
-    console.log('✓ Database connected');
+    console.log('Database connected');
 
     // Initialize Redis
     await initializeRedis();
-    console.log('✓ Redis connected');
+    console.log('Redis connected');
 
     // Initialize WebSocket server
     initializeWebSocket(httpServer);
-    console.log('✓ WebSocket server initialized');
+    console.log('WebSocket server initialized');
 
     // Security middleware
     app.use(helmet());
@@ -46,8 +54,8 @@ async function bootstrap() {
     }));
 
     // Request parsing
-    app.use(express.json({ limit: '10mb' }));
-    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json({ limit: '1mb' }));
+    app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
     // Compression
     app.use(compression());
@@ -83,21 +91,8 @@ async function bootstrap() {
 
     // Start server
     httpServer.listen(config.port, () => {
-      console.log(`
-╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║   🌍 SoloWay API Server                                    ║
-║                                                            ║
-║   Environment: ${config.env.padEnd(40)}║
-║   Port: ${String(config.port).padEnd(47)}║
-║   API Version: ${config.apiVersion.padEnd(40)}║
-║                                                            ║
-║   Ready to handle requests!                                ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝
-      `);
+      console.log(`SoloWay API listening on port ${config.port} (${config.env})`);
     });
-
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);

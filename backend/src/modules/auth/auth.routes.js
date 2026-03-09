@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication routes
  */
 
@@ -7,7 +7,14 @@ import * as authController from './auth.controller.js';
 import { validate } from '../../shared/middleware/validate.js';
 import { authenticate } from '../../shared/middleware/auth.js';
 import { strictRateLimiter } from '../../shared/middleware/rateLimiter.js';
-import { registerSchema, loginSchema, refreshTokenSchema, forgotPasswordSchema, resetPasswordSchema } from './auth.schemas.js';
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
+} from './auth.schemas.js';
 
 const router = Router();
 
@@ -28,6 +35,7 @@ router.post(
 
 router.post(
   '/refresh',
+  strictRateLimiter,
   validate(refreshTokenSchema),
   authController.refreshToken
 );
@@ -63,6 +71,7 @@ router.post(
   '/change-password',
   authenticate,
   strictRateLimiter,
+  validate(changePasswordSchema),
   authController.changePassword
 );
 

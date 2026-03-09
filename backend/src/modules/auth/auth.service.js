@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication service
  * Handles user authentication, token management, and password operations
  */
@@ -6,35 +6,65 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
-import { config } from '../../config/index.js';
 import { getSupabaseAdmin } from '../../shared/database/supabase.js';
 import { cache, cacheKeys } from '../../shared/cache/redis.js';
+import { config } from '../../config/index.js';
 import { AuthenticationError, ConflictError, NotFoundError, ValidationError } from '../../shared/middleware/errorHandler.js';
 
 const SALT_ROUNDS = 12;
+const ACCESS_TOKEN_TYPE = 'access';
+const REFRESH_TOKEN_TYPE = 'refresh';
+
+/**
+ * JWT option builders
+ */
+function getAccessTokenOptions() {
+  return {
+    expiresIn: config.jwt.expiresIn,
+    algorithm: config.jwt.algorithm,
+    issuer: config.jwt.issuer,
+    audience: config.jwt.accessAudience,
+  };
+}
+
+function getRefreshTokenOptions() {
+  return {
+    expiresIn: config.jwt.refreshExpiresIn,
+    algorithm: config.jwt.algorithm,
+    issuer: config.jwt.issuer,
+    audience: config.jwt.refreshAudience,
+  };
+}
+
+function getRefreshVerifyOptions() {
+  return {
+    algorithms: [config.jwt.algorithm],
+    issuer: config.jwt.issuer,
+    audience: config.jwt.refreshAudience,
+  };
+}
 
 /**
  * Generate JWT tokens
  */
 function generateTokens(userId) {
   const accessToken = jwt.sign(
-    { userId },
+    { userId, type: ACCESS_TOKEN_TYPE },
     config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
+    getAccessTokenOptions()
   );
 
   const refreshToken = jwt.sign(
-    { userId, type: 'refresh' },
-    config.jwt.secret,
-    { expiresIn: config.jwt.refreshExpiresIn }
+    { userId, type: REFRESH_TOKEN_TYPE },
+    config.jwt.refreshSecret,
+    getRefreshTokenOptions()
   );
 
   return { accessToken, refreshToken };
 }
 
 /**
- * Hash a refresh token for storage
+ * Hash a token for storage
  */
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
@@ -93,6 +123,18 @@ async function revokeRefreshToken(tokenHash, replacedBy = null) {
       replaced_by: replacedBy,
     })
     .eq('token_hash', tokenHash)
+    .is('revoked_at', null);
+}
+
+/**
+ * Revoke all active refresh tokens for user
+ */
+async function revokeAllRefreshTokensForUser(userId) {
+  const supabase = getSupabaseAdmin();
+  await supabase
+    .from('auth_refresh_tokens')
+    .update({ revoked_at: new Date().toISOString() })
+    .eq('user_id', userId)
     .is('revoked_at', null);
 }
 
@@ -200,9 +242,9 @@ export async function login(email, password) {
  */
 export async function refreshToken(token) {
   try {
-    const decoded = jwt.verify(token, config.jwt.secret);
+    const decoded = jwt.verify(token, config.jwt.refreshSecret, getRefreshVerifyOptions());
 
-    if (decoded.type !== 'refresh') {
+    if (decoded.type !== REFRESH_TOKEN_TYPE) {
       throw new AuthenticationError('Invalid refresh token');
     }
 
@@ -248,10 +290,19 @@ export async function refreshToken(token) {
 
     return newTokens;
   } catch (error) {
+    if (error instanceof AuthenticationError) {
+      throw error;
+    }
+
     if (error.name === 'TokenExpiredError') {
       throw new AuthenticationError('Refresh token expired');
     }
-    throw new AuthenticationError('Invalid refresh token');
+
+    if (error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') {
+      throw new AuthenticationError('Invalid refresh token');
+    }
+
+    throw error;
   }
 }
 
@@ -297,12 +348,7 @@ export async function getUserById(userId) {
 export async function logout(userId) {
   // Clear cached session
   await cache.del(cacheKeys.userSession(userId));
-  const supabase = getSupabaseAdmin();
-  await supabase
-    .from('auth_refresh_tokens')
-    .update({ revoked_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .is('revoked_at', null);
+  await revokeAllRefreshTokensForUser(userId);
 }
 
 /**
@@ -318,16 +364,19 @@ export async function forgotPassword(email) {
     .single();
 
   if (!user) {
-    // Don't reveal if user exists
+    // Do not reveal if user exists
     return;
   }
 
-  // Generate reset token
-  const resetToken = uuidv4();
-  const resetExpires = new Date(Date.now() + 3600000).toISOString(); // 1 hour
+  // Generate reset token and only persist its hash
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetTokenHash = hashToken(resetToken);
 
-  // Store reset token (in production, use a separate table)
-  await cache.set(`password_reset:${resetToken}`, { userId: user.id, email: user.email }, 3600);
+  await cache.set(
+    `password_reset:${resetTokenHash}`,
+    { userId: user.id, email: user.email },
+    3600
+  );
 
   // TODO: Send email with reset link
   if (config.env !== 'production') {
@@ -339,7 +388,9 @@ export async function forgotPassword(email) {
  * Reset password with token
  */
 export async function resetPassword(token, newPassword) {
-  const resetData = await cache.get(`password_reset:${token}`);
+  const tokenHash = hashToken(token);
+  const resetCacheKey = `password_reset:${tokenHash}`;
+  const resetData = await cache.get(resetCacheKey);
 
   if (!resetData) {
     throw new ValidationError('Invalid or expired reset token');
@@ -357,14 +408,22 @@ export async function resetPassword(token, newPassword) {
     throw new Error('Failed to reset password');
   }
 
-  // Delete reset token
-  await cache.del(`password_reset:${token}`);
+  await Promise.all([
+    cache.del(resetCacheKey),
+    cache.del(cacheKeys.user(resetData.userId)),
+    cache.del(cacheKeys.userSession(resetData.userId)),
+    revokeAllRefreshTokensForUser(resetData.userId),
+  ]);
 }
 
 /**
  * Change password for authenticated user
  */
 export async function changePassword(userId, currentPassword, newPassword) {
+  if (currentPassword === newPassword) {
+    throw new ValidationError('New password must be different from current password');
+  }
+
   const supabase = getSupabaseAdmin();
 
   const { data: user, error } = await supabase
@@ -391,13 +450,13 @@ export async function changePassword(userId, currentPassword, newPassword) {
     .update({ password_hash: passwordHash })
     .eq('id', userId);
 
-  // Invalidate user cache
-  await cache.del(cacheKeys.user(userId));
-
-  // Revoke all refresh tokens on password change
-  await supabase
-    .from('auth_refresh_tokens')
-    .update({ revoked_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .is('revoked_at', null);
+  await Promise.all([
+    cache.del(cacheKeys.user(userId)),
+    cache.del(cacheKeys.userSession(userId)),
+    revokeAllRefreshTokensForUser(userId),
+  ]);
 }
+
+
+
+
