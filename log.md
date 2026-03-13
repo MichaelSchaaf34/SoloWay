@@ -1,0 +1,148 @@
+# Change Log
+
+## 2026-02-04 - Interval 1
+- Enabled Redis-backed rate limiting and runtime store swap
+- Added refresh token rotation with revocation storage
+- Enforced refresh token persistence checks
+- Secured WebSocket room joins with authorization checks
+- Enabled Socket.io Redis adapter for multi-instance scaling
+- Replaced Redis KEYS cache invalidation with SCAN
+- Added refresh token migration and dependency
+
+## 2026-02-04 - Interval 2
+- Tests: `npm test` (backend) -> failed (no test files found)
+
+## 2026-02-04 - Interval 3
+- Added backend smoke test
+- Tests: `npm test` (backend) -> passed (1 test)
+
+## 2026-02-10 - Interval 4
+- Refactored backend bootstrap imports to consume shared middleware barrel without changing runtime behavior
+- Refactored graceful shutdown signal handling into a reusable helper in `backend/src/index.js`
+- Refactored `src/pages/Landing.jsx` to use the existing components barrel export (`src/components/index.js`)
+
+## 2026-02-10 - Interval 5
+- Added frontend integration foundation: API base URL config, generic API client, auth service layer, and session-backed auth context
+- Added route protection primitive with `src/components/ProtectedRoute.jsx` and registered `AuthProvider` in `src/main.jsx`
+- Added frontend `.env.example` with `VITE_API_URL` and expanded backend CORS config to support comma-separated origins with local defaults for ports `3000` and `5173`
+
+## 2026-02-10 - Interval 6
+- Added backend waitlist module (`POST /api/v1/waitlist`) with Joi validation, strict rate limiting, and idempotent insert behavior
+- Wired CTA submit flow to backend waitlist endpoint with loading/error/success feedback and community anchor targeting
+- Added first auth/profile vertical slice in frontend: `/auth` login/register page, protected `/profile` route, profile data fetch, and navigation wiring from landing UI
+
+## 2026-02-10 - Interval 7
+- Added backend development fallbacks for `DATABASE_URL` and `REDIS_URL` in `backend/src/config/index.js` to support local boot when `backend/.env` is missing
+
+## 2026-02-10 - Interval 8
+- Implemented Option A guardrails by enforcing Supabase env vars in non-test environments with explicit startup errors
+- Added local `backend/.env` scaffold for Docker-backed Postgres/Redis plus CORS defaults to streamline local auth testing
+
+## 2026-02-10 - Interval 9
+- Improved auth visibility in landing navbar with explicit signed-in indicator and added direct logout action (desktop and mobile)
+
+## 2026-02-10 - Interval 10
+- Hardened auth UX visibility by always showing explicit signed-in/signed-out state in navbar
+- Added guaranteed auth actions in navbar (`Sign In / Register` when signed out, `My Profile` + `Log Out` when signed in)
+
+## 2026-02-10 - Interval 11
+- Removed duplicated mobile auth actions from overlay menu to avoid overlapping controls
+- Split `useAuth` hook implementation into `src/hooks/useAuth.js` and exported `AuthContext` from provider file to reduce HMR export overlap warnings
+
+## 2026-02-10 - Interval 12
+- Fixed auth-state race by preventing global session clear on unauthenticated 401s without a bearer header
+- Updated auth context to immediately sync API client token after login/register/refresh so navbar/session state remains consistent right after sign-in
+
+## 2026-02-10 - Interval 13
+- Implemented dual-path post-auth onboarding flow with `Create My Trip` vs `Explore First` entry point
+- Added protected itinerary MVP pages and service wiring: create/list/detail itinerary and add/update/delete itinerary items
+- Updated auth navigation flow so successful sign-in routes to onboarding start and signed-in landing CTA points to onboarding/trips
+
+## 2026-02-10 - Interval 14
+- Added `laterfeatures.md` to capture future immersive visual direction (travel-photo backgrounds and sanctuary-like UX tone)
+- Updated itinerary create/edit flows to use a destination-country dropdown sourced from a shared countries list
+
+## 2026-02-10 - Interval 15
+- Added structured destination pattern to itinerary forms: country + city for all trips, with required US state dropdown when country is `United States`
+- Added destination utilities for formatting/parsing saved destination strings to preserve compatibility with existing itinerary records
+
+## 2026-02-10 - Interval 16
+- Added destination catalog-driven dropdowns for country, region/state, and city with bidirectional auto-fill across all three selectors
+- Implemented selection resolver so picking city or region auto-populates country (and vice versa) in both itinerary create and edit forms
+
+## 2026-02-10 - Interval 17
+- Restored accidentally removed frontend auth/itinerary foundation (providers, routes, pages, API services, and protected navigation)
+- Reconnected waitlist CTA API submission and onboarding/trip route flow after restore
+
+## 2026-02-10 - Interval 18
+- Updated destination UX so city starts blank as free text with suggestions; typing/selecting a known city auto-fills country and region/state
+- Kept country/region selectors synchronized so choosing any selector resolves the other destination fields consistently
+
+## 2026-02-10 - Interval 19
+- Fixed backend CORS origin parsing to support comma-separated allowed origins from environment variables
+- Resolved frontend `Failed to fetch` auth issue caused by invalid CORS matching against combined origin string
+
+## 2026-02-11 - Interval 20
+- Added reusable immersive authenticated-page shell with travel-photo backgrounds and atmospheric overlays
+- Applied immersive visuals across auth, first-choice, explore, itineraries, itinerary detail, and profile screens to align with sanctuary product direction
+
+## 2026-02-11 - Interval 21
+- Replaced city `datalist` inputs with a true suggestion dropdown component to deliver Google-like city search behavior
+- Switched `/start` flow pages to a lighter/whiter visual tone and updated cards/forms for better readability on bright overlays
+- Fixed itinerary background rendering resilience by using a new image source and hiding failed background images without showing alt text
+
+## 2026-03-07 - Interval 22
+- Completed backend security hardening pass across auth/config/realtime modules with stricter JWT handling (access vs refresh token separation, issuer/audience/algorithm verification, shorter access token TTL, and refresh-token-specific secret)
+- Enforced safer startup defaults in backend bootstrap (`validateConfig()` on startup, disabled `x-powered-by`, reduced request body limits, and strict non-test env variable checks)
+- Added missing Joi validation for previously unvalidated route params/queries in auth/users/itineraries/social/safety endpoints
+- Strengthened password and credential handling: stronger password policy (12+ with complexity), hashed password reset tokens in cache, revoked all active refresh tokens on logout/password reset/password change, and blocked no-op password changes
+- Hardened WebSocket input handling and room joins with UUID/geohash validation plus payload sanitization for check-ins/emergency events
+- Synced frontend auth UX/session behavior with backend rules (register password guidance and session-backed storage guards for browser-only access)
+- Validation: `node --check` passed for modified backend `.js` files
+- Validation blocked in sandbox: frontend `npm run build` and backend `npm test` hit `spawn EPERM` in this environment
+- Dependency remediation status: attempted `react-router-dom@latest` update was not completed because the session ended pending install approval
+
+## 2026-03-09 - Interval 23
+- Polished landing-page shell layout by redesigning navbar spacing/alignment, tightening auth action wrapping, and smoothing mobile menu presentation
+- Fixed hero/background continuity by increasing atmospheric background coverage to prevent lower hero card cutoff/white bleed
+- Applied frontend visual consistency pass across hero/CTA/footer (matched button sizing, improved type rhythm, refined spacing, and added footer section navigation links)
+- Validation: frontend `npm run build` passed locally after UI updates
+
+## 2026-03-09 - Interval 24
+- Replaced the harsh white hero-to-features transition with a softer slate tone for a cleaner, more professional visual blend
+- Updated landing features section top spacing and background color to reduce the abrupt empty white block under the hero card
+
+## 2026-03-09 - Interval 25
+- Removed remaining bright white landing surfaces by shifting base page and section backgrounds to a consistent slate tone
+- Increased hero atmospheric background coverage and deepened transition gradients to eliminate the white "unfinished blob" effect beneath the hero card
+
+## 2026-03-09 - Interval 26
+- Updated dark mode initialization so the app defaults to light mode for first-time visitors while still honoring any previously saved user preference
+
+## 2026-03-10 - Interval 27
+- Added two-path booking flow: AI-powered itinerary generation vs manual browse-and-book
+- Created `TripContext` with shared state for destination, dates, path choice, vibe preferences, and booking cart
+- Replaced `FirstChoice` page with a two-step flow: destination/date picker then AI vs Manual path fork
+- Replaced `Explore` page with a browsable experience catalog featuring category filters and Book/Remove actions
+- Added `AIPreferences` page for vibe selection (Chill/Adventure/Social/Cultural) with loading spinner
+- Added `AIItinerary` page displaying AI-curated day-by-day itinerary with tap-to-add booking
+- Added `BookingCart` page with item management, total calculation, and checkout placeholder
+- Registered three new protected routes (`/ai-preferences`, `/ai-itinerary`, `/cart`) and wrapped app with `TripProvider`
+- Validation: frontend `npm run build` passed with zero errors
+- Fixed auth input visibility by adding `text-white placeholder-slate-400` to all Auth page form fields
+- Added temporary dev auth bypass (`DEV_BYPASS_AUTH`) in ProtectedRoute to allow testing without backend
+- Refined booking flow visual design: switched to light-tone frosted white glass cards (`bg-white/70 backdrop-blur-xl`) with dark text across all booking pages to match the existing light photo-background aesthetic
+- Unified landing page background with booking flow: replaced dark slate/clouds background with the same travel photo and light overlay treatment used across booking pages for a consistent warm, airy feel site-wide
+
+## 2026-03-12 - Interval 28
+- Reorganized Itineraries list page so saved trips are the primary content shown first, with the "Create a new trip" form hidden behind a compact "+ New Trip" button
+- Updated BookingCart checkout flow to create a real itinerary via the backend API after demo payment, including adding each booked experience as an itinerary item with correct title, time (12h to 24h conversion), and category mapping
+- "View my itinerary" confirmation button now navigates directly to the specific created itinerary (falls back to list if API fails)
+- Reordered ItineraryDetail page sections: Planned items first, Add item second, Trip settings last
+- Reduced ItineraryDetail card sizes (smaller padding, tighter gaps, smaller text/inputs, `max-w-3xl` container) and used trip title as page heading instead of generic "Itinerary detail"
+- Added delete buttons (trash icon) to itinerary cards on the Itineraries list page with backend `deleteItinerary` API integration
+- Replaced `window.confirm` with inline card-swap confirmation UI showing "Delete [title]?" with Cancel/Delete buttons
+- Made delete icon always visible with `text-rose-400` color for better discoverability
+- Reduced create form and empty-state card sizes (smaller padding, inputs, headings, border radius)
+- Added subtle hover effects (`hover:shadow-xl hover:bg-white/90 transition-all duration-200`) to create form and empty-state cards
+- Simplified itineraries page to remove redundant "create trip" touchpoints: removed the "No trips yet" empty-state card, auto-show the create form when user has no trips with friendly "Plan your first adventure" heading, and hide the "+ New Trip" header button when the form is already auto-displayed
