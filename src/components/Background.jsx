@@ -2,24 +2,23 @@ import React from 'react';
 
 const Background = () => {
   return (
-    <div className="absolute top-0 left-0 w-full h-[600px] md:h-[750px] bg-slate-950 overflow-hidden z-0">
-      {/* Billowy Clouds Image Layer - 100% CLOUDS, NO MOUNTAINS */}
+    <div className="absolute top-0 left-0 w-full h-[920px] sm:h-[980px] lg:h-[1080px] overflow-hidden z-0">
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=2500&auto=format&fit=crop" 
-          alt="Billowy Clouds" 
-          className="w-full h-full object-cover object-right scale-125 opacity-100 brightness-110 contrast-110"
+          src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2500&auto=format&fit=crop" 
+          alt="" 
+          aria-hidden="true"
+          className="w-full h-full object-cover object-center"
         />
       </div>
 
-      {/* Atmospheric Gradients - Lightened to make it brighter */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-slate-950/20 via-transparent to-white/20 dark:from-slate-950/40 dark:to-slate-950/10"></div>
+      <div className="absolute inset-0 z-10 bg-white/22"></div>
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-white/30 via-white/10 to-slate-100/32"></div>
 
-      {/* Sky Blue Glow Blob - Brighter to pop more */}
-      <div className="absolute top-1/4 left-1/4 w-[800px] h-[500px] bg-sky-400/30 rounded-full blur-[150px] pointer-events-none opacity-60"></div>
+      <div className="pointer-events-none absolute -top-32 -left-12 h-72 w-72 rounded-full blur-3xl bg-teal-300/14 z-10"></div>
+      <div className="pointer-events-none absolute -bottom-20 -right-8 h-80 w-80 rounded-full blur-3xl bg-sky-300/14 z-10"></div>
 
-      {/* Bottom Transition Fade */}
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white dark:from-[#020617] to-transparent z-30"></div>
+      <div className="absolute bottom-0 left-0 w-full h-44 bg-gradient-to-t from-slate-100 dark:from-[#020617] to-transparent z-30"></div>
     </div>
   );
 };

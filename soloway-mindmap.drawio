@@ -1,0 +1,394 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.1 Chrome/142.0.7444.265 Electron/39.8.0 Safari/537.36" version="29.6.1">
+  <diagram id="soloway-map" name="SoloWay Architecture">
+    <mxGraphModel dx="2377" dy="1402" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5600" pageHeight="2800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=20;" value="SoloWay System Mindmap" vertex="1">
+          <mxGeometry height="60" width="400" x="2400" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;" value="Frontend App Layer (React)" vertex="1">
+          <mxGeometry height="44" width="340" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="src/main.jsx" vertex="1">
+          <mxGeometry height="36" width="240" x="40" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="src/App.jsx (Routes)" vertex="1">
+          <mxGeometry height="36" width="240" x="40" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Pages" vertex="1">
+          <mxGeometry height="36" width="240" x="40" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Landing (/)" vertex="1">
+          <mxGeometry height="34" width="240" x="40" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Auth (/auth)" vertex="1">
+          <mxGeometry height="34" width="240" x="40" y="394" as="geometry" />
+        </mxCell>
+        <mxCell id="23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="FirstChoice (/start)" vertex="1">
+          <mxGeometry height="34" width="240" x="40" y="438" as="geometry" />
+        </mxCell>
+        <mxCell id="24" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Explore (/explore)" vertex="1">
+          <mxGeometry height="34" width="240" x="40" y="482" as="geometry" />
+        </mxCell>
+        <mxCell id="25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Itineraries (/itineraries)" vertex="1">
+          <mxGeometry height="34" width="240" x="40" y="526" as="geometry" />
+        </mxCell>
+        <mxCell id="26" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ItineraryDetail (/itineraries/:id)" vertex="1">
+          <mxGeometry height="34" width="280" x="40" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="27" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Profile (/profile)" vertex="1">
+          <mxGeometry height="34" width="240" x="40" y="614" as="geometry" />
+        </mxCell>
+        <mxCell id="30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Components (src/components/*)" vertex="1">
+          <mxGeometry height="36" width="340" x="520" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="31" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Background" vertex="1">
+          <mxGeometry height="34" width="155" x="520" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Navbar" vertex="1">
+          <mxGeometry height="34" width="155" x="700" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="33" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Hero" vertex="1">
+          <mxGeometry height="34" width="155" x="520" y="394" as="geometry" />
+        </mxCell>
+        <mxCell id="34" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Features" vertex="1">
+          <mxGeometry height="34" width="155" x="700" y="394" as="geometry" />
+        </mxCell>
+        <mxCell id="35" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Safety" vertex="1">
+          <mxGeometry height="34" width="155" x="520" y="438" as="geometry" />
+        </mxCell>
+        <mxCell id="36" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="CTA" vertex="1">
+          <mxGeometry height="34" width="155" x="700" y="438" as="geometry" />
+        </mxCell>
+        <mxCell id="37" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Footer" vertex="1">
+          <mxGeometry height="34" width="155" x="520" y="482" as="geometry" />
+        </mxCell>
+        <mxCell id="38" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ImmersivePage" vertex="1">
+          <mxGeometry height="34" width="155" x="700" y="482" as="geometry" />
+        </mxCell>
+        <mxCell id="39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ProtectedRoute" vertex="1">
+          <mxGeometry height="34" width="155" x="520" y="526" as="geometry" />
+        </mxCell>
+        <mxCell id="40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ItineraryItem" vertex="1">
+          <mxGeometry height="34" width="155" x="700" y="526" as="geometry" />
+        </mxCell>
+        <mxCell id="41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ui/Badge" vertex="1">
+          <mxGeometry height="34" width="155" x="520" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ui/FeatureCard" vertex="1">
+          <mxGeometry height="34" width="155" x="700" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="43" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ui/CityAutocomplete" vertex="1">
+          <mxGeometry height="34" width="200" x="520" y="614" as="geometry" />
+        </mxCell>
+        <mxCell id="50" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Context + Hooks" vertex="1">
+          <mxGeometry height="36" width="240" x="40" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="51" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="AuthContext (sessionStorage, token refresh)" vertex="1">
+          <mxGeometry height="34" width="310" x="40" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="52" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="DarkModeContext (localStorage, html.dark)" vertex="1">
+          <mxGeometry height="34" width="310" x="40" y="804" as="geometry" />
+        </mxCell>
+        <mxCell id="53" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="useAuth hook" vertex="1">
+          <mxGeometry height="34" width="200" x="40" y="848" as="geometry" />
+        </mxCell>
+        <mxCell id="60" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Frontend Service Layer (src/utils/*)" vertex="1">
+          <mxGeometry height="36" width="380" x="520" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="61" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="apiClient.apiRequest -&gt; API_BASE_URL + path" vertex="1">
+          <mxGeometry height="34" width="380" x="520" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="62" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="authService: register / login / refresh / logout / me" vertex="1">
+          <mxGeometry height="34" width="380" x="520" y="804" as="geometry" />
+        </mxCell>
+        <mxCell id="63" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="itineraryService: list / create / get / update / delete + item CRUD" vertex="1">
+          <mxGeometry height="34" width="460" x="520" y="848" as="geometry" />
+        </mxCell>
+        <mxCell id="64" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="userService: getProfile" vertex="1">
+          <mxGeometry height="34" width="240" x="520" y="892" as="geometry" />
+        </mxCell>
+        <mxCell id="65" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="waitlistService: joinWaitlist" vertex="1">
+          <mxGeometry height="34" width="260" x="520" y="936" as="geometry" />
+        </mxCell>
+        <mxCell id="200" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Integration Gap" vertex="1">
+          <mxGeometry height="36" width="240" x="520" y="1030" as="geometry" />
+        </mxCell>
+        <mxCell id="201" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Frontend calls POST /waitlist but backend route module is missing" vertex="1">
+          <mxGeometry height="34" width="460" x="420" y="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="100" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=14;" value="Backend API (Express, /api/v1)" vertex="1">
+          <mxGeometry height="44" width="380" x="1600" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="101" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="backend/src/index.js" vertex="1">
+          <mxGeometry height="36" width="240" x="1600" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="102" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /health" vertex="1">
+          <mxGeometry height="36" width="140" x="1880" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="110" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Auth Endpoints" vertex="1">
+          <mxGeometry height="36" width="260" x="1600" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="111" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /auth/register" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="112" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /auth/login" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="113" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /auth/refresh" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="114" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /auth/forgot-password" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="115" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /auth/reset-password" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="116" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /auth/logout" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="117" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /auth/me" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="118" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /auth/change-password" vertex="1">
+          <mxGeometry height="32" width="260" x="1600" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="120" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Users Endpoints" vertex="1">
+          <mxGeometry height="36" width="270" x="2000" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="121" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /users/profile" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="122" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="PATCH /users/profile" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="123" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="DELETE /users/profile" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="124" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="PATCH /users/location" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="125" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="PATCH /users/visibility" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="126" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /users/contacts" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="127" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /users/contacts" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="128" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="DELETE /users/contacts/:contactId" vertex="1">
+          <mxGeometry height="32" width="270" x="2000" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="130" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Itinerary Endpoints" vertex="1">
+          <mxGeometry height="36" width="300" x="2400" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="131" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /itineraries/public" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="132" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /itineraries/nearby" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="133" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /itineraries" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="134" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /itineraries" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="135" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /itineraries/:itineraryId" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="136" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="PATCH /itineraries/:itineraryId" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="137" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="DELETE /itineraries/:itineraryId" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="138" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /:itineraryId/items" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="139" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="PATCH /:itineraryId/items/:itemId" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="140" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="DELETE /:itineraryId/items/:itemId" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="141" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /:itineraryId/activate" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="142" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /:itineraryId/complete" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="143" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /:itineraryId/duplicate" vertex="1">
+          <mxGeometry height="32" width="300" x="2400" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="150" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Safety Endpoints" vertex="1">
+          <mxGeometry height="36" width="300" x="2840" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="151" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /safety/score" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="152" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /safety/checkin" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="153" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /safety/checkin/schedule" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="154" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /safety/checkins" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="155" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /safety/checkins/pending" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="156" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /checkins/:checkinId/complete" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="157" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="DELETE /checkins/:checkinId" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="158" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /safety/emergency" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="159" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /safety/emergency/cancel" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="160" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /safety/status" vertex="1">
+          <mxGeometry height="32" width="300" x="2840" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="170" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Social Endpoints" vertex="1">
+          <mxGeometry height="36" width="320" x="3280" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="171" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /social/nearby" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="172" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /social/connections" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="173" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /social/connections/pending" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="174" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /social/connections" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="175" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /connections/:connectionId/respond" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="176" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="DELETE /connections/:connectionId" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="177" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /connections/:userId/block" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="178" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /social/messages/:userId" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="179" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /social/messages/:userId" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="180" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="POST /social/messages/:userId/read" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="181" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="GET /social/profile/:userId" vertex="1">
+          <mxGeometry height="32" width="320" x="3280" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="190" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fontSize=13;" value="Backend Runtime Flow" vertex="1">
+          <mxGeometry height="36" width="300" x="1600" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="191" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Global middleware: helmet -&gt; cors -&gt; body parser -&gt; compression -&gt; morgan -&gt; rateLimiter" vertex="1">
+          <mxGeometry height="34" width="800" x="1600" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="192" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Per-route middleware: authenticate / optionalAuth + validate(schema) + strict / lenient limiter" vertex="1">
+          <mxGeometry height="34" width="800" x="1600" y="1010" as="geometry" />
+        </mxCell>
+        <mxCell id="193" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Controller layer (auth / users / itineraries / safety / social)" vertex="1">
+          <mxGeometry height="34" width="520" x="1600" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="194" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Service layer (business logic)" vertex="1">
+          <mxGeometry height="34" width="360" x="1600" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="195" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Data/infra: Supabase (Postgres), Redis, WebSocket events" vertex="1">
+          <mxGeometry height="34" width="560" x="1600" y="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="300" edge="1" parent="1" source="2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="301" edge="1" parent="1" source="2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="100">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="302" edge="1" parent="1" source="11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="303" edge="1" parent="1" source="12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="304" edge="1" parent="1" source="21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="309" edge="1" parent="1" source="12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="39">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="305" edge="1" parent="1" source="22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="53">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="306" edge="1" parent="1" source="25" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="307" edge="1" parent="1" source="26" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="308" edge="1" parent="1" source="27" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="53">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="310" edge="1" parent="1" source="53" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="311" edge="1" parent="1" source="51" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="61">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="312" edge="1" parent="1" source="22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="62">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="313" edge="1" parent="1" source="25" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="63">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="314" edge="1" parent="1" source="26" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="63">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="315" edge="1" parent="1" source="27" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="64">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="316" edge="1" parent="1" source="36" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="65">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="317" edge="1" parent="1" source="62" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;" target="110">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="318" edge="1" parent="1" source="63" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;" target="130">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="319" edge="1" parent="1" source="64" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;" target="120">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="320" edge="1" parent="1" source="65" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;html=1;endArrow=block;strokeWidth=2;" target="201">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="321" edge="1" parent="1" source="101" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="191">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="322" edge="1" parent="1" source="191" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="192">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="323" edge="1" parent="1" source="192" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="193">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="324" edge="1" parent="1" source="193" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="194">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="325" edge="1" parent="1" source="194" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;endArrow=block;" target="195">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -4,7 +4,7 @@ import FeatureCard from './ui/FeatureCard';
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 bg-white dark:bg-slate-900 relative z-10">
+    <section id="features" className="pt-16 pb-24 bg-slate-100 dark:bg-slate-900 relative z-10">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Your Solo Operating System</h2>

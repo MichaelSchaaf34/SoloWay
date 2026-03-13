@@ -9,9 +9,9 @@ const Hero = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <header className="relative z-10 pt-32 pb-20 lg:pt-48 lg:pb-32">
+    <header className="relative z-10 pt-36 pb-20 lg:pt-44 lg:pb-32">
       <div className="container mx-auto px-6">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
+        <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-16">
           
           {/* Left Content */}
           <div className="flex-1 text-center lg:text-left">
@@ -20,7 +20,7 @@ const Hero = () => {
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wide uppercase">Web Beta Open</span>
             </div>
             
-            <h1 className="text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white mb-6 leading-tight tracking-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white mb-6 leading-tight tracking-tight">
               Travel Solo, <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-indigo-500 dark:from-teal-400 dark:to-indigo-400">Not Alone.</span>
             </h1>
@@ -31,15 +31,15 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <Link to={isAuthenticated ? '/start' : '/auth'} className="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-900 dark:bg-teal-600 text-white font-semibold hover:bg-slate-800 dark:hover:bg-teal-500 transition-all shadow-xl shadow-slate-200/50 dark:shadow-teal-900/30 text-center">
+              <Link to={isAuthenticated ? '/start' : '/auth'} className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-teal-500 dark:bg-teal-500 text-white font-semibold hover:bg-teal-400 transition-all shadow-xl shadow-teal-900/20 text-center">
                 Start Your Journey
               </Link>
-              <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 group">
+              <button className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white/95 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 group">
                 Watch Demo <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 
-            <div className="mt-12 flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-400 dark:text-slate-500 font-medium">
+            <div className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm text-slate-500 dark:text-slate-400 font-medium">
               <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-teal-500 dark:text-teal-400" /> Free forever plan</span>
               <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-teal-500 dark:text-teal-400" /> No ads</span>
               <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-teal-500 dark:text-teal-400" /> Privacy first</span>
@@ -47,13 +47,13 @@ const Hero = () => {
           </div>
 
           {/* Right Visual: The "App" Interface */}
-          <div className="flex-1 w-full max-w-md lg:max-w-full relative">
+          <div className="flex-1 w-full max-w-md lg:max-w-xl relative">
             {/* Decorative circles */}
             <div className="absolute -top-10 -right-10 w-64 h-64 bg-teal-100 dark:bg-teal-900/30 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-xl opacity-70 dark:opacity-40 animate-blob"></div>
             <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-sky-100 dark:bg-sky-900/30 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-xl opacity-70 dark:opacity-40 animate-blob animation-delay-2000"></div>
 
             {/* Main Card */}
-            <div className="relative bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-3xl border border-white/50 dark:border-slate-700/50 shadow-2xl overflow-hidden p-6">
+            <div className="relative bg-white/65 dark:bg-slate-800/65 backdrop-blur-xl rounded-3xl border border-white/60 dark:border-slate-700/60 shadow-2xl overflow-hidden p-5 sm:p-6">
               
               {/* App Header */}
               <div className="flex items-center justify-between mb-6">

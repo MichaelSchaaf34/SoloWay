@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -19,6 +19,7 @@ import userRoutes from './modules/users/users.routes.js';
 import itineraryRoutes from './modules/itineraries/itineraries.routes.js';
 import safetyRoutes from './modules/safety/safety.routes.js';
 import socialRoutes from './modules/social/social.routes.js';
+import buddyRoutes from './modules/buddy/buddy.routes.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -84,6 +85,7 @@ async function bootstrap() {
     app.use(`${apiPrefix}/itineraries`, itineraryRoutes);
     app.use(`${apiPrefix}/safety`, safetyRoutes);
     app.use(`${apiPrefix}/social`, socialRoutes);
+    app.use(`${apiPrefix}/buddy`, buddyRoutes);
 
     // Error handling
     app.use(notFoundHandler);

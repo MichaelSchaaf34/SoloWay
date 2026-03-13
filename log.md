@@ -101,3 +101,48 @@
 - Validation: `node --check` passed for modified backend `.js` files
 - Validation blocked in sandbox: frontend `npm run build` and backend `npm test` hit `spawn EPERM` in this environment
 - Dependency remediation status: attempted `react-router-dom@latest` update was not completed because the session ended pending install approval
+
+## 2026-03-09 - Interval 23
+- Polished landing-page shell layout by redesigning navbar spacing/alignment, tightening auth action wrapping, and smoothing mobile menu presentation
+- Fixed hero/background continuity by increasing atmospheric background coverage to prevent lower hero card cutoff/white bleed
+- Applied frontend visual consistency pass across hero/CTA/footer (matched button sizing, improved type rhythm, refined spacing, and added footer section navigation links)
+- Validation: frontend `npm run build` passed locally after UI updates
+
+## 2026-03-09 - Interval 24
+- Replaced the harsh white hero-to-features transition with a softer slate tone for a cleaner, more professional visual blend
+- Updated landing features section top spacing and background color to reduce the abrupt empty white block under the hero card
+
+## 2026-03-09 - Interval 25
+- Removed remaining bright white landing surfaces by shifting base page and section backgrounds to a consistent slate tone
+- Increased hero atmospheric background coverage and deepened transition gradients to eliminate the white "unfinished blob" effect beneath the hero card
+
+## 2026-03-09 - Interval 26
+- Updated dark mode initialization so the app defaults to light mode for first-time visitors while still honoring any previously saved user preference
+
+## 2026-03-10 - Interval 27
+- Added two-path booking flow: AI-powered itinerary generation vs manual browse-and-book
+- Created `TripContext` with shared state for destination, dates, path choice, vibe preferences, and booking cart
+- Replaced `FirstChoice` page with a two-step flow: destination/date picker then AI vs Manual path fork
+- Replaced `Explore` page with a browsable experience catalog featuring category filters and Book/Remove actions
+- Added `AIPreferences` page for vibe selection (Chill/Adventure/Social/Cultural) with loading spinner
+- Added `AIItinerary` page displaying AI-curated day-by-day itinerary with tap-to-add booking
+- Added `BookingCart` page with item management, total calculation, and checkout placeholder
+- Registered three new protected routes (`/ai-preferences`, `/ai-itinerary`, `/cart`) and wrapped app with `TripProvider`
+- Validation: frontend `npm run build` passed with zero errors
+- Fixed auth input visibility by adding `text-white placeholder-slate-400` to all Auth page form fields
+- Added temporary dev auth bypass (`DEV_BYPASS_AUTH`) in ProtectedRoute to allow testing without backend
+- Refined booking flow visual design: switched to light-tone frosted white glass cards (`bg-white/70 backdrop-blur-xl`) with dark text across all booking pages to match the existing light photo-background aesthetic
+- Unified landing page background with booking flow: replaced dark slate/clouds background with the same travel photo and light overlay treatment used across booking pages for a consistent warm, airy feel site-wide
+
+## 2026-03-12 - Interval 28
+- Reorganized Itineraries list page so saved trips are the primary content shown first, with the "Create a new trip" form hidden behind a compact "+ New Trip" button
+- Updated BookingCart checkout flow to create a real itinerary via the backend API after demo payment, including adding each booked experience as an itinerary item with correct title, time (12h to 24h conversion), and category mapping
+- "View my itinerary" confirmation button now navigates directly to the specific created itinerary (falls back to list if API fails)
+- Reordered ItineraryDetail page sections: Planned items first, Add item second, Trip settings last
+- Reduced ItineraryDetail card sizes (smaller padding, tighter gaps, smaller text/inputs, `max-w-3xl` container) and used trip title as page heading instead of generic "Itinerary detail"
+- Added delete buttons (trash icon) to itinerary cards on the Itineraries list page with backend `deleteItinerary` API integration
+- Replaced `window.confirm` with inline card-swap confirmation UI showing "Delete [title]?" with Cancel/Delete buttons
+- Made delete icon always visible with `text-rose-400` color for better discoverability
+- Reduced create form and empty-state card sizes (smaller padding, inputs, headings, border radius)
+- Added subtle hover effects (`hover:shadow-xl hover:bg-white/90 transition-all duration-200`) to create form and empty-state cards
+- Simplified itineraries page to remove redundant "create trip" touchpoints: removed the "No trips yet" empty-state card, auto-show the create form when user has no trips with friendly "Plan your first adventure" heading, and hide the "+ New Trip" header button when the form is already auto-displayed

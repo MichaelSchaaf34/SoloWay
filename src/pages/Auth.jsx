@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { ImmersivePage } from '../components';
@@ -55,9 +55,9 @@ const Auth = () => {
         </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
           {mode === 'register' && (
-            <input type="text" placeholder="Display name" value={form.displayName} onChange={e => updateField('displayName', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+            <input type="text" placeholder="Display name" value={form.displayName} onChange={e => updateField('displayName', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
           )}
-          <input type="email" placeholder="Email" required value={form.email} onChange={e => updateField('email', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          <input type="email" placeholder="Email" required value={form.email} onChange={e => updateField('email', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
           <div>
             <input
               type="password"
@@ -66,7 +66,7 @@ const Auth = () => {
               minLength={mode === 'register' ? 12 : 1}
               value={form.password}
               onChange={e => updateField('password', e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
             {mode === 'register' && (
               <p className="mt-2 text-xs text-slate-300">{PASSWORD_RULE_TEXT}</p>

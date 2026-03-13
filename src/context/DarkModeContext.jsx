@@ -12,12 +12,12 @@ export const useDarkMode = () => {
 
 export const DarkModeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage first, otherwise use system preference
+    // Check localStorage first, otherwise default to light mode
     const savedMode = localStorage.getItem('darkMode');
     if (savedMode !== null) {
       return savedMode === 'true';
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return false;
   });
 
   useEffect(() => {
