@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ImmersivePage } from '../components';
 import { useTrip } from '../context/TripContext';
+import { getActivitiesForDestination } from '../data/activityCatalog';
 
 const CATEGORIES = [
   { id: 'food', label: 'Food & Dining', icon: '🍜' },
@@ -12,22 +13,13 @@ const CATEGORIES = [
   { id: 'wellness', label: 'Wellness', icon: '🧘' },
 ];
 
-// TODO: Replace with real API call → GET /api/v1/experiences?destination=...&category=...
-const SAMPLE_EVENTS = [
-  { id: 'ev-1', name: 'Nishiki Market Food Walk', price: 45, time: '10:00 AM', rating: 4.8, reviews: 312, cat: 'food' },
-  { id: 'ev-2', name: 'Fushimi Inari Sunrise Hike', price: 0, time: '5:30 AM', rating: 4.9, reviews: 891, cat: 'outdoors' },
-  { id: 'ev-3', name: 'Traditional Tea Ceremony', price: 35, time: '2:00 PM', rating: 4.7, reviews: 156, cat: 'culture' },
-  { id: 'ev-4', name: 'Gion District Night Walk', price: 28, time: '7:00 PM', rating: 4.6, reviews: 203, cat: 'tours' },
-  { id: 'ev-5', name: 'Sake Tasting Experience', price: 55, time: '4:00 PM', rating: 4.8, reviews: 178, cat: 'food' },
-  { id: 'ev-6', name: 'Arashiyama Bamboo Grove', price: 0, time: '8:00 AM', rating: 4.5, reviews: 1024, cat: 'outdoors' },
-];
-
 const Explore = () => {
   const navigate = useNavigate();
   const { destination, dates, cart, addToCart, removeFromCart, isInCart } = useTrip();
   const [selectedCat, setSelectedCat] = useState(null);
 
-  const events = selectedCat ? SAMPLE_EVENTS.filter(e => e.cat === selectedCat) : SAMPLE_EVENTS;
+  const allActivities = getActivitiesForDestination(destination?.id);
+  const events = selectedCat ? allActivities.filter(e => e.cat === selectedCat) : allActivities;
 
   const dateDisplay = dates.start && dates.end
     ? `${new Date(dates.start + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(dates.end + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`

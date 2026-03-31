@@ -40,8 +40,8 @@ async function bootstrap() {
     console.log('Database connected');
 
     // Initialize Redis
-    await initializeRedis();
-    console.log('Redis connected');
+    const redisClient = await initializeRedis();
+    console.log(redisClient ? 'Redis connected' : 'Redis skipped (unavailable)');
 
     // Initialize WebSocket server
     initializeWebSocket(httpServer);

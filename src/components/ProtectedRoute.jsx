@@ -2,8 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
-// DEV BYPASS — remove before production
-const DEV_BYPASS_AUTH = true;
+const DEV_BYPASS_AUTH = false;
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();

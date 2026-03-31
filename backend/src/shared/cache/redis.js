@@ -20,25 +20,30 @@ export async function initializeRedis() {
   }
 
   try {
-    // Main Redis client for general operations
-    redis = new Redis(config.redis.url, {
+    const client = new Redis(config.redis.url, {
       maxRetriesPerRequest: 3,
-      retryDelayOnFailover: 100,
+      retryStrategy(times) {
+        if (times > 3) return null;
+        return Math.min(times * 200, 2000);
+      },
       lazyConnect: true,
     });
 
-    await redis.connect();
+    client.on('error', () => {});
 
-    // Test connection
-    await redis.ping();
+    await client.connect();
+    await client.ping();
 
-    // Create separate connections for pub/sub
+    redis = client;
+
     subscriber = redis.duplicate();
+    subscriber.on('error', () => {});
     publisher = redis.duplicate();
+    publisher.on('error', () => {});
 
     return redis;
   } catch (error) {
-    console.error('Failed to connect to Redis:', error.message);
+    console.warn('Redis unavailable — caching, rate-limit store, and pub/sub disabled:', error.message);
     redis = null;
     return null;
   }

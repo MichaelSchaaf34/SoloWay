@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { ImmersivePage } from '../components';
 import { useTrip } from '../context/TripContext';
+import { getDestinationIds } from '../data/activityCatalog';
 
-const SAMPLE_DESTINATIONS = [
+const ALL_DESTINATIONS = [
   { id: 'kyoto', name: 'Kyoto, Japan', emoji: '🏯', vibe: 'Temples & Tea' },
   { id: 'lisbon', name: 'Lisbon, Portugal', emoji: '🌊', vibe: 'Sun & Soul' },
   { id: 'medellin', name: 'Medellín, Colombia', emoji: '🌺', vibe: 'Mountains & Music' },
@@ -21,6 +22,9 @@ const SAMPLE_DESTINATIONS = [
   { id: 'seoul', name: 'Seoul, South Korea', emoji: '🎶', vibe: 'K-Culture & Street Food' },
   { id: 'prague', name: 'Prague, Czech Republic', emoji: '🏰', vibe: 'Castles & Beer' },
 ];
+
+const supportedIds = new Set(getDestinationIds());
+const SAMPLE_DESTINATIONS = ALL_DESTINATIONS.filter(d => supportedIds.has(d.id));
 
 const FirstChoice = () => {
   const navigate = useNavigate();
@@ -40,9 +44,11 @@ const FirstChoice = () => {
     ? `${new Date(dates.start + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(dates.end + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
     : '';
 
+  const [aiToast, setAiToast] = useState(false);
+
   const handleAI = () => {
-    setPath('ai');
-    navigate('/ai-preferences');
+    setAiToast(true);
+    setTimeout(() => setAiToast(false), 2500);
   };
 
   const handleManual = () => {
@@ -84,17 +90,24 @@ const FirstChoice = () => {
                 <button
                   key={d.id}
                   onClick={() => { setDestination(d); setSearchQuery(''); }}
-                  className={`w-full flex items-center gap-3.5 rounded-2xl px-4 py-4 text-left transition-all duration-200 border ${
+                  className={`w-full flex items-center gap-3.5 rounded-2xl px-4 py-4 text-left transition-all duration-150 border-2 ${
                     destination?.id === d.id
-                      ? 'bg-teal-50/60 border-teal-400/40'
-                      : 'bg-white/40 border-slate-200/60 hover:bg-white/60'
+                      ? 'bg-teal-50 border-teal-500 shadow-lg shadow-teal-500/15 scale-[1.02]'
+                      : 'bg-white/40 border-transparent hover:bg-white/80 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
                   }`}
                 >
                   <span className="text-3xl">{d.emoji}</span>
-                  <div>
-                    <div className="font-semibold text-[15px] text-slate-900">{d.name}</div>
-                    <div className="text-xs text-slate-500">{d.vibe}</div>
+                  <div className="flex-1">
+                    <div className={`font-semibold text-[15px] ${destination?.id === d.id ? 'text-teal-800' : 'text-slate-900'}`}>{d.name}</div>
+                    <div className={`text-xs ${destination?.id === d.id ? 'text-teal-600' : 'text-slate-500'}`}>{d.vibe}</div>
                   </div>
+                  {destination?.id === d.id && (
+                    <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
                 </button>
               ))
             )}
@@ -153,19 +166,28 @@ const FirstChoice = () => {
             {dateDisplay ? `${dateDisplay} · ` : ''}How do you want to plan?
           </p>
 
+          {aiToast && (
+            <div className="mb-4 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3 text-sm text-indigo-700 font-medium animate-pulse">
+              AI itineraries are coming soon — explore manually for now!
+            </div>
+          )}
+
           <div className="flex flex-col md:flex-row gap-4">
-            {/* AI Path */}
+            {/* AI Path — Coming Soon */}
             <div
               onClick={handleAI}
-              className="flex-1 relative overflow-hidden rounded-2xl p-7 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border border-indigo-300/40 bg-indigo-50/40"
+              className="flex-1 relative overflow-hidden rounded-2xl p-7 cursor-pointer transition-all duration-200 border border-slate-200/60 bg-slate-50/40 opacity-75"
             >
-              <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-indigo-300/20 blur-xl" />
+              <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-slate-300/20 blur-xl" />
+              <div className="absolute top-3 right-3 bg-indigo-500 text-white text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full">
+                Coming Soon
+              </div>
               <div className="text-3xl mb-3">✨</div>
               <h3 className="text-lg font-bold text-slate-900 mb-1.5">Plan it for me</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
+              <p className="text-sm text-slate-400 leading-relaxed">
                 Tell us your vibe and we'll build your perfect itinerary with AI-powered recommendations.
               </p>
-              <span className="inline-block mt-3.5 rounded-lg px-2.5 py-1 text-xs font-semibold tracking-wide bg-indigo-100 text-indigo-600">
+              <span className="inline-block mt-3.5 rounded-lg px-2.5 py-1 text-xs font-semibold tracking-wide bg-indigo-100 text-indigo-400">
                 SMART ITINERARY
               </span>
             </div>
@@ -173,7 +195,7 @@ const FirstChoice = () => {
             {/* Manual Path */}
             <div
               onClick={handleManual}
-              className="flex-1 relative overflow-hidden rounded-2xl p-7 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border border-teal-300/40 bg-teal-50/40"
+              className="flex-1 relative overflow-hidden rounded-2xl p-7 cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border-2 border-teal-300/40 bg-teal-50/40 shadow-lg shadow-teal-500/5"
             >
               <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-teal-300/20 blur-xl" />
               <div className="text-3xl mb-3">🔍</div>
