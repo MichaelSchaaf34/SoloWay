@@ -41,3 +41,13 @@ coverage/
 # Backend specific
 backend/.env
 backend/node_modules/
+
+# Windows stream redirect artifacts
+nul
+NUL
+
+# Editor/tool local state
+.claude/
+.cursor/
+*.drawio.bkp
+.$*.drawio.bkp

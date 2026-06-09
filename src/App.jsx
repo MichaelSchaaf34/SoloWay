@@ -12,6 +12,8 @@ import Itineraries from './pages/Itineraries';
 import ItineraryDetail from './pages/ItineraryDetail';
 import GuestJoin from './pages/GuestJoin';
 import BuddyHistory from './pages/BuddyHistory';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import { ProtectedRoute } from './components';
 
 function App() {
@@ -30,6 +32,8 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/buddy/history" element={<ProtectedRoute><BuddyHistory /></ProtectedRoute>} />
         <Route path="/join/:token" element={<GuestJoin />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
       </Routes>
     </Router>
   );

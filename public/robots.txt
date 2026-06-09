@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /start
+Disallow: /explore
+Disallow: /ai-preferences
+Disallow: /ai-itinerary
+Disallow: /cart
+Disallow: /itineraries
+Disallow: /profile
+Disallow: /buddy/
+Disallow: /join/
+
+# NOTE: update host below to the production domain
+Sitemap: https://soloway.app/sitemap.xml

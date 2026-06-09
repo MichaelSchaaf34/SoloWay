@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { query, transaction } from '../../shared/database/index.js';
 import { config } from '../../config/index.js';
+import { NotFoundError } from '../../shared/middleware/errorHandler.js';
 
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
@@ -20,6 +21,19 @@ function buildQrUrl(token) {
 export async function createInvite(hostUserId, itineraryItemId, options = {}) {
   const partySizeCap = options.party_size_cap || 5;
   const ttlMinutes = options.token_ttl_minutes || 15;
+
+  const ownershipResult = await query(
+    `SELECT ii.id
+     FROM itinerary_items ii
+     JOIN itineraries i ON i.id = ii.itinerary_id
+     WHERE ii.id = $1 AND i.user_id = $2
+     LIMIT 1`,
+    [itineraryItemId, hostUserId]
+  );
+
+  if (ownershipResult.rows.length === 0) {
+    throw new NotFoundError('Itinerary item');
+  }
 
   const existingResult = await query(
     `SELECT id, token, token_expires_at, status

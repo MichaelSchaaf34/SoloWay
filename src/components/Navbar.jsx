@@ -4,6 +4,19 @@ import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useDarkMode } from '../context/DarkModeContext';
 import useAuth from '../hooks/useAuth';
 
+const navLinks = [
+  { href: '#destinations', label: 'Destinations' },
+  { href: '#safety',       label: 'Safety'       },
+  { href: '#community',    label: 'Community'    },
+];
+
+const initialsOf = (name = '', email = '') => {
+  const source = (name || email.split('@')[0] || '').trim();
+  if (!source) return 'S';
+  const parts = source.split(/[\s._-]+/).filter(Boolean);
+  return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+};
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -21,161 +34,150 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   };
 
-  const shortUserLabel = user?.displayName || user?.email?.split('@')?.[0] || 'Account';
+  const displayName = user?.displayName || user?.email?.split('@')?.[0] || 'Account';
+  const initials = initialsOf(user?.displayName, user?.email);
+
+  const shellClass = scrolled
+    ? 'border-slate-200/70 bg-white/80 shadow-[0_8px_30px_rgb(15,23,42,0.06)] backdrop-blur-2xl dark:border-slate-700/70 dark:bg-slate-900/80'
+    : 'border-white/15 bg-slate-950/35 backdrop-blur-xl';
+
+  const linkClass = scrolled
+    ? 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+    : 'text-white/85 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]';
+
+  const iconBtnClass = scrolled
+    ? 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+    : 'hover:bg-white/10 text-white/90';
 
   return (
     <>
       <nav className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-7xl">
-          <div
-            className={`flex min-h-16 items-center justify-between rounded-2xl border px-4 sm:px-6 transition-all duration-300 ${
-              scrolled
-                ? 'border-slate-200/80 bg-white/95 shadow-lg backdrop-blur-xl dark:border-slate-700/80 dark:bg-slate-900/90'
-                : 'border-white/20 bg-slate-900/55 backdrop-blur-xl'
-            }`}
-          >
-            <div className="flex items-center">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-tr from-teal-400 to-indigo-400 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">S</div>
-                <span className={`text-xl font-bold transition-colors ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white drop-shadow-md'}`}>SoloWay</span>
-              </div>
+          <div className={`flex min-h-14 items-center justify-between rounded-2xl border px-3.5 sm:px-5 transition-[background-color,border-color,box-shadow] duration-300 ${shellClass}`}>
+            {/* Brand + primary links */}
+            <div className="flex items-center gap-8">
+              <Link to="/" className="flex items-center gap-2.5 group">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shadow-sm ring-1 ring-inset ring-white/20">
+                  S
+                </div>
+                <span className={`text-[17px] font-semibold tracking-tight transition-colors ${scrolled ? 'text-slate-900 dark:text-white' : 'text-white'}`}>
+                  SoloWay
+                </span>
+              </Link>
 
-              {/* Desktop Nav */}
-              <div className="hidden lg:flex items-center gap-8 ml-10">
-                <a href="#features" className={`text-sm font-semibold transition-colors hover:text-teal-600 dark:hover:text-teal-400 ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/95 drop-shadow-md'}`}>Features</a>
-                <a href="#safety" className={`text-sm font-semibold transition-colors hover:text-teal-600 dark:hover:text-teal-400 ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/95 drop-shadow-md'}`}>Safety</a>
-                <a href="#community" className={`text-sm font-semibold transition-colors hover:text-teal-600 dark:hover:text-teal-400 ${scrolled ? 'text-slate-700 dark:text-slate-300' : 'text-white/95 drop-shadow-md'}`}>Community</a>
+              <div className="hidden lg:flex items-center gap-7">
+                {navLinks.map(l => (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    className={`text-sm font-medium transition-colors ${linkClass}`}
+                  >
+                    {l.label}
+                  </a>
+                ))}
               </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-3">
+            {/* Desktop right cluster */}
+            <div className="hidden md:flex items-center gap-2">
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-full transition-all ${scrolled ? 'hover:bg-slate-100 dark:hover:bg-slate-800' : 'hover:bg-white/10 dark:hover:bg-black/10'}`}
+                className={`p-2 rounded-xl transition-colors ${iconBtnClass}`}
                 aria-label="Toggle dark mode"
               >
-                {isDarkMode ? <Sun className={`w-5 h-5 ${scrolled ? 'text-slate-300' : 'text-white drop-shadow-md'}`} /> : <Moon className={`w-5 h-5 ${scrolled ? 'text-slate-700' : 'text-white drop-shadow-md'}`} />}
+                {isDarkMode ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
               </button>
+
               {isInitializing ? (
-                <span className={`text-xs px-3 py-1 rounded-full border whitespace-nowrap ${
-                  scrolled
-                    ? 'text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
-                    : 'text-white border-white/30'
-                }`}>
-                  Checking session...
+                <span className={`text-[11px] font-medium px-3 py-1.5 rounded-full ${scrolled ? 'text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-500' : 'text-white/70 bg-white/10'}`}>
+                  Checking…
                 </span>
               ) : isAuthenticated ? (
                 <>
-                  <span className={`text-xs px-3 py-1 rounded-full border whitespace-nowrap ${
-                    scrolled
-                      ? 'text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
-                      : 'text-white border-white/30'
-                  }`}>
-                    Signed in: {shortUserLabel}
-                  </span>
                   <Link
                     to="/buddy/history"
-                    className={`px-4 py-2 rounded-full border text-sm font-semibold transition-colors whitespace-nowrap ${
+                    className={`hidden xl:inline-block px-3.5 py-2 rounded-xl text-sm font-medium transition-colors ${
                       scrolled
-                        ? 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        : 'border-white/50 text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Buddy History
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="px-5 py-2 rounded-full bg-slate-900 dark:bg-teal-600 text-white text-sm font-semibold hover:bg-slate-800 dark:hover:bg-teal-500 transition-all hover:shadow-lg"
-                  >
-                    My Profile
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className={`px-4 py-2 rounded-full border text-sm font-semibold transition-colors whitespace-nowrap ${
-                      scrolled
-                        ? 'border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        : 'border-white/50 text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Log Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span className={`text-xs px-3 py-1 rounded-full border whitespace-nowrap ${
-                    scrolled
-                      ? 'text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
-                      : 'text-white border-white/30'
-                  }`}>
-                    Signed out
-                  </span>
-                  <Link
-                    to="/auth"
-                    className="px-5 py-2 rounded-full bg-teal-500 dark:bg-teal-600 text-white text-sm font-semibold hover:bg-teal-400 dark:hover:bg-teal-500 transition-all hover:shadow-lg whitespace-nowrap"
-                  >
-                    Sign In / Register
-                  </Link>
-                </>
-              )}
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <div className="md:hidden flex items-center gap-2">
-              {!isInitializing && isAuthenticated && (
-                <>
-                  <Link
-                    to="/buddy/history"
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                      scrolled
-                        ? 'border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200'
-                        : 'bg-white/20 text-white'
+                        ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800'
+                        : 'text-white/85 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     Buddies
                   </Link>
                   <Link
                     to="/profile"
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    className={`flex items-center gap-2.5 pl-1 pr-3 py-1 rounded-full transition-colors ${
                       scrolled
-                        ? 'bg-slate-900 text-white dark:bg-teal-600'
-                        : 'bg-white/20 text-white'
+                        ? 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100'
+                        : 'bg-white text-slate-900 hover:bg-white/90'
                     }`}
                   >
-                    {shortUserLabel}
+                    <span className="w-7 h-7 rounded-full bg-gradient-to-tr from-teal-400 to-indigo-500 text-white text-[11px] font-semibold flex items-center justify-center">
+                      {initials}
+                    </span>
+                    <span className="text-sm font-semibold max-w-[8rem] truncate">{displayName}</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                    className={`text-sm font-medium px-3 py-2 rounded-xl transition-colors ${
                       scrolled
-                        ? 'text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
-                        : 'text-white border-white/40'
+                        ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    Log Out
+                    Log out
                   </button>
                 </>
-              )}
-              {!isInitializing && !isAuthenticated && (
+              ) : (
                 <Link
                   to="/auth"
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-sm ${
                     scrolled
-                      ? 'bg-slate-900 text-white dark:bg-teal-600'
-                      : 'bg-white/20 text-white'
+                      ? 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100'
+                      : 'bg-white text-slate-900 hover:bg-white/90'
                   }`}
                 >
-                  Sign In
+                  Sign in
                 </Link>
+              )}
+            </div>
+
+            {/* Mobile right cluster */}
+            <div className="md:hidden flex items-center gap-1.5">
+              {!isInitializing && isAuthenticated ? (
+                <Link
+                  to="/profile"
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-semibold ${
+                    scrolled ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-white text-slate-900'
+                  }`}
+                >
+                  {initials}
+                </Link>
+              ) : (
+                !isInitializing && (
+                  <Link
+                    to="/auth"
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold ${
+                      scrolled ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-white text-slate-900'
+                    }`}
+                  >
+                    Sign in
+                  </Link>
+                )
               )}
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-full transition-all ${scrolled ? 'hover:bg-slate-100 dark:hover:bg-slate-800' : 'hover:bg-white/10 dark:hover:bg-black/10'}`}
+                className={`p-2 rounded-xl transition-colors ${iconBtnClass}`}
                 aria-label="Toggle dark mode"
               >
-                {isDarkMode ? <Sun className={`w-5 h-5 ${scrolled ? 'text-slate-300' : 'text-white drop-shadow-md'}`} /> : <Moon className={`w-5 h-5 ${scrolled ? 'text-slate-700' : 'text-white drop-shadow-md'}`} />}
+                {isDarkMode ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
               </button>
-              <button className={`${scrolled ? 'text-slate-600 dark:text-slate-300' : 'text-white drop-shadow-md'}`} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                {mobileMenuOpen ? <X /> : <Menu />}
+              <button
+                className={`p-2 rounded-xl transition-colors ${iconBtnClass}`}
+                onClick={() => setMobileMenuOpen(v => !v)}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -184,15 +186,39 @@ const Navbar = () => {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm pt-24 px-6 md:hidden animate-in slide-in-from-top-10">
-          <div className="flex flex-col gap-6 text-lg font-medium text-slate-800 dark:text-slate-200">
-            <a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a>
-            <a href="#safety" onClick={() => setMobileMenuOpen(false)}>Safety</a>
-            <a href="#community" onClick={() => setMobileMenuOpen(false)}>Community</a>
-            <hr className="border-slate-100 dark:border-slate-700" />
-            <a href="#community" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-teal-500 dark:bg-teal-600 text-white font-semibold text-center">
-              Join Waitlist
-            </a>
+        <div className="fixed inset-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md pt-24 px-6 md:hidden">
+          <div className="flex flex-col gap-1 text-lg font-medium text-slate-900 dark:text-slate-100">
+            {navLinks.map(l => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-3 border-b border-slate-200 dark:border-slate-800"
+              >
+                {l.label}
+              </a>
+            ))}
+            {isAuthenticated ? (
+              <>
+                <Link to="/buddy/history" onClick={() => setMobileMenuOpen(false)} className="py-3 border-b border-slate-200 dark:border-slate-800">
+                  Buddy history
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="mt-6 w-full py-3 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold text-slate-700 dark:text-slate-200"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/auth"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-6 w-full py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-center"
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
-import { ImmersivePage } from '../components';
+import {
+  Alert,
+  Button,
+  FormField,
+  ImmersivePage,
+  Input,
+} from '../components';
 
-const PASSWORD_RULE_TEXT = '12+ chars with upper, lower, number, and symbol';
+const PASSWORD_RULE_TEXT = '12+ characters with upper, lower, number, and symbol';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -39,48 +46,125 @@ const Auth = () => {
     }
   };
 
+  const isRegister = mode === 'register';
+
   return (
     <ImmersivePage
       imageUrl="https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=2200&auto=format&fit=crop"
       imageAlt="Night city viewed from a mountain lookout"
       imagePosition="center"
+      tone="light"
       contentClassName="flex min-h-screen items-center justify-center px-6 py-24"
     >
-      <section className="w-full max-w-md bg-slate-900/75 border border-slate-700 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
-        <Link to="/" className="text-teal-400 text-sm hover:text-teal-300">{'<-'} Back to landing</Link>
-        <h1 className="text-3xl font-bold mt-4">{mode === 'login' ? 'Welcome back' : 'Create your SoloWay account'}</h1>
-        <div className="grid grid-cols-2 bg-slate-800 rounded-xl p-1 mt-6 mb-6">
-          <button type="button" onClick={() => setMode('login')} className={`py-2 rounded-lg text-sm font-semibold ${mode === 'login' ? 'bg-teal-500 text-white' : 'text-slate-300'}`}>Login</button>
-          <button type="button" onClick={() => setMode('register')} className={`py-2 rounded-lg text-sm font-semibold ${mode === 'register' ? 'bg-teal-500 text-white' : 'text-slate-300'}`}>Register</button>
+      <section className="w-full max-w-md bg-white/90 border border-white/80 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
+        <Link
+          to="/"
+          className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          ← Back to landing
+        </Link>
+
+        <div className="mt-5">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-teal-600 mb-1.5">
+            {isRegister ? 'Join SoloWay' : 'Welcome back'}
+          </p>
+          <h1 className="text-[28px] font-semibold tracking-tight text-slate-900">
+            {isRegister ? 'Create your account' : 'Sign in to continue'}
+          </h1>
+          <p className="mt-1.5 text-sm text-slate-500">
+            {isRegister
+              ? 'One account for itineraries, safety, and buddy invites.'
+              : 'Pick up where you left off.'}
+          </p>
         </div>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {mode === 'register' && (
-            <input type="text" placeholder="Display name" value={form.displayName} onChange={e => updateField('displayName', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+
+        <div
+          className="grid grid-cols-2 bg-slate-100 rounded-xl p-1 mt-6 mb-6"
+          role="tablist"
+          aria-label="Authentication mode"
+        >
+          {['login', 'register'].map((m) => (
+            <button
+              key={m}
+              type="button"
+              role="tab"
+              aria-selected={mode === m}
+              onClick={() => setMode(m)}
+              className={`py-2 rounded-lg text-sm font-semibold transition-colors ${
+                mode === m
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {m === 'login' ? 'Sign in' : 'Register'}
+            </button>
+          ))}
+        </div>
+
+        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+          {isRegister && (
+            <FormField label="Display name">
+              <Input
+                type="text"
+                placeholder="What should we call you?"
+                value={form.displayName}
+                onChange={e => updateField('displayName', e.target.value)}
+                autoComplete="name"
+              />
+            </FormField>
           )}
-          <input type="email" placeholder="Email" required value={form.email} onChange={e => updateField('email', e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
+
+          <FormField label="Email" required>
+            <Input
+              type="email"
+              placeholder="you@traveler.com"
               required
-              minLength={mode === 'register' ? 12 : 1}
+              value={form.email}
+              onChange={e => updateField('email', e.target.value)}
+              autoComplete="email"
+              inputMode="email"
+            />
+          </FormField>
+
+          <FormField
+            label="Password"
+            required
+            hint={isRegister ? PASSWORD_RULE_TEXT : undefined}
+          >
+            <Input
+              type="password"
+              placeholder="••••••••••••"
+              required
+              minLength={isRegister ? 12 : 1}
               value={form.password}
               onChange={e => updateField('password', e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              autoComplete={isRegister ? 'new-password' : 'current-password'}
             />
-            {mode === 'register' && (
-              <p className="mt-2 text-xs text-slate-300">{PASSWORD_RULE_TEXT}</p>
-            )}
-          </div>
-          {error && <p className="text-rose-400 text-sm">{error}</p>}
-          <button type="submit" disabled={isSubmitting} className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-70 disabled:cursor-not-allowed text-white font-semibold">
-            {isSubmitting ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
-          </button>
+          </FormField>
+
+          {error && <Alert tone="error">{error}</Alert>}
+
+          <Button
+            type="submit"
+            variant="accent"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
+            iconRight={isSubmitting ? undefined : ArrowRight}
+          >
+            {isRegister ? 'Create account' : 'Sign in'}
+          </Button>
         </form>
+
+        <p className="mt-6 text-center text-xs text-slate-400 leading-relaxed">
+          By continuing you agree to our{' '}
+          <Link to="/terms" className="text-slate-500 hover:text-slate-900 underline underline-offset-2">Terms</Link>
+          {' '}and{' '}
+          <Link to="/privacy" className="text-slate-500 hover:text-slate-900 underline underline-offset-2">Privacy Policy</Link>.
+        </p>
       </section>
     </ImmersivePage>
   );
 };
 
 export default Auth;
-

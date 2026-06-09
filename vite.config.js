@@ -5,7 +5,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    open: true
+    open: true,
+    // Listen on LAN so phones on the same Wi‑Fi can open http://<your-ip>:3000
+    host: true,
   },
   build: {
     outDir: 'dist',

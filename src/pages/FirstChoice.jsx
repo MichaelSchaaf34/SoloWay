@@ -89,7 +89,7 @@ const FirstChoice = () => {
               filtered.map(d => (
                 <button
                   key={d.id}
-                  onClick={() => { setDestination(d); setSearchQuery(''); }}
+                  onClick={() => setDestination(d)}
                   className={`w-full flex items-center gap-3.5 rounded-2xl px-4 py-4 text-left transition-all duration-150 border-2 ${
                     destination?.id === d.id
                       ? 'bg-teal-50 border-teal-500 shadow-lg shadow-teal-500/15 scale-[1.02]'

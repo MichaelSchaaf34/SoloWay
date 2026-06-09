@@ -1,8 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, MapPin, Calendar, Trash2 } from 'lucide-react';
+import { Plus, MapPin, Calendar, Trash2, Compass } from 'lucide-react';
 import { createItinerary, deleteItinerary, getMyItineraries } from '../utils/itineraryService';
-import { CityAutocomplete, ImmersivePage } from '../components';
+import {
+  Alert,
+  Button,
+  Card,
+  CityAutocomplete,
+  EmptyState,
+  FormField,
+  ImmersivePage,
+  Input,
+  LoadingSkeleton,
+  PageHeader,
+  Select,
+} from '../components';
 import { US_STATE_OPTIONS } from '../utils/usStates';
 import { formatDestination } from '../utils/destination';
 import {
@@ -23,6 +35,13 @@ const defaultForm = {
   isPublic: false,
 };
 
+const STATUS_TONES = {
+  active: 'bg-teal-50 text-teal-700 ring-teal-600/20',
+  completed: 'bg-slate-100 text-slate-600 ring-slate-500/20',
+  draft: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+  cancelled: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+};
+
 const Itineraries = () => {
   const navigate = useNavigate();
   const [itineraries, setItineraries] = useState([]);
@@ -31,6 +50,7 @@ const Itineraries = () => {
   const [error, setError] = useState('');
   const [form, setForm] = useState(defaultForm);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -130,8 +150,6 @@ const Itineraries = () => {
     }
   };
 
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-
   const handleDelete = async (id) => {
     try {
       await deleteItinerary(id);
@@ -145,7 +163,11 @@ const Itineraries = () => {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -155,161 +177,261 @@ const Itineraries = () => {
       tone="light"
       contentClassName="px-6 py-16"
     >
-      <section className="max-w-6xl mx-auto">
-        <Link to="/start" className="text-teal-700 text-sm hover:text-teal-800">← Back to first choices</Link>
+      <section className="max-w-5xl mx-auto">
+        <PageHeader
+          eyebrow="Your trips"
+          title="My itineraries"
+          description="Every trip you've planned, in one place."
+          backTo="/start"
+          backLabel="Back to first choices"
+          actions={
+            !isLoading && itineraries.length > 0 && !showCreateForm ? (
+              <Button
+                variant="accent"
+                iconLeft={Plus}
+                onClick={() => setShowCreateForm(true)}
+              >
+                New trip
+              </Button>
+            ) : null
+          }
+        />
 
-        <div className="flex items-center justify-between mt-3 mb-6">
-          <h1 className="text-4xl font-bold text-slate-900">My Itineraries</h1>
-          {!isLoading && itineraries.length > 0 && (
-            <button
-              onClick={() => setShowCreateForm(!showCreateForm)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-teal-500 hover:bg-teal-400 text-white font-semibold rounded-xl shadow-lg shadow-teal-500/25 transition-all text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              New Trip
-            </button>
-          )}
-        </div>
+        {error && <Alert tone="error" className="mb-6">{error}</Alert>}
 
-        {error && <p className="mb-6 rounded-xl border border-rose-300 bg-rose-50/90 px-4 py-3 text-rose-700">{error}</p>}
-
-        {/* Create form — collapsible */}
         {showCreateForm && (
-          <section className="mb-6 rounded-2xl border border-white/80 bg-white/80 p-4 shadow-lg backdrop-blur-sm hover:shadow-xl hover:bg-white/90 transition-all duration-200">
-            <div className="flex items-center justify-between mb-3">
+          <Card tone="glass" padding="lg" className="mb-8">
+            <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-slate-900">
                   {itineraries.length === 0 ? 'Plan your first adventure' : 'Create a new trip'}
                 </h2>
-                {itineraries.length === 0 && (
-                  <p className="text-xs text-slate-500 mt-0.5">Fill in the details below to get started.</p>
-                )}
+                <p className="text-sm text-slate-500 mt-0.5">
+                  {itineraries.length === 0
+                    ? 'Fill in the details below to get started.'
+                    : 'Add your destination and dates — you can refine the rest later.'}
+                </p>
               </div>
               {itineraries.length > 0 && (
-                <button onClick={() => setShowCreateForm(false)} className="text-slate-400 hover:text-slate-600 text-xs transition-colors">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCreateForm(false)}
+                >
                   Close
-                </button>
+                </Button>
               )}
             </div>
-            <form className="grid gap-3 md:grid-cols-2" onSubmit={handleCreate}>
-              <input type="text" placeholder="Trip title" required value={form.title} onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))} className="px-3 py-2.5 rounded-xl border border-slate-300 bg-white/90 text-slate-900 text-sm" />
-              <select required value={form.destinationCountry} onChange={e => commitSelection('country', e.target.value)} className="px-3 py-2.5 rounded-xl border border-slate-300 bg-white/90 text-slate-900 text-sm">
-                <option value="" disabled>Select destination country</option>
-                {countryOptions.map(country => <option key={country} value={country}>{country}</option>)}
-              </select>
 
-              <CityAutocomplete
-                placeholder="City (type to search)"
-                required
-                value={form.destinationCity}
-                suggestions={citySuggestions}
-                onChange={updateCity}
-              />
+            <form className="grid gap-4 md:grid-cols-2" onSubmit={handleCreate} noValidate>
+              <FormField label="Trip title" required className="md:col-span-2">
+                <Input
+                  type="text"
+                  placeholder="e.g. Solo week in Lisbon"
+                  required
+                  value={form.title}
+                  onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
+                />
+              </FormField>
 
-              {form.destinationCountry === 'United States' ? (
-                <select required value={form.destinationRegion} onChange={e => commitSelection('region', e.target.value)} className="px-3 py-2.5 rounded-xl border border-slate-300 bg-white/90 text-slate-900 text-sm">
-                  <option value="" disabled>Select state</option>
-                  {US_STATE_OPTIONS.map(state => <option key={state} value={state}>{state}</option>)}
-                </select>
-              ) : (
-                <select value={form.destinationRegion} onChange={e => commitSelection('region', e.target.value)} className="px-3 py-2.5 rounded-xl border border-slate-300 bg-white/90 text-slate-900 text-sm">
-                  <option value="" disabled>Select region/state</option>
-                  {regionOptions.map(region => <option key={region} value={region}>{region}</option>)}
-                </select>
-              )}
+              <FormField label="Country" required>
+                <Select
+                  required
+                  value={form.destinationCountry}
+                  onChange={e => commitSelection('country', e.target.value)}
+                >
+                  <option value="" disabled>Select a country</option>
+                  {countryOptions.map(country => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </Select>
+              </FormField>
 
-              <input type="date" required value={form.startDate} onChange={e => setForm(prev => ({ ...prev, startDate: e.target.value }))} className="px-3 py-2.5 rounded-xl border border-slate-300 bg-white/90 text-slate-900 text-sm" />
-              <input type="date" required value={form.endDate} min={form.startDate || undefined} onChange={e => setForm(prev => ({ ...prev, endDate: e.target.value }))} className="px-3 py-2.5 rounded-xl border border-slate-300 bg-white/90 text-slate-900 text-sm" />
-              <select value={form.mood} onChange={e => setForm(prev => ({ ...prev, mood: e.target.value }))} className="px-3 py-2.5 rounded-xl border border-slate-300 bg-white/90 text-slate-900 text-sm">
-                <option value="balanced">Balanced</option>
-                <option value="chill">Chill</option>
-                <option value="adventure">Adventure</option>
-              </select>
-              <label className="flex items-center gap-2 text-xs text-slate-600 px-1">
-                <input type="checkbox" checked={form.isPublic} onChange={e => setForm(prev => ({ ...prev, isPublic: e.target.checked }))} className="h-3.5 w-3.5" />
+              <FormField
+                label={form.destinationCountry === 'United States' ? 'State' : 'Region / state'}
+                required={form.destinationCountry === 'United States'}
+              >
+                {form.destinationCountry === 'United States' ? (
+                  <Select
+                    required
+                    value={form.destinationRegion}
+                    onChange={e => commitSelection('region', e.target.value)}
+                  >
+                    <option value="" disabled>Select state</option>
+                    {US_STATE_OPTIONS.map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </Select>
+                ) : (
+                  <Select
+                    value={form.destinationRegion}
+                    onChange={e => commitSelection('region', e.target.value)}
+                  >
+                    <option value="">Optional</option>
+                    {regionOptions.map(region => (
+                      <option key={region} value={region}>{region}</option>
+                    ))}
+                  </Select>
+                )}
+              </FormField>
+
+              <FormField label="City" required className="md:col-span-2">
+                <CityAutocomplete
+                  placeholder="Type to search..."
+                  required
+                  value={form.destinationCity}
+                  suggestions={citySuggestions}
+                  onChange={updateCity}
+                />
+              </FormField>
+
+              <FormField label="Start date" required>
+                <Input
+                  type="date"
+                  required
+                  value={form.startDate}
+                  onChange={e => setForm(prev => ({ ...prev, startDate: e.target.value }))}
+                />
+              </FormField>
+
+              <FormField label="End date" required>
+                <Input
+                  type="date"
+                  required
+                  value={form.endDate}
+                  min={form.startDate || undefined}
+                  onChange={e => setForm(prev => ({ ...prev, endDate: e.target.value }))}
+                />
+              </FormField>
+
+              <FormField label="Mood">
+                <Select
+                  value={form.mood}
+                  onChange={e => setForm(prev => ({ ...prev, mood: e.target.value }))}
+                >
+                  <option value="balanced">Balanced</option>
+                  <option value="chill">Chill</option>
+                  <option value="adventure">Adventure</option>
+                </Select>
+              </FormField>
+
+              <label className="md:col-span-1 flex items-center gap-2.5 text-sm text-slate-600 self-end pb-3">
+                <input
+                  type="checkbox"
+                  checked={form.isPublic}
+                  onChange={e => setForm(prev => ({ ...prev, isPublic: e.target.checked }))}
+                  className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                />
                 Make itinerary public
               </label>
-              <div className="md:col-span-2">
-                <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-sm font-semibold disabled:opacity-70">
-                  {isSubmitting ? 'Creating...' : 'Create itinerary'}
-                </button>
+
+              <div className="md:col-span-2 flex justify-end">
+                <Button
+                  type="submit"
+                  variant="accent"
+                  size="lg"
+                  loading={isSubmitting}
+                >
+                  Create itinerary
+                </Button>
               </div>
             </form>
-          </section>
+          </Card>
         )}
 
-        {/* Saved trips — primary content */}
-        <section>
-          {isLoading ? (
-            <div className="text-center py-16">
-              <div className="w-10 h-10 border-[3px] border-teal-200 border-t-teal-500 rounded-full animate-spin mx-auto" />
-              <p className="text-slate-500 text-sm mt-4">Loading your trips...</p>
-            </div>
-          ) : itineraries.length === 0 ? null : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {itineraries.map(itinerary => (
-                <div
-                  key={itinerary.id}
-                  className="relative rounded-2xl border border-white/80 bg-white/85 p-5 shadow-lg backdrop-blur-sm hover:border-teal-500/60 hover:shadow-xl transition-all"
+        {isLoading ? (
+          <LoadingSkeleton count={4} />
+        ) : itineraries.length === 0 ? (
+          !showCreateForm && (
+            <EmptyState
+              icon={Compass}
+              title="No trips yet"
+              description="Start planning your first adventure — destinations, dates, and everything in between."
+              action={
+                <Button
+                  variant="accent"
+                  iconLeft={Plus}
+                  onClick={() => setShowCreateForm(true)}
                 >
-                  {confirmDeleteId === itinerary.id ? (
-                    <div className="flex flex-col items-center justify-center py-4 gap-3">
-                      <p className="text-sm font-semibold text-slate-800">Delete "{itinerary.title}"?</p>
-                      <p className="text-xs text-slate-500">This cannot be undone.</p>
-                      <div className="flex gap-2 mt-1">
-                        <button
-                          onClick={() => setConfirmDeleteId(null)}
-                          className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => handleDelete(itinerary.id)}
-                          className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <Link to={`/itineraries/${itinerary.id}`} className="block">
-                        <h3 className="font-semibold text-lg text-slate-900 pr-8">{itinerary.title}</h3>
-                        <div className="flex items-center gap-1.5 mt-2 text-slate-600 text-sm">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          {itinerary.destination}
-                        </div>
-                        {(itinerary.startDate || itinerary.start_date) && (
-                          <div className="flex items-center gap-1.5 mt-1.5 text-slate-500 text-xs">
-                            <Calendar className="w-3 h-3 text-slate-400" />
-                            {formatDate(itinerary.startDate || itinerary.start_date)}
-                            {(itinerary.endDate || itinerary.end_date) && ` – ${formatDate(itinerary.endDate || itinerary.end_date)}`}
-                          </div>
-                        )}
-                        {itinerary.status && (
-                          <span className={`inline-block mt-3 text-xs font-medium px-2.5 py-1 rounded-lg ${
-                            itinerary.status === 'active' ? 'bg-teal-100 text-teal-700'
-                            : itinerary.status === 'completed' ? 'bg-slate-100 text-slate-600'
-                            : 'bg-amber-50 text-amber-700'
-                          }`}>
-                            {itinerary.status.charAt(0).toUpperCase() + itinerary.status.slice(1)}
-                          </span>
-                        )}
-                      </Link>
-                      <button
-                        onClick={() => setConfirmDeleteId(itinerary.id)}
-                        className="absolute top-4 right-4 p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
-                        title="Delete itinerary"
+                  Plan your first trip
+                </Button>
+              }
+            />
+          )
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {itineraries.map(itinerary => (
+              <Card
+                key={itinerary.id}
+                tone="glass"
+                padding="md"
+                shadow="md"
+                className="relative group"
+              >
+                {confirmDeleteId === itinerary.id ? (
+                  <div className="flex flex-col items-center justify-center py-4 gap-3 text-center">
+                    <p className="text-sm font-semibold text-slate-900">
+                      Delete &ldquo;{itinerary.title}&rdquo;?
+                    </p>
+                    <p className="text-xs text-slate-500">This cannot be undone.</p>
+                    <div className="flex gap-2 mt-1">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setConfirmDeleteId(null)}
                       >
-                        <Trash2 className="w-4.5 h-4.5" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDelete(itinerary.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Link to={`/itineraries/${itinerary.id}`} className="block pr-10">
+                      <h3 className="font-semibold text-lg text-slate-900 leading-tight">
+                        {itinerary.title}
+                      </h3>
+                      <div className="flex items-center gap-1.5 mt-2 text-sm text-slate-600">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+                        {itinerary.destination}
+                      </div>
+                      {(itinerary.startDate || itinerary.start_date) && (
+                        <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-500 tabular-nums">
+                          <Calendar className="w-3 h-3 text-slate-400" aria-hidden="true" />
+                          {formatDate(itinerary.startDate || itinerary.start_date)}
+                          {(itinerary.endDate || itinerary.end_date) &&
+                            ` – ${formatDate(itinerary.endDate || itinerary.end_date)}`}
+                        </div>
+                      )}
+                      {itinerary.status && (
+                        <span
+                          className={`inline-flex items-center mt-3 text-[11px] font-medium px-2 py-0.5 rounded-md ring-1 ring-inset ${
+                            STATUS_TONES[itinerary.status] || STATUS_TONES.draft
+                          }`}
+                        >
+                          {itinerary.status.charAt(0).toUpperCase() + itinerary.status.slice(1)}
+                        </span>
+                      )}
+                    </Link>
+                    <button
+                      onClick={() => setConfirmDeleteId(itinerary.id)}
+                      className="absolute top-3 right-3 p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      aria-label={`Delete ${itinerary.title}`}
+                    >
+                      <Trash2 className="w-4 h-4" aria-hidden="true" />
+                    </button>
+                  </>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
     </ImmersivePage>
   );

@@ -2,16 +2,82 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="SoloWay - The intelligent travel companion for solo explorers. Curated itineraries, real-time safety, and community." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
     <title>SoloWay | Travel Solo, Not Alone</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="SoloWay is the intelligent companion for solo travelers — curated itineraries, real-time safety, and a community of explorers. Travel solo, not alone." />
+    <meta name="author" content="SoloWay" />
+    <meta name="keywords" content="solo travel, solo travel app, solo travel safety, solo travel itinerary, solo travel community, travel planner" />
+
+    <!-- Canonical & locale -->
+    <!-- NOTE: update this to your production domain before launch -->
+    <link rel="canonical" href="https://soloway.app/" />
+
+    <!-- Theme + PWA -->
+    <meta name="theme-color" content="#0f766e" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="SoloWay" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SoloWay" />
+    <meta property="og:title" content="SoloWay | Travel Solo, Not Alone" />
+    <meta property="og:description" content="The intelligent companion for solo travelers. Curated itineraries, real-time safety, and a community of explorers." />
+    <meta property="og:url" content="https://soloway.app/" />
+    <meta property="og:image" content="https://soloway.app/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SoloWay — Travel Solo, Not Alone" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SoloWay | Travel Solo, Not Alone" />
+    <meta name="twitter:description" content="The intelligent companion for solo travelers. Curated itineraries, real-time safety, and a community of explorers." />
+    <meta name="twitter:image" content="https://soloway.app/og-image.jpg" />
+    <meta name="twitter:image:alt" content="SoloWay — Travel Solo, Not Alone" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SoloWay",
+        "description": "The intelligent companion for solo travelers — curated itineraries, real-time safety, and a community of explorers.",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Web",
+        "url": "https://soloway.app/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="padding: 2rem; font-family: system-ui, sans-serif; text-align: center;">
+        SoloWay needs JavaScript to run. Please enable it and reload the page.
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,45 +1,178 @@
+/* Editorial serif (used only for targeted emphasis spans). Must come before @tailwind rules. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500;1,9..144,600;1,9..144,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom animations */
-@keyframes moveClouds {
-  0% { background-position: 0 0; }
-  100% { background-position: 200px 200px; }
+.font-serif-italic {
+  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-optical-sizing: auto;
 }
 
-.animate-clouds {
-  animation: moveClouds 60s linear infinite;
-}
-
-/* Animation delays for blob effect */
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
-
-/* Smooth scrolling */
+/* --------------------------------------------------------------------- */
+/* Base typography + rendering                                           */
+/* --------------------------------------------------------------------- */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* Dark mode background */
 html.dark {
   background-color: #0f172a; /* slate-900 */
 }
 
 body {
+  font-feature-settings: "cv11", "ss01", "ss03", "cv02";
+  font-variant-ligatures: common-ligatures;
   transition: background-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-/* Selection styling */
+/* Numeric columns feel sharper in timetables / itineraries. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------- */
+/* Headings default to tight, balanced                                   */
+/* --------------------------------------------------------------------- */
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+}
+h1 { letter-spacing: -0.035em; }
+
+/* --------------------------------------------------------------------- */
+/* Utilities                                                             */
+/* --------------------------------------------------------------------- */
+.text-balance { text-wrap: balance; }
+.text-pretty  { text-wrap: pretty; }
+
+/* Subtle noise texture for premium gradient panels. */
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* --------------------------------------------------------------------- */
+/* Focus-visible (accessible, subtle, brand-aware)                       */
+/* --------------------------------------------------------------------- */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid rgb(20 184 166 / 0.65); /* teal-500 */
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* --------------------------------------------------------------------- */
+/* Selection                                                             */
+/* --------------------------------------------------------------------- */
 ::selection {
   background-color: rgb(204 251 241); /* teal-100 */
+  color: rgb(15 23 42);                /* slate-900 */
+}
+html.dark ::selection {
+  background-color: rgb(19 78 74);     /* teal-900 */
+  color: rgb(240 253 250);             /* teal-50 */
 }
 
-html.dark ::selection {
-  background-color: rgb(19 78 74); /* teal-900 */
+/* --------------------------------------------------------------------- */
+/* Scrollbar (desktop, optional nicety)                                  */
+/* --------------------------------------------------------------------- */
+@media (min-width: 768px) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.5) transparent;
+  }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(148 163 184 / 0.35);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(148 163 184 / 0.6);
+    background-clip: content-box;
+  }
+}
+
+/* --------------------------------------------------------------------- */
+/* Keyframes                                                             */
+/* --------------------------------------------------------------------- */
+@keyframes moveClouds {
+  0%   { background-position: 0 0; }
+  100% { background-position: 200px 200px; }
+}
+.animate-clouds { animation: moveClouds 60s linear infinite; }
+
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
+
+/* Soft fade-up used by hero-like reveals. */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.6s ease-out both; }
+
+/* --------------------------------------------------------------------- */
+/* Legal / long-form article styles                                      */
+/* --------------------------------------------------------------------- */
+.legal-prose { font-size: 16px; line-height: 1.7; }
+.legal-prose > * + * { margin-top: 1.25rem; }
+.legal-prose h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgb(15 23 42);
+  letter-spacing: -0.01em;
+  margin-top: 2.5rem;
+}
+.legal-prose p.lead {
+  font-size: 1.0625rem;
+  color: rgb(71 85 105);
+  line-height: 1.75;
+}
+.legal-prose ul { list-style: disc; padding-left: 1.25rem; }
+.legal-prose ul > li + li { margin-top: 0.5rem; }
+.legal-prose strong { color: rgb(15 23 42); font-weight: 600; }
+.legal-prose a {
+  color: rgb(13 148 136);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.legal-prose a:hover { color: rgb(15 118 110); }
+.legal-prose p.disclaimer {
+  margin-top: 3rem;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid rgb(251 191 36);
+  background-color: rgb(255 251 235);
+  color: rgb(120 53 15);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+html.dark .legal-prose h2 { color: rgb(248 250 252); }
+html.dark .legal-prose p.lead { color: rgb(203 213 225); }
+html.dark .legal-prose strong { color: rgb(241 245 249); }
+html.dark .legal-prose a { color: rgb(94 234 212); }
+html.dark .legal-prose a:hover { color: rgb(153 246 228); }
+html.dark .legal-prose p.disclaimer {
+  background-color: rgb(69 26 3 / 0.4);
+  color: rgb(253 230 138);
+  border-left-color: rgb(245 158 11);
 }
