@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SoloWay — Final Direction: Immersive Aqua</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; color:#083c3e; min-height:100vh; overflow-x:hidden; background:#bfeef7; }
+  .bg { position:fixed; inset:0; z-index:0; }
+  .bg img { width:100%; height:100%; object-fit:cover; }
+  /* the merest breath of frost — the photo stays the hero */
+  .bg::after { content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(236,254,255,.1) 0%, rgba(236,254,255,0) 45%, rgba(204,251,241,.22) 100%); }
+  .page { position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 48px 64px; }
+
+  /* glass recipe: aqua-tinted, see-through, glowing edge instead of border */
+  .glass { background:linear-gradient(165deg, rgba(255,255,255,.42), rgba(204,251,241,.22));
+    backdrop-filter:blur(20px) saturate(1.3);
+    border:1px solid rgba(255,255,255,.55); border-radius:26px;
+    box-shadow:0 10px 40px rgba(8,60,62,.08), inset 0 1px 0 rgba(255,255,255,.6); }
+
+  /* floating pill nav */
+  .navwrap { display:flex; justify-content:center; padding:26px 0 0; }
+  nav { display:flex; align-items:center; gap:6px; border-radius:999px; padding:8px 8px 8px 24px; }
+  .logo { font-family:'Sora',sans-serif; font-weight:700; font-size:18px; margin-right:18px; color:#06343a; }
+  .logo span { color:#0b9c8f; }
+  .nav-links { display:flex; gap:2px; font-size:14px; font-weight:500; color:#1f5c5c; }
+  .nav-links div { padding:9px 16px; border-radius:999px; }
+  .nav-links .active { background:rgba(255,255,255,.55); color:#06343a; box-shadow:0 2px 10px rgba(8,60,62,.08); }
+  .nav-cta { background:linear-gradient(120deg,#10c2b0,#22d3ee); color:#fff; font-size:14px; font-weight:600;
+    padding:11px 22px; border-radius:999px; box-shadow:0 6px 20px rgba(16,194,176,.4); }
+
+  /* hero */
+  .hero { text-align:center; padding:66px 0 44px; }
+  .chip { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:7px 16px;
+    font-size:13px; font-weight:600; color:#0b6b66; margin-bottom:26px; }
+  .dot { width:7px; height:7px; border-radius:99px; background:#10c2b0; box-shadow:0 0 0 4px rgba(16,194,176,.25); }
+  h1 { font-family:'Sora',sans-serif; font-weight:700; font-size:64px; line-height:1.06; letter-spacing:-.03em; color:#06343a; }
+  h1 .grad { background:linear-gradient(95deg,#0aa396,#0ea5e9); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lede { margin:22px auto 0; max-width:540px; font-size:17px; line-height:1.65; color:#155e5e; font-weight:500; }
+  .hero-actions { display:flex; justify-content:center; gap:14px; margin-top:36px; }
+  .btn-primary { background:linear-gradient(120deg,#10c2b0,#22d3ee); color:#fff; font-weight:600; font-size:15.5px;
+    padding:16px 36px; border-radius:999px; box-shadow:0 10px 30px rgba(16,194,176,.45); }
+  .btn-glass { font-weight:600; font-size:15.5px; color:#06343a; padding:16px 32px; border-radius:999px; }
+
+  /* tiles */
+  .bento { display:grid; grid-template-columns:1.5fr 1fr 1fr; grid-template-rows:auto auto; gap:18px; margin-top:52px; }
+  .tile { padding:26px; }
+  .tile-label { font-size:12px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#0b9c8f; margin-bottom:12px; }
+  .tile h3 { font-family:'Sora',sans-serif; font-size:21px; font-weight:600; letter-spacing:-.01em; color:#06343a; margin-bottom:8px; }
+  .tile p { font-size:14px; line-height:1.6; color:#256b68; }
+  .span-rows { grid-row:span 2; display:flex; flex-direction:column; }
+
+  .itin-row { display:flex; align-items:center; gap:14px; background:rgba(255,255,255,.45);
+    border:1px solid rgba(255,255,255,.6); border-radius:18px; padding:13px 16px; margin-top:12px; }
+  .itin-ico { width:40px; height:40px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+    font-size:18px; background:rgba(255,255,255,.65); }
+  .itin-row b { display:block; font-size:14.5px; font-weight:600; color:#06343a; }
+  .itin-row small { font-size:12.5px; color:#2f7c78; }
+  .itin-row .when { margin-left:auto; font-size:12px; font-weight:600; color:#0b6b66; background:rgba(16,194,176,.16); padding:5px 11px; border-radius:99px; }
+
+  .stat { font-family:'Sora',sans-serif; font-size:40px; font-weight:700; letter-spacing:-.02em; color:#06343a; }
+  .stat small { font-size:14px; font-weight:600; color:#0b9c8f; }
+  .meter { height:8px; border-radius:99px; background:rgba(255,255,255,.5); margin-top:16px; overflow:hidden; }
+  .meter i { display:block; height:100%; width:86%; border-radius:99px; background:linear-gradient(90deg,#10c2b0,#22d3ee); }
+  .btn-row { display:flex; gap:10px; margin-top:auto; padding-top:20px; }
+  .btn-fill { flex:1; text-align:center; background:linear-gradient(120deg,#10c2b0,#22d3ee); color:#fff; font-weight:600;
+    font-size:14.5px; padding:13px; border-radius:16px; box-shadow:0 6px 18px rgba(16,194,176,.35); }
+  .btn-soft { flex:1; text-align:center; background:rgba(255,255,255,.5); color:#0b6b66; font-weight:600; font-size:14.5px;
+    padding:13px; border-radius:16px; border:1px solid rgba(255,255,255,.65); }
+  .avatars { display:flex; margin-top:14px; }
+  .avatars i { width:34px; height:34px; border-radius:99px; border:2.5px solid rgba(255,255,255,.9); margin-left:-8px;
+    background:linear-gradient(135deg,#67e8f9,#34d399); }
+  .avatars i:first-child { margin-left:0; background:linear-gradient(135deg,#5eead4,#0ea5e9); }
+  .avatars i:nth-child(3) { background:linear-gradient(135deg,#a7f3d0,#2dd4bf); }
+</style>
+</head>
+<body>
+  <!-- Real app backgrounds per page. ?bg=<key> switches photos; SVG fallback only renders offline. -->
+  <div class="bg"><img id="bgimg" src="" alt=""></div>
+  <script>
+    const PAGE_PHOTOS = {
+      landing:     'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2500&auto=format&fit=crop', // Background.jsx + Explore.jsx
+      booking:     'https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=2200&auto=format&fit=crop', // FirstChoice, Auth, AIPreferences, AIItinerary, BookingCart
+      itineraries: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=2200&auto=format&fit=crop', // Itineraries.jsx
+      buddy:       'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?q=80&w=2200&auto=format&fit=crop', // BuddyHistory, ItineraryDetail
+      profile:     'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2200&auto=format&fit=crop', // Profile.jsx
+    };
+    const key = new URLSearchParams(location.search).get('bg') || 'landing';
+    const img = document.getElementById('bgimg');
+    img.onerror = () => { img.onerror = null; img.src = '_bg-aqua.svg'; };
+    img.src = PAGE_PHOTOS[key] || PAGE_PHOTOS.landing;
+  </script>
+  <div class="page">
+    <div class="navwrap">
+      <nav class="glass">
+        <div class="logo">Solo<span>Way</span></div>
+        <div class="nav-links">
+          <div class="active">Trips</div><div>Explore</div><div>Safety</div><div>Radar</div>
+        </div>
+        <div class="nav-cta">Start a trip</div>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <div class="chip glass"><span class="dot"></span> Web beta open</div>
+      <h1>Travel solo, <span class="grad">not alone.</span></h1>
+      <p class="lede">Smart itineraries, a quiet safety guardian, and travelers nearby — only when you want them.</p>
+      <div class="hero-actions">
+        <div class="btn-primary">Start your journey</div>
+        <div class="btn-glass glass">Watch demo</div>
+      </div>
+    </section>
+
+    <section class="bento">
+      <div class="tile glass span-rows">
+        <div class="tile-label">Today · Kyoto</div>
+        <h3>Your Tuesday, planned</h3>
+        <p>Slow & steady vibe · safe area</p>
+        <div class="itin-row"><div class="itin-ico">☕</div><div><b>Coffee at Weekenders</b><small>Nakagyo Ward · 12 min walk</small></div><div class="when">09:00</div></div>
+        <div class="itin-row"><div class="itin-ico">🌿</div><div><b>Philosopher's Path</b><small>Canal walk · 2.1 km</small></div><div class="when">11:30</div></div>
+        <div class="itin-row"><div class="itin-ico">🏮</div><div><b>Gion district tour</b><small>Booked · seat for one</small></div><div class="when">18:00</div></div>
+        <div class="btn-row"><div class="btn-fill">Open itinerary</div><div class="btn-soft">Reshuffle</div></div>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">Safety Guardian</div>
+        <div class="stat">94<small> /100</small></div>
+        <p>Area score · next check-in 21:00</p>
+        <div class="meter"><i></i></div>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">Social Radar</div>
+        <div class="stat">3</div>
+        <p>travelers near Philosopher's Path</p>
+        <div class="avatars"><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">QR Buddy</div>
+        <h3>Invite a buddy</h3>
+        <p>One scan links them to tonight's tour — no app needed.</p>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">Bookings</div>
+        <h3>2 reserved</h3>
+        <p>Tea ceremony · Gion tour. Pay in app, zero fees.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

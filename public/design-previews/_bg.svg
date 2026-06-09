@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde8c8"/>
+      <stop offset="0.35" stop-color="#f6c9a0"/>
+      <stop offset="0.6" stop-color="#d9a4a4"/>
+      <stop offset="1" stop-color="#8e7fb8"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a08bc0"/>
+      <stop offset="1" stop-color="#5d5390"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7e0" stop-opacity="0.95"/>
+      <stop offset="0.4" stop-color="#ffe2a8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffd896" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="620" fill="url(#sky)"/>
+  <circle cx="980" cy="330" r="300" fill="url(#sun)"/>
+  <circle cx="980" cy="330" r="62" fill="#fff3d6" opacity="0.95"/>
+  <!-- far ridge -->
+  <path d="M0 430 L120 360 L260 420 L420 320 L560 410 L720 340 L880 420 L1040 350 L1200 430 L1340 380 L1440 420 L1440 620 L0 620 Z" fill="#c9a3b4" opacity="0.55"/>
+  <!-- mid ridge -->
+  <path d="M0 500 L160 420 L300 480 L470 390 L640 480 L800 420 L980 500 L1130 430 L1290 500 L1440 450 L1440 620 L0 620 Z" fill="#9a7ba6" opacity="0.7"/>
+  <!-- near ridge -->
+  <path d="M0 570 L180 480 L340 550 L520 460 L700 555 L880 480 L1060 565 L1240 495 L1440 560 L1440 620 L0 620 Z" fill="#6d5a92"/>
+  <!-- water -->
+  <rect y="620" width="1440" height="280" fill="url(#water)"/>
+  <!-- reflections -->
+  <g opacity="0.35" stroke="#ffe9c2" stroke-width="3" stroke-linecap="round">
+    <line x1="930" y1="650" x2="1035" y2="650"/>
+    <line x1="950" y1="672" x2="1015" y2="672"/>
+    <line x1="915" y1="698" x2="1050" y2="698"/>
+    <line x1="945" y1="726" x2="1020" y2="726"/>
+    <line x1="900" y1="760" x2="1065" y2="760"/>
+    <line x1="940" y1="800" x2="1030" y2="800"/>
+  </g>
+  <g opacity="0.2" stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+    <line x1="120" y1="680" x2="260" y2="680"/>
+    <line x1="420" y1="720" x2="540" y2="720"/>
+    <line x1="1180" y1="700" x2="1330" y2="700"/>
+    <line x1="240" y1="780" x2="380" y2="780"/>
+  </g>
+  <!-- birds -->
+  <g stroke="#4a3f6b" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7">
+    <path d="M330 220 q12 -12 24 0 q12 -12 24 0"/>
+    <path d="M400 250 q9 -9 18 0 q9 -9 18 0"/>
+    <path d="M290 270 q8 -8 16 0 q8 -8 16 0"/>
+  </g>
+</svg>

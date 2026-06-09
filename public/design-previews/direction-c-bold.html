@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SoloWay — Direction C: Bold Wayfinder</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; color:#16131f; min-height:100vh; overflow-x:hidden; background:#d8d2e8; }
+  .bg { position:fixed; inset:0; z-index:0; }
+  .bg img { width:100%; height:100%; object-fit:cover; }
+  .bg::after { content:''; position:absolute; inset:0; background:rgba(255,250,240,.12); }
+  .page { position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 48px 72px; }
+
+  /* solid card nav with hard shadow */
+  nav { display:flex; align-items:center; justify-content:space-between; background:#fffdf7; border:2.5px solid #16131f;
+    border-radius:18px; padding:14px 22px; margin-top:24px; box-shadow:6px 6px 0 #16131f; }
+  .logo { font-family:'Archivo',sans-serif; font-weight:900; font-size:22px; letter-spacing:-.02em; }
+  .logo span { color:#ff4d6d; }
+  .nav-links { display:flex; gap:26px; font-size:14.5px; font-weight:600; }
+  .nav-cta { font-family:'Archivo',sans-serif; background:#ff4d6d; color:#fffdf7; font-weight:700; font-size:14px; padding:11px 22px;
+    border:2.5px solid #16131f; border-radius:12px; box-shadow:3px 3px 0 #16131f; }
+
+  /* hero */
+  .hero { padding:72px 0 48px; position:relative; }
+  .sticker { position:absolute; top:60px; right:40px; background:#c9f04d; border:2.5px solid #16131f; border-radius:99px;
+    font-family:'Archivo',sans-serif; font-weight:900; font-size:15px; padding:14px 20px; transform:rotate(8deg); box-shadow:4px 4px 0 #16131f; }
+  .kicker { display:inline-block; background:#16131f; color:#c9f04d; font-family:'Archivo',sans-serif; font-weight:700;
+    font-size:13px; letter-spacing:.1em; text-transform:uppercase; padding:8px 16px; border-radius:8px; margin-bottom:22px; }
+  h1 { font-family:'Archivo',sans-serif; font-weight:900; font-size:88px; line-height:.98; letter-spacing:-.035em; max-width:760px; }
+  h1 .hl { color:#fffdf7; -webkit-text-stroke:2.5px #16131f; paint-order:stroke fill; text-shadow:5px 5px 0 #ff4d6d; }
+  .lede { margin-top:26px; max-width:480px; font-size:17px; line-height:1.6; font-weight:500; background:#fffdf7; border:2.5px solid #16131f;
+    border-radius:14px; padding:16px 20px; box-shadow:5px 5px 0 #16131f; }
+  .hero-actions { display:flex; gap:18px; margin-top:34px; }
+  .btn-primary { font-family:'Archivo',sans-serif; background:#16131f; color:#fffdf7; font-weight:700; font-size:16px; padding:17px 34px;
+    border-radius:14px; border:2.5px solid #16131f; box-shadow:5px 5px 0 #ff4d6d; }
+  .btn-secondary { font-family:'Archivo',sans-serif; background:#fffdf7; color:#16131f; font-weight:700; font-size:16px; padding:17px 34px;
+    border:2.5px solid #16131f; border-radius:14px; box-shadow:5px 5px 0 #16131f; }
+
+  /* cards */
+  .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:56px; }
+  .card { background:#fffdf7; border:2.5px solid #16131f; border-radius:20px; padding:26px; box-shadow:7px 7px 0 #16131f; }
+  .card.pink { background:#ffd9e1; } .card.lime { background:#e9f9c0; }
+  .tag { display:inline-block; font-family:'Archivo',sans-serif; font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+    border:2px solid #16131f; border-radius:99px; padding:5px 12px; margin-bottom:16px; background:#fffdf7; }
+  .card h3 { font-family:'Archivo',sans-serif; font-weight:900; font-size:25px; letter-spacing:-.02em; margin-bottom:10px; }
+  .card p { font-size:14.5px; line-height:1.6; font-weight:500; color:#3d3650; }
+  .card .foot { display:flex; align-items:center; justify-content:space-between; margin-top:22px; }
+  .score { font-family:'Archivo',sans-serif; font-weight:900; font-size:30px; }
+  .score small { font-size:14px; font-weight:700; color:#3d3650; }
+  .arrow { width:40px; height:40px; border:2.5px solid #16131f; border-radius:12px; background:#fffdf7; display:flex; align-items:center;
+    justify-content:center; font-weight:900; font-size:18px; box-shadow:3px 3px 0 #16131f; }
+</style>
+</head>
+<body>
+  <!-- Real app background (Background.jsx photo). SVG fallback only renders offline. -->
+  <div class="bg"><img src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2500&auto=format&fit=crop" onerror="this.onerror=null;this.src='_bg.svg'" alt=""></div>
+  <div class="page">
+    <nav>
+      <div class="logo">SOLO<span>WAY</span></div>
+      <div class="nav-links"><span>Trips</span><span>Explore</span><span>Safety</span><span>Radar</span></div>
+      <div class="nav-cta">START A TRIP</div>
+    </nav>
+
+    <section class="hero">
+      <div class="sticker">★ WEB BETA</div>
+      <div class="kicker">For solo travelers only</div>
+      <h1>TRAVEL SOLO,<br><span class="hl">NOT ALONE.</span></h1>
+      <p class="lede">Plan wild days, stay quietly safe, and meet travelers on your own terms. Everything you do once you're there — in one app.</p>
+      <div class="hero-actions">
+        <div class="btn-primary">START YOUR JOURNEY →</div>
+        <div class="btn-secondary">WATCH DEMO</div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <div class="card pink">
+        <div class="tag">Smart itinerary</div>
+        <h3>Kyoto, day 3 is ready</h3>
+        <p>Coffee → canal walk → lantern-lit Gion. Reshuffle anytime with one tap.</p>
+        <div class="foot"><div class="score">3<small> stops</small></div><div class="arrow">→</div></div>
+      </div>
+      <div class="card lime">
+        <div class="tag">Safety guardian</div>
+        <h3>You're in a safe zone</h3>
+        <p>Area score is high and your 21:00 check-in is armed. We've got your back.</p>
+        <div class="foot"><div class="score">94<small> /100</small></div><div class="arrow">→</div></div>
+      </div>
+      <div class="card">
+        <div class="tag">Social radar</div>
+        <h3>3 travelers nearby</h3>
+        <p>Walking the same path today. Say hi — or stay invisible. Your call.</p>
+        <div class="foot"><div class="score">QR<small> buddy</small></div><div class="arrow">→</div></div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

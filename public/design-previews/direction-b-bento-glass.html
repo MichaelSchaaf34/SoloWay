@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SoloWay — Direction B: Bento Glass</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; color:#0f172a; min-height:100vh; overflow-x:hidden; background:#e8e4f0; }
+  .bg { position:fixed; inset:0; z-index:0; }
+  .bg img { width:100%; height:100%; object-fit:cover; }
+  /* soft light frost over the photo */
+  .bg::after { content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.08) 40%, rgba(244,242,250,.4) 100%); }
+  .page { position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 48px 64px; }
+
+  /* floating pill nav */
+  .navwrap { display:flex; justify-content:center; padding:24px 0 0; }
+  nav { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.55); backdrop-filter:blur(24px);
+    border:1px solid rgba(255,255,255,.7); border-radius:999px; padding:8px 8px 8px 24px;
+    box-shadow:0 8px 32px rgba(15,23,42,.12); }
+  .logo { font-family:'Sora',sans-serif; font-weight:700; font-size:18px; margin-right:20px; }
+  .logo span { color:#0d9488; }
+  .nav-links { display:flex; gap:4px; font-size:14px; font-weight:500; color:#475569; }
+  .nav-links div { padding:9px 16px; border-radius:999px; }
+  .nav-links .active { background:rgba(13,148,136,.12); color:#0f766e; }
+  .nav-cta { background:#0f172a; color:#fff; font-size:14px; font-weight:600; padding:11px 22px; border-radius:999px; }
+
+  /* hero text */
+  .hero { text-align:center; padding:64px 0 40px; }
+  .chip { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.6); backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.8); border-radius:999px; padding:7px 16px; font-size:13px; font-weight:600; color:#0f766e; margin-bottom:24px; }
+  .dot { width:7px; height:7px; border-radius:99px; background:#14b8a6; }
+  h1 { font-family:'Sora',sans-serif; font-weight:700; font-size:62px; line-height:1.08; letter-spacing:-.03em; }
+  h1 .grad { background:linear-gradient(92deg,#0d9488,#6366f1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lede { margin:20px auto 0; max-width:520px; font-size:17px; line-height:1.65; color:#334155; font-weight:500; }
+
+  /* bento grid */
+  .bento { display:grid; grid-template-columns:1.5fr 1fr 1fr; grid-template-rows:auto auto; gap:18px; margin-top:48px; }
+  .tile { background:rgba(255,255,255,.62); backdrop-filter:blur(28px); border:1px solid rgba(255,255,255,.85);
+    border-radius:28px; padding:28px; box-shadow:0 12px 40px rgba(15,23,42,.1); }
+  .tile.dark { background:rgba(15,23,42,.82); color:#fff; border-color:rgba(255,255,255,.15); }
+  .tile-label { font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#0f766e; margin-bottom:12px; }
+  .tile.dark .tile-label { color:#5eead4; }
+  .tile h3 { font-family:'Sora',sans-serif; font-size:22px; font-weight:600; letter-spacing:-.01em; margin-bottom:8px; }
+  .tile p { font-size:14px; line-height:1.6; color:#475569; }
+  .tile.dark p { color:rgba(255,255,255,.65); }
+  .span-rows { grid-row:span 2; display:flex; flex-direction:column; }
+
+  .itin-row { display:flex; align-items:center; gap:14px; background:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.9);
+    border-radius:18px; padding:14px 16px; margin-top:12px; }
+  .itin-ico { width:40px; height:40px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .t1 { background:#ccfbf1; } .t2 { background:#e0e7ff; } .t3 { background:#fef3c7; }
+  .itin-row b { display:block; font-size:14.5px; font-weight:600; }
+  .itin-row small { font-size:12.5px; color:#64748b; }
+  .itin-row .when { margin-left:auto; font-size:12px; font-weight:600; color:#0f766e; background:rgba(13,148,136,.1); padding:5px 10px; border-radius:99px; }
+
+  .stat { font-family:'Sora',sans-serif; font-size:42px; font-weight:700; letter-spacing:-.02em; }
+  .stat small { font-size:14px; font-weight:600; color:#0d9488; }
+  .tile.dark .stat small { color:#5eead4; }
+  .meter { height:8px; border-radius:99px; background:rgba(15,23,42,.12); margin-top:16px; overflow:hidden; }
+  .meter i { display:block; height:100%; width:86%; border-radius:99px; background:linear-gradient(90deg,#14b8a6,#6366f1); }
+  .btn-row { display:flex; gap:10px; margin-top:auto; padding-top:20px; }
+  .btn-primary { flex:1; text-align:center; background:#0f172a; color:#fff; font-weight:600; font-size:14.5px; padding:14px; border-radius:16px; }
+  .btn-soft { flex:1; text-align:center; background:rgba(13,148,136,.12); color:#0f766e; font-weight:600; font-size:14.5px; padding:14px; border-radius:16px; }
+  .avatars { display:flex; margin-top:14px; }
+  .avatars i { width:34px; height:34px; border-radius:99px; border:2.5px solid #fff; margin-left:-8px; background:linear-gradient(135deg,#67e8f9,#818cf8); }
+  .avatars i:first-child { margin-left:0; background:linear-gradient(135deg,#fcd34d,#fb923c); }
+  .avatars i:nth-child(3) { background:linear-gradient(135deg,#6ee7b7,#34d399); }
+</style>
+</head>
+<body>
+  <!-- Real app background (Background.jsx photo). SVG fallback only renders offline. -->
+  <div class="bg"><img src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2500&auto=format&fit=crop" onerror="this.onerror=null;this.src='_bg.svg'" alt=""></div>
+  <div class="page">
+    <div class="navwrap">
+      <nav>
+        <div class="logo">Solo<span>Way</span></div>
+        <div class="nav-links">
+          <div class="active">Trips</div><div>Explore</div><div>Safety</div><div>Radar</div>
+        </div>
+        <div class="nav-cta">Start a trip</div>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <div class="chip"><span class="dot"></span> Web beta open</div>
+      <h1>Travel solo, <span class="grad">not alone.</span></h1>
+      <p class="lede">Smart itineraries, a quiet safety guardian, and travelers nearby — only when you want them.</p>
+    </section>
+
+    <section class="bento">
+      <div class="tile span-rows">
+        <div class="tile-label">Today · Kyoto</div>
+        <h3>Your Tuesday, planned</h3>
+        <p>Slow & steady vibe · safe area</p>
+        <div class="itin-row"><div class="itin-ico t1">☕</div><div><b>Coffee at Weekenders</b><small>Nakagyo Ward · 12 min walk</small></div><div class="when">09:00</div></div>
+        <div class="itin-row"><div class="itin-ico t2">🌿</div><div><b>Philosopher's Path</b><small>Canal walk · 2.1 km</small></div><div class="when">11:30</div></div>
+        <div class="itin-row"><div class="itin-ico t3">🏮</div><div><b>Gion district tour</b><small>Booked · seat for one</small></div><div class="when">18:00</div></div>
+        <div class="btn-row"><div class="btn-primary">Open itinerary</div><div class="btn-soft">Reshuffle</div></div>
+      </div>
+
+      <div class="tile dark">
+        <div class="tile-label">Safety Guardian</div>
+        <div class="stat">94<small> /100</small></div>
+        <p>Area score · next check-in 21:00</p>
+        <div class="meter"><i></i></div>
+      </div>
+
+      <div class="tile">
+        <div class="tile-label">Social Radar</div>
+        <div class="stat">3</div>
+        <p>travelers near Philosopher's Path</p>
+        <div class="avatars"><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="tile">
+        <div class="tile-label">QR Buddy</div>
+        <h3>Invite a buddy</h3>
+        <p>One scan links them to tonight's tour — no app needed.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-label">Bookings</div>
+        <h3>2 reserved</h3>
+        <p>Tea ceremony · Gion tour. Pay in app, zero fees.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
