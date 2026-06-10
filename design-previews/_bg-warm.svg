@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf2dd"/>
+      <stop offset="0.55" stop-color="#fbe3c4"/>
+      <stop offset="1" stop-color="#f6d3ae"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fffaf0" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ffedc7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dune1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ecc89a"/>
+      <stop offset="1" stop-color="#e0b285"/>
+    </linearGradient>
+    <linearGradient id="dune2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dca96f"/>
+      <stop offset="1" stop-color="#c98f57"/>
+    </linearGradient>
+    <linearGradient id="dune3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c0824a"/>
+      <stop offset="1" stop-color="#a96f3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="560" fill="url(#sky)"/>
+  <circle cx="1020" cy="240" r="280" fill="url(#sun)"/>
+  <circle cx="1020" cy="240" r="58" fill="#fff6e3"/>
+  <!-- far dune -->
+  <path d="M0 470 C 240 380 480 430 720 410 C 960 390 1200 450 1440 400 L1440 900 L0 900 Z" fill="url(#dune1)"/>
+  <!-- mid dune -->
+  <path d="M0 560 C 300 470 560 560 860 520 C 1120 485 1300 560 1440 530 L1440 900 L0 900 Z" fill="url(#dune2)"/>
+  <!-- near dune -->
+  <path d="M0 700 C 320 600 700 720 1000 660 C 1240 615 1380 700 1440 680 L1440 900 L0 900 Z" fill="url(#dune3)"/>
+  <!-- dune ridge highlights -->
+  <g stroke="#fff3da" stroke-width="3" fill="none" opacity="0.5" stroke-linecap="round">
+    <path d="M120 520 C 340 455 540 540 820 505"/>
+    <path d="M300 665 C 560 590 880 690 1100 640"/>
+  </g>
+  <!-- birds -->
+  <g stroke="#8a6238" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6">
+    <path d="M420 190 q12 -12 24 0 q12 -12 24 0"/>
+    <path d="M495 220 q9 -9 18 0 q9 -9 18 0"/>
+    <path d="M370 245 q8 -8 16 0 q8 -8 16 0"/>
+  </g>
+</svg>

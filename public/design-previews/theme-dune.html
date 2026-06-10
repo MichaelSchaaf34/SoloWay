@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SoloWay — Theme: Dune (warm beige)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#2b2114;            /* primary text */
+    --ink-soft:#6e5d45;       /* secondary text */
+    --accent:#c2703d;         /* terracotta */
+    --accent-deep:#9c5526;
+    --glass:rgba(255,251,242,.58);
+    --glass-soft:rgba(255,248,235,.42);
+    --edge:rgba(255,255,255,.65);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; color:var(--ink); min-height:100vh; overflow-x:hidden; background:#f6e7cf; }
+  .bg { position:fixed; inset:0; z-index:0; }
+  .bg img { width:100%; height:100%; object-fit:cover; }
+  .bg::after { content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(255,250,240,.14) 0%, rgba(255,250,240,0) 40%, rgba(250,240,222,.3) 100%); }
+  .page { position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 48px 64px; }
+
+  .glass { background:var(--glass); backdrop-filter:blur(22px) saturate(1.15);
+    border:1px solid var(--edge); border-radius:24px;
+    box-shadow:0 12px 44px rgba(85,58,28,.1), inset 0 1px 0 rgba(255,255,255,.7); }
+
+  /* nav */
+  .navwrap { display:flex; justify-content:center; padding:26px 0 0; }
+  nav { display:flex; align-items:center; gap:4px; border-radius:999px; padding:8px 8px 8px 24px; }
+  .logo { font-family:'Fraunces',serif; font-weight:600; font-size:20px; margin-right:18px; }
+  .logo em { color:var(--accent); font-style:italic; }
+  .nav-links { display:flex; gap:2px; font-size:14px; font-weight:500; color:var(--ink-soft); }
+  .nav-links div { padding:9px 16px; border-radius:999px; }
+  .nav-links .active { background:rgba(255,255,255,.7); color:var(--ink); box-shadow:0 2px 10px rgba(85,58,28,.08); }
+  .avatar { width:38px; height:38px; border-radius:99px; margin-left:10px;
+    background:linear-gradient(135deg,#e7b07c,#c2703d); border:2px solid rgba(255,255,255,.85); }
+
+  /* hero */
+  .hero { text-align:center; padding:60px 0 36px; }
+  .chip { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:7px 16px;
+    font-size:13px; font-weight:600; color:var(--accent-deep); margin-bottom:24px; }
+  .dot { width:7px; height:7px; border-radius:99px; background:var(--accent); box-shadow:0 0 0 4px rgba(194,112,61,.2); }
+  h1 { font-family:'Fraunces',serif; font-weight:480; font-size:66px; line-height:1.05; letter-spacing:-.015em; }
+  h1 em { font-style:italic; color:var(--accent); }
+  .lede { margin:20px auto 0; max-width:530px; font-size:17px; line-height:1.65; color:var(--ink-soft); font-weight:500; }
+
+  /* destination search pill */
+  .search { display:flex; align-items:center; max-width:680px; margin:34px auto 0; border-radius:999px; padding:8px; }
+  .search .seg { flex:1; padding:10px 22px; text-align:left; }
+  .search .seg + .seg { border-left:1px solid rgba(110,93,69,.18); }
+  .search .seg b { display:block; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink); }
+  .search .seg span { font-size:14px; color:var(--ink-soft); }
+  .search .go { display:flex; align-items:center; gap:8px; background:linear-gradient(120deg,var(--accent),#d98a50);
+    color:#fff; font-weight:600; font-size:15px; padding:14px 28px; border-radius:999px;
+    box-shadow:0 8px 24px rgba(194,112,61,.4); white-space:nowrap; }
+
+  /* layout grid */
+  .grid { display:grid; grid-template-columns:1.45fr 1fr 1fr; grid-template-rows:auto auto; gap:18px; margin-top:48px; }
+  .tile { padding:26px; }
+  .tile-label { font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-deep); margin-bottom:12px; }
+  .tile h3 { font-family:'Fraunces',serif; font-size:23px; font-weight:550; margin-bottom:8px; }
+  .tile p { font-size:14px; line-height:1.6; color:var(--ink-soft); }
+  .span-rows { grid-row:span 2; display:flex; flex-direction:column; padding:0; overflow:hidden; }
+
+  /* boarding-pass itinerary card */
+  .pass-top { padding:26px 26px 20px; }
+  .pass-route { display:flex; align-items:center; gap:14px; margin-top:14px; }
+  .pass-route .city { font-family:'Fraunces',serif; font-size:30px; font-weight:550; }
+  .pass-route .path { flex:1; display:flex; align-items:center; gap:6px; color:var(--accent); }
+  .pass-route .path i { flex:1; border-top:2px dashed rgba(194,112,61,.5); }
+  .pass-route .plane { font-size:17px; }
+  .pass-route small { display:block; font-size:12px; font-weight:600; color:var(--ink-soft); letter-spacing:.05em; }
+  .perf { position:relative; border-top:2px dashed rgba(110,93,69,.3); margin:0 18px; }
+  .perf::before, .perf::after { content:''; position:absolute; top:-11px; width:22px; height:22px; border-radius:99px; background:#efdcbd; }
+  .perf::before { left:-29px; } .perf::after { right:-29px; }
+  .pass-body { padding:20px 26px 26px; display:flex; flex-direction:column; flex:1; }
+  .itin-row { display:flex; align-items:center; gap:14px; background:rgba(255,255,255,.55);
+    border:1px solid rgba(255,255,255,.7); border-radius:16px; padding:13px 16px; margin-bottom:11px; }
+  .itin-ico { width:40px; height:40px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+    font-size:18px; background:rgba(255,243,224,.9); }
+  .itin-row b { display:block; font-size:14.5px; font-weight:600; }
+  .itin-row small { font-size:12.5px; color:var(--ink-soft); }
+  .itin-row .when { margin-left:auto; font-size:12px; font-weight:700; color:var(--accent-deep);
+    background:rgba(194,112,61,.13); padding:5px 11px; border-radius:99px; }
+  .btn-row { display:flex; gap:10px; margin-top:auto; padding-top:8px; }
+  .btn-fill { flex:1; text-align:center; background:var(--ink); color:#fff8ec; font-weight:600; font-size:14.5px;
+    padding:13px; border-radius:14px; box-shadow:0 6px 18px rgba(43,33,20,.25); }
+  .btn-soft { flex:1; text-align:center; background:rgba(255,255,255,.6); color:var(--ink); font-weight:600;
+    font-size:14.5px; padding:13px; border-radius:14px; border:1px solid rgba(255,255,255,.75); }
+
+  /* safety ring */
+  .ring-wrap { display:flex; align-items:center; gap:18px; }
+  .ring { position:relative; width:86px; height:86px; }
+  .ring svg { transform:rotate(-90deg); }
+  .ring .val { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-size:26px; font-weight:600; }
+  .ring-meta b { display:block; font-size:15px; font-weight:600; }
+  .ring-meta small { font-size:13px; color:var(--ink-soft); }
+
+  .avatars { display:flex; margin-top:14px; }
+  .avatars i { width:34px; height:34px; border-radius:99px; border:2.5px solid rgba(255,255,255,.9); margin-left:-8px;
+    background:linear-gradient(135deg,#eec48f,#cf8b54); }
+  .avatars i:first-child { margin-left:0; background:linear-gradient(135deg,#f3d9ac,#dba56b); }
+  .avatars i:nth-child(3) { background:linear-gradient(135deg,#e4ad77,#b5713f); }
+  .stat { font-family:'Fraunces',serif; font-size:38px; font-weight:550; }
+
+  /* mini QR */
+  .qr { display:grid; grid-template-columns:repeat(5,10px); gap:3px; margin-top:14px; }
+  .qr i { width:10px; height:10px; border-radius:2px; background:var(--ink); opacity:.85; }
+  .qr i.o { opacity:.18; }
+</style>
+</head>
+<body>
+  <!-- Real app backgrounds per page. ?bg=<key> switches photos; SVG fallback only renders offline. -->
+  <div class="bg"><img id="bgimg" src="" alt=""></div>
+  <script>
+    const PAGE_PHOTOS = {
+      landing:     'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2500&auto=format&fit=crop',
+      booking:     'https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=2200&auto=format&fit=crop',
+      itineraries: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=2200&auto=format&fit=crop',
+      buddy:       'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?q=80&w=2200&auto=format&fit=crop',
+      profile:     'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2200&auto=format&fit=crop',
+    };
+    const key = new URLSearchParams(location.search).get('bg') || 'landing';
+    const img = document.getElementById('bgimg');
+    img.onerror = () => { img.onerror = null; img.src = '_bg-warm.svg'; };
+    img.src = PAGE_PHOTOS[key] || PAGE_PHOTOS.landing;
+  </script>
+
+  <div class="page">
+    <div class="navwrap">
+      <nav class="glass">
+        <div class="logo">Solo<em>Way</em></div>
+        <div class="nav-links">
+          <div class="active">Trips</div><div>Explore</div><div>Safety</div><div>Radar</div>
+        </div>
+        <div class="avatar"></div>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <div class="chip glass"><span class="dot"></span> Web beta open</div>
+      <h1>Travel solo, <em>not alone.</em></h1>
+      <p class="lede">Smart itineraries, a quiet safety guardian, and travelers nearby — only when you want them.</p>
+      <div class="search glass">
+        <div class="seg"><b>Where to?</b><span>Kyoto, Japan</span></div>
+        <div class="seg"><b>When</b><span>Oct 12 – 19</span></div>
+        <div class="seg"><b>Vibe</b><span>Slow &amp; steady</span></div>
+        <div class="go">Plan my trip →</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="tile glass span-rows">
+        <div class="pass-top">
+          <div class="tile-label">Boarding · Day 3 of 7</div>
+          <div class="pass-route">
+            <div><span class="city">KYO</span><small>KYOTO</small></div>
+            <div class="path"><i></i><span class="plane">✈</span><i></i></div>
+            <div style="text-align:right"><span class="city">DAY</span><small>TUESDAY</small></div>
+          </div>
+        </div>
+        <div class="perf"></div>
+        <div class="pass-body">
+          <div class="itin-row"><div class="itin-ico">☕</div><div><b>Coffee at Weekenders</b><small>Nakagyo Ward · 12 min walk</small></div><div class="when">09:00</div></div>
+          <div class="itin-row"><div class="itin-ico">🌿</div><div><b>Philosopher's Path</b><small>Canal walk · 2.1 km</small></div><div class="when">11:30</div></div>
+          <div class="itin-row"><div class="itin-ico">🏮</div><div><b>Gion district tour</b><small>Booked · seat for one</small></div><div class="when">18:00</div></div>
+          <div class="btn-row"><div class="btn-fill">Open itinerary</div><div class="btn-soft">Reshuffle</div></div>
+        </div>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">Safety Guardian</div>
+        <div class="ring-wrap">
+          <div class="ring">
+            <svg width="86" height="86">
+              <circle cx="43" cy="43" r="37" fill="none" stroke="rgba(110,93,69,.18)" stroke-width="8"/>
+              <circle cx="43" cy="43" r="37" fill="none" stroke="#c2703d" stroke-width="8" stroke-linecap="round"
+                stroke-dasharray="232.5" stroke-dashoffset="14"/>
+            </svg>
+            <div class="val">94</div>
+          </div>
+          <div class="ring-meta"><b>Safe area</b><small>Next check-in 21:00</small></div>
+        </div>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">Social Radar</div>
+        <div class="stat">3 nearby</div>
+        <p>walking Philosopher's Path today</p>
+        <div class="avatars"><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">QR Buddy</div>
+        <h3>Invite a buddy</h3>
+        <p>One scan links them to tonight's tour — no app needed.</p>
+        <div class="qr">
+          <i></i><i class="o"></i><i></i><i></i><i class="o"></i>
+          <i class="o"></i><i></i><i class="o"></i><i></i><i></i>
+          <i></i><i class="o"></i><i></i><i class="o"></i><i></i>
+          <i></i><i></i><i class="o"></i><i></i><i class="o"></i>
+          <i class="o"></i><i></i><i></i><i class="o"></i><i></i>
+        </div>
+      </div>
+
+      <div class="tile glass">
+        <div class="tile-label">Bookings</div>
+        <h3>2 reserved</h3>
+        <p>Tea ceremony · Gion tour. Pay in app, zero fees.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
