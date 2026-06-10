@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SoloWay — Photo grade compare</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #1b1b1f; color: #fff; }
+  .bar { display: flex; gap: 18px; align-items: center; padding: 12px 20px; font-size: 14px; }
+  .bar b { font-size: 15px; }
+  .bar a { color: #ecd9b8; }
+  .cols { display: flex; }
+  .col { flex: 1; position: relative; }
+  .col .label { position: absolute; top: 10px; left: 12px; z-index: 5; background: rgba(0,0,0,.55);
+    padding: 5px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; }
+  .frame { width: 50vw; height: calc(50vw * 0.75); overflow: hidden; }
+  .frame iframe { width: 1440px; height: 1080px; border: 0; transform: scale(calc(50vw / 1440px * 1));
+    transform-origin: top left; }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <b id="title">Photo grade compare</b>
+    <span>theme:</span><a href="?theme=theme-dune">Dune</a><a href="?theme=theme-porcelain">Porcelain</a>
+    <span>photo:</span>
+    <a href="#" data-bg="landing">Landing</a><a href="#" data-bg="booking">Booking</a>
+    <a href="#" data-bg="itineraries">Itineraries</a><a href="#" data-bg="buddy">Buddy</a>
+    <a href="#" data-bg="profile">Profile</a>
+  </div>
+  <div class="cols">
+    <div class="col"><div class="label">Original photo</div><div class="frame"><iframe id="left"></iframe></div></div>
+    <div class="col"><div class="label">Color-graded to match</div><div class="frame"><iframe id="right"></iframe></div></div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const theme = params.get('theme') || 'theme-dune';
+    const bg = params.get('bg') || 'landing';
+    const demo = params.get('demo') ? `&demo=${params.get('demo')}` : '';
+    document.getElementById('title').textContent = `${theme.replace('theme-','')} · ${bg}`;
+    document.getElementById('left').src = `${theme}.html?bg=${bg}&grade=off${demo}`;
+    document.getElementById('right').src = `${theme}.html?bg=${bg}${demo}`;
+    document.querySelectorAll('[data-bg]').forEach(a => {
+      a.href = `?theme=${theme}&bg=${a.dataset.bg}`;
+    });
+    // scale iframes to half viewport width
+    const scale = (window.innerWidth / 2) / 1440;
+    document.querySelectorAll('.frame iframe').forEach(f => f.style.transform = `scale(${scale})`);
+    document.querySelectorAll('.frame').forEach(f => { f.style.height = `${1080 * scale}px`; });
+  </script>
+</body>
+</html>

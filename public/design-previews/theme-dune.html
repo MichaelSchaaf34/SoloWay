@@ -17,7 +17,14 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter',sans-serif; color:var(--ink); min-height:100vh; overflow-x:hidden; background:#f6e7cf; }
   .bg { position:fixed; inset:0; z-index:0; }
-  .bg img { width:100%; height:100%; object-fit:cover; }
+  .bg img { width:100%; height:100%; object-fit:cover;
+    /* warm grade so any photo matches the beige/terracotta scheme */
+    filter:saturate(.82) contrast(.96) brightness(1.03) sepia(.16); }
+  .bg .tint { position:absolute; inset:0; background:#c2703d; mix-blend-mode:soft-light; opacity:.38; }
+  .bg .wash { position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(253,242,221,.22) 0%, rgba(251,227,196,.1) 45%, rgba(246,211,174,.26) 100%); }
+  .no-grade .bg img { filter:none; }
+  .no-grade .bg .tint, .no-grade .bg .wash { display:none; }
   .bg::after { content:''; position:absolute; inset:0;
     background:linear-gradient(180deg, rgba(255,250,240,.14) 0%, rgba(255,250,240,0) 40%, rgba(250,240,222,.3) 100%); }
   .page { position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 48px 64px; }
@@ -114,7 +121,7 @@
 </head>
 <body>
   <!-- Real app backgrounds per page. ?bg=<key> switches photos; SVG fallback only renders offline. -->
-  <div class="bg"><img id="bgimg" src="" alt=""></div>
+  <div class="bg"><img id="bgimg" src="" alt=""><div class="tint"></div><div class="wash"></div></div>
   <script>
     const PAGE_PHOTOS = {
       landing:     'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2500&auto=format&fit=crop',
@@ -123,10 +130,12 @@
       buddy:       'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?q=80&w=2200&auto=format&fit=crop',
       profile:     'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2200&auto=format&fit=crop',
     };
-    const key = new URLSearchParams(location.search).get('bg') || 'landing';
+    const params = new URLSearchParams(location.search);
+    if (params.get('grade') === 'off') document.documentElement.classList.add('no-grade');
+    const key = params.get('bg') || 'landing';
     const img = document.getElementById('bgimg');
-    img.onerror = () => { img.onerror = null; img.src = '_bg-warm.svg'; };
-    img.src = PAGE_PHOTOS[key] || PAGE_PHOTOS.landing;
+    img.onerror = () => { img.onerror = null; img.src = params.get('demo') === 'cool' ? '_bg-aqua.svg' : '_bg-warm.svg'; };
+    img.src = params.get('demo') === 'cool' ? '_bg-aqua.svg' : (PAGE_PHOTOS[key] || PAGE_PHOTOS.landing);
   </script>
 
   <div class="page">
