@@ -20,6 +20,7 @@ import itineraryRoutes from './modules/itineraries/itineraries.routes.js';
 import safetyRoutes from './modules/safety/safety.routes.js';
 import socialRoutes from './modules/social/social.routes.js';
 import buddyRoutes from './modules/buddy/buddy.routes.js';
+import waitlistRoutes from './modules/waitlist/waitlist.routes.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -86,6 +87,7 @@ async function bootstrap() {
     app.use(`${apiPrefix}/safety`, safetyRoutes);
     app.use(`${apiPrefix}/social`, socialRoutes);
     app.use(`${apiPrefix}/buddy`, buddyRoutes);
+    app.use(`${apiPrefix}/waitlist`, waitlistRoutes);
 
     // Error handling
     app.use(notFoundHandler);

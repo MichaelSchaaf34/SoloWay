@@ -77,9 +77,7 @@ export async function joinPreview(req, res, next) {
     }
     res.json({
       valid: true,
-      event_title: result.event?.title,
-      event_location: result.event?.location_name,
-      event_time: result.event?.start_time,
+      event: result.event,
       host_name: result.host_name,
       spots_remaining: result.spots_remaining,
     });

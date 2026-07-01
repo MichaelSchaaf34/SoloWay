@@ -48,14 +48,16 @@ function getRefreshVerifyOptions() {
  * Generate JWT tokens
  */
 function generateTokens(userId) {
+  // jti makes every token unique even when issued within the same second,
+  // preventing token_hash collisions during rapid refresh rotation
   const accessToken = jwt.sign(
-    { userId, type: ACCESS_TOKEN_TYPE },
+    { userId, type: ACCESS_TOKEN_TYPE, jti: crypto.randomUUID() },
     config.jwt.secret,
     getAccessTokenOptions()
   );
 
   const refreshToken = jwt.sign(
-    { userId, type: REFRESH_TOKEN_TYPE },
+    { userId, type: REFRESH_TOKEN_TYPE, jti: crypto.randomUUID() },
     config.jwt.refreshSecret,
     getRefreshTokenOptions()
   );

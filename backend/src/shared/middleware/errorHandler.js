@@ -62,8 +62,8 @@ export function notFoundHandler(req, res, next) {
  * Global error handler
  */
 export function errorHandler(err, req, res, next) {
-  // Default values
-  let statusCode = err.statusCode || 500;
+  // Default values (some modules attach `status` instead of `statusCode`)
+  let statusCode = err.statusCode || err.status || 500;
   let message = err.message || 'Internal server error';
   let code = err.code || 'INTERNAL_ERROR';
 

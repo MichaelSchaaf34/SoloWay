@@ -146,3 +146,14 @@
 - Reduced create form and empty-state card sizes (smaller padding, inputs, headings, border radius)
 - Added subtle hover effects (`hover:shadow-xl hover:bg-white/90 transition-all duration-200`) to create form and empty-state cards
 - Simplified itineraries page to remove redundant "create trip" touchpoints: removed the "No trips yet" empty-state card, auto-show the create form when user has no trips with friendly "Plan your first adventure" heading, and hide the "+ New Trip" header button when the form is already auto-displayed
+
+## 2026-07-01 - Interval 29
+- Full-stack verification pass: every backend endpoint and every frontend button/navigation path tested live against a local stack (PostgreSQL 16 + PostGIS, Redis, PostgREST-compatible shim standing in for Supabase)
+- Endpoint suite: 85/85 checks passed across auth, users, itineraries, safety, social, buddy, waitlist, rate limiting, and 404 handling (including the complete QR buddy guest flow: invite → scan → phone verify → SMS code → link active → close)
+- UI suite (Playwright against the production build): 24/24 checks passed — landing anchors, waitlist CTA, auth register/login redirects, FirstChoice path buttons, protected-route redirects, navbar links, guest `/join/:token` multi-step flow with no auth
+- Fixed: refresh-token rotation could 500 and brick the session when refreshing within the same second as login (identical JWTs → duplicate `token_hash`); added a `jti` claim so every token is unique
+- Fixed: buddy guest endpoints returned HTTP 500 for expected failures (wrong code, expired invite, too many attempts) because errorHandler only read `err.statusCode` while the buddy service throws `err.status`; errorHandler now honors both
+- Fixed: guest join preview returned flat `event_title`/`event_location` fields while GuestJoin expects a nested `event` object per buddy-frontend-v2.md — guests never saw event details; controller now returns the nested shape
+- Added: `waitlist` backend module (POST /api/v1/waitlist, Joi validation, strict rate limiting, idempotent via `alreadyJoined`) — closes the known gap where the landing CTA called a non-existent route; the `waitlist` table already existed in migrations
+- Validation: frontend `npm run build` zero errors, `node --check` clean on all touched backend files, backend vitest suite passes
+- Known pre-existing gap (not addressed): `npm run lint` fails in both root and backend because no ESLint config file exists in the repo
