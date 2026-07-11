@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Landing from './pages/Landing';
+import DestinationDetail from './pages/DestinationDetail';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import FirstChoice from './pages/FirstChoice';
@@ -14,6 +15,11 @@ import GuestJoin from './pages/GuestJoin';
 import BuddyHistory from './pages/BuddyHistory';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import VerifyEmail from './pages/VerifyEmail';
+import BookingReturn from './pages/BookingReturn';
+import ProviderOnboarding from './pages/ProviderOnboarding';
 import { ProtectedRoute } from './components';
 
 function App() {
@@ -21,12 +27,18 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/destinations/:destinationSlug" element={<DestinationDetail />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/start" element={<ProtectedRoute><FirstChoice /></ProtectedRoute>} />
         <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
         <Route path="/ai-preferences" element={<ProtectedRoute><AIPreferences /></ProtectedRoute>} />
         <Route path="/ai-itinerary" element={<ProtectedRoute><AIItinerary /></ProtectedRoute>} />
         <Route path="/cart" element={<ProtectedRoute><BookingCart /></ProtectedRoute>} />
+        <Route path="/booking/return" element={<ProtectedRoute><BookingReturn /></ProtectedRoute>} />
+        <Route path="/provider/onboarding" element={<ProtectedRoute><ProviderOnboarding /></ProtectedRoute>} />
         <Route path="/itineraries" element={<ProtectedRoute><Itineraries /></ProtectedRoute>} />
         <Route path="/itineraries/:itineraryId" element={<ProtectedRoute><ItineraryDetail /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

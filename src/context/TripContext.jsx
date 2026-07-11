@@ -8,9 +8,22 @@ export const TripProvider = ({ children }) => {
   const [path, setPath] = useState(null);
   const [preferences, setPreferences] = useState([]);
   const [cart, setCart] = useState([]);
+  const [cartError, setCartError] = useState('');
 
   const addToCart = useCallback((item) => {
-    setCart(prev => prev.find(c => c.id === item.id) ? prev : [...prev, item]);
+    setCart(prev => {
+      if (!item.providerId) {
+        setCartError('This preview experience is not available for checkout yet.');
+        return prev;
+      }
+      const existingProvider = prev[0]?.providerId;
+      if (existingProvider && existingProvider !== item.providerId) {
+        setCartError('For now, experiences from different providers require separate checkouts.');
+        return prev;
+      }
+      setCartError('');
+      return prev.find(c => c.id === item.id) ? prev : [...prev, item];
+    });
   }, []);
 
   const removeFromCart = useCallback((itemId) => {
@@ -19,7 +32,11 @@ export const TripProvider = ({ children }) => {
 
   const isInCart = useCallback((itemId) => cart.some(c => c.id === itemId), [cart]);
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+  const cartTotalCents = cart.reduce(
+    (sum, item) => sum + (item.priceCents ?? Math.round((item.price || 0) * 100)),
+    0
+  );
+  const cartTotal = cartTotalCents / 100;
 
   const togglePreference = useCallback((prefId) => {
     setPreferences(prev =>
@@ -33,6 +50,7 @@ export const TripProvider = ({ children }) => {
     setPath(null);
     setPreferences([]);
     setCart([]);
+    setCartError('');
   }, []);
 
   return (
@@ -41,7 +59,8 @@ export const TripProvider = ({ children }) => {
       dates, setDates,
       path, setPath,
       preferences, togglePreference,
-      cart, addToCart, removeFromCart, isInCart, cartTotal,
+      cart, addToCart, removeFromCart, isInCart, cartTotal, cartTotalCents,
+      cartError, clearCartError: () => setCartError(''),
       resetTrip,
     }}>
       {children}

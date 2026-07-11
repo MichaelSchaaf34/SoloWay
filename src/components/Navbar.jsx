@@ -5,9 +5,9 @@ import { useDarkMode } from '../context/DarkModeContext';
 import useAuth from '../hooks/useAuth';
 
 const navLinks = [
-  { href: '#destinations', label: 'Destinations' },
-  { href: '#safety',       label: 'Safety'       },
-  { href: '#community',    label: 'Community'    },
+  { href: '/#destinations', label: 'Destinations' },
+  { href: '/#safety',       label: 'Safety'       },
+  { href: '/#community',    label: 'Community'    },
 ];
 
 const initialsOf = (name = '', email = '') => {

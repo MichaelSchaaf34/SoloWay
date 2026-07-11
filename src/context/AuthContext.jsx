@@ -49,50 +49,60 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(() => readStoredSession());
   const [isInitializing, setIsInitializing] = useState(true);
   const sessionRef = useRef(session);
+  const refreshPromiseRef = useRef(null);
 
   const clearSession = useCallback(() => {
+    sessionRef.current = null;
+    writeStoredSession(null);
     setSession(null);
   }, []);
 
-  useEffect(() => {
-    sessionRef.current = session;
-  }, [session]);
-
-  useEffect(() => {
-    writeStoredSession(session);
-  }, [session]);
-
-  useEffect(() => {
-    configureApiClient({
-      getToken: () => session?.accessToken || null,
-      handleUnauthorized: clearSession,
-    });
-  }, [session, clearSession]);
+  const saveSession = useCallback(nextSession => {
+    sessionRef.current = nextSession;
+    writeStoredSession(nextSession);
+    setSession(nextSession);
+  }, []);
 
   const refreshAccessToken = useCallback(async () => {
-    const currentSession = sessionRef.current;
-    if (!currentSession?.refreshToken) {
-      clearSession();
-      return null;
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
     }
 
-    const response = await authService.refreshToken(currentSession.refreshToken);
-    const tokens = response?.data || response;
+    refreshPromiseRef.current = (async () => {
+      const currentSession = sessionRef.current;
+      if (!currentSession?.refreshToken) {
+        clearSession();
+        return null;
+      }
 
-    setSession(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken || prev.refreshToken,
-      };
-    });
+      try {
+        const response = await authService.refreshToken(currentSession.refreshToken);
+        const tokens = response?.data || response;
+        const nextSession = {
+          ...currentSession,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken || currentSession.refreshToken,
+        };
+        saveSession(nextSession);
+        return tokens.accessToken;
+      } catch (error) {
+        clearSession();
+        throw error;
+      } finally {
+        refreshPromiseRef.current = null;
+      }
+    })();
+
+    return refreshPromiseRef.current;
+  }, [clearSession, saveSession]);
+
+  useEffect(() => {
     configureApiClient({
-      getToken: () => tokens.accessToken,
+      getToken: () => sessionRef.current?.accessToken || null,
       handleUnauthorized: clearSession,
+      refreshToken: refreshAccessToken,
     });
-    return tokens.accessToken;
-  }, [clearSession]);
+  }, [clearSession, refreshAccessToken]);
 
   useEffect(() => {
     let isMounted = true;
@@ -107,7 +117,8 @@ export function AuthProvider({ children }) {
         const meResponse = await authService.getCurrentUser();
         const user = meResponse?.data?.user || meResponse?.user;
         if (isMounted && user) {
-          setSession(prev => (prev ? { ...prev, user } : prev));
+          const currentSession = sessionRef.current;
+          if (currentSession) saveSession({ ...currentSession, user });
         }
       } catch {
         try {
@@ -115,7 +126,8 @@ export function AuthProvider({ children }) {
           const meResponse = await authService.getCurrentUser();
           const user = meResponse?.data?.user || meResponse?.user;
           if (isMounted && user) {
-            setSession(prev => (prev ? { ...prev, user } : prev));
+            const currentSession = sessionRef.current;
+            if (currentSession) saveSession({ ...currentSession, user });
           }
         } catch {
           if (isMounted) clearSession();
@@ -129,7 +141,7 @@ export function AuthProvider({ children }) {
     return () => {
       isMounted = false;
     };
-  }, [session?.accessToken, refreshAccessToken, clearSession]);
+  }, [refreshAccessToken, clearSession, saveSession]);
 
   const login = useCallback(async credentials => {
     const response = await authService.login(credentials);
@@ -139,37 +151,33 @@ export function AuthProvider({ children }) {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
     };
-    configureApiClient({
-      getToken: () => nextSession.accessToken,
-      handleUnauthorized: clearSession,
-    });
-    setSession(nextSession);
+    saveSession(nextSession);
     return data.user;
-  }, [clearSession]);
+  }, [saveSession]);
 
   const register = useCallback(async payload => {
     const response = await authService.register(payload);
     const data = response?.data || response;
+    if (data.requiresEmailVerification) {
+      return data;
+    }
     const nextSession = {
       user: data.user,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
     };
-    configureApiClient({
-      getToken: () => nextSession.accessToken,
-      handleUnauthorized: clearSession,
-    });
-    setSession(nextSession);
-    return data.user;
-  }, [clearSession]);
+    saveSession(nextSession);
+    return data;
+  }, [saveSession]);
 
   const logout = useCallback(async () => {
+    const refreshToken = sessionRef.current?.refreshToken;
     try {
-      if (session?.accessToken) await authService.logout();
+      if (refreshToken) await authService.logout(refreshToken);
     } finally {
       clearSession();
     }
-  }, [session?.accessToken, clearSession]);
+  }, [clearSession]);
 
   const value = useMemo(() => ({
     user: session?.user || null,

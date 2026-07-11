@@ -9,7 +9,8 @@ Scalable Node.js backend for the SoloWay solo travel companion app.
 - **Database**: PostgreSQL with PostGIS (via Supabase)
 - **Cache**: Redis (via Upstash)
 - **Real-time**: Socket.io + Supabase Realtime
-- **Authentication**: JWT + Supabase Auth
+- **Authentication**: Custom email/password auth with bcrypt, short-lived JWT access tokens, rotating refresh tokens, and verified transactional email
+- **Payments**: Stripe Checkout + Connect destination charges
 
 ## Architecture
 
@@ -21,6 +22,10 @@ backend/
 │   │   ├── auth/         # Authentication & authorization
 │   │   ├── users/        # User profiles & trusted contacts
 │   │   ├── itineraries/  # Trip planning
+│   │   ├── experiences/  # Provider-owned bookable catalog
+│   │   ├── providers/    # Stripe Connect onboarding
+│   │   ├── payments/     # Orders, Checkout, refunds
+│   │   ├── webhooks/     # Signed Stripe event processing
 │   │   ├── safety/       # Safety Guardian check-ins
 │   │   └── social/       # Social Radar connections
 │   ├── shared/           # Shared utilities
@@ -88,6 +93,22 @@ backend/
 - `POST /api/v1/auth/refresh` - Refresh access token
 - `POST /api/v1/auth/logout` - Logout
 - `GET /api/v1/auth/me` - Get current user
+- `POST /api/v1/auth/verify-email` - Consume an email verification token
+- `POST /api/v1/auth/resend-verification` - Request a new verification link
+- `POST /api/v1/auth/forgot-password` - Request a password reset link
+- `POST /api/v1/auth/reset-password` - Consume a password reset token
+- `POST /api/v1/auth/change-password` - Change password and revoke sessions
+
+### Marketplace
+- `GET /api/v1/experiences` - List active server-priced experiences
+- `POST /api/v1/experiences` - Create a provider experience
+- `PATCH /api/v1/experiences/:experienceId` - Update a provider experience
+- `GET /api/v1/providers/me` - Get and sync provider status
+- `POST /api/v1/providers/onboarding-link` - Start/continue Stripe Express onboarding
+- `POST /api/v1/payments/checkout` - Create an idempotent single-provider Checkout Session
+- `GET /api/v1/payments/orders/:orderId` - Get server-confirmed order status
+- `POST /api/v1/payments/orders/:orderId/refund` - Request a full refund
+- `POST /api/v1/webhooks/stripe` - Stripe-signed webhook receiver
 
 ### Users
 - `GET /api/v1/users/profile` - Get profile
@@ -160,7 +181,13 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 DATABASE_URL=your-database-url
 REDIS_URL=your-upstash-redis-url
 JWT_SECRET=your-secure-secret
+JWT_REFRESH_SECRET=a-different-secure-secret
 CORS_ORIGIN=https://your-frontend-domain.com
+APP_BASE_URL=https://your-frontend-domain.com
+RESEND_API_KEY=your-resend-key
+EMAIL_FROM=SoloWay <hello@your-domain.com>
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
 ```
 
 ## Scalability Features

@@ -1,31 +1,54 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ImmersivePage } from '../components';
+import { Alert, ImmersivePage, LoadingSkeleton } from '../components';
 import { useTrip } from '../context/TripContext';
-import { getActivitiesForDestination } from '../data/activityCatalog';
+import { listExperiences } from '../utils/experienceService';
 
 const CATEGORIES = [
   { id: 'food', label: 'Food & Dining', icon: '🍜' },
   { id: 'culture', label: 'Culture & History', icon: '⛩️' },
   { id: 'nightlife', label: 'Nightlife', icon: '🌙' },
-  { id: 'outdoors', label: 'Outdoors', icon: '🌿' },
-  { id: 'tours', label: 'Tours & Walks', icon: '🗺️' },
-  { id: 'wellness', label: 'Wellness', icon: '🧘' },
+  { id: 'activity', label: 'Activities & Tours', icon: '🗺️' },
+  { id: 'relax', label: 'Wellness', icon: '🧘' },
 ];
 
 const Explore = () => {
   const navigate = useNavigate();
-  const { destination, dates, cart, addToCart, removeFromCart, isInCart } = useTrip();
+  const { destination, dates, cart, addToCart, removeFromCart, isInCart, cartError } = useTrip();
   const [selectedCat, setSelectedCat] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loadState, setLoadState] = useState({ loading: true, error: '' });
 
-  const allActivities = getActivitiesForDestination(destination?.id);
-  const events = selectedCat ? allActivities.filter(e => e.cat === selectedCat) : allActivities;
+  useEffect(() => {
+    let active = true;
+    setLoadState({ loading: true, error: '' });
+    listExperiences({ destination: destination?.id, category: selectedCat || undefined })
+      .then(response => {
+        if (!active) return;
+        setEvents(response?.data?.experiences || response?.experiences || []);
+        setLoadState({ loading: false, error: '' });
+      })
+      .catch(error => {
+        if (!active) return;
+        setEvents([]);
+        setLoadState({ loading: false, error: error.message || 'Could not load experiences' });
+      });
+    return () => {
+      active = false;
+    };
+  }, [destination?.id, selectedCat]);
 
   const dateDisplay = dates.start && dates.end
     ? `${new Date(dates.start + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(dates.end + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
     : '';
 
   const toggle = (event) => isInCart(event.id) ? removeFromCart(event.id) : addToCart(event);
+  const formatPrice = event => event.priceCents === 0
+    ? 'Free'
+    : new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: event.currency?.toUpperCase() || 'USD',
+    }).format(event.priceCents / 100);
 
   return (
     <ImmersivePage
@@ -84,6 +107,10 @@ const Explore = () => {
           ))}
         </div>
 
+        {cartError && <Alert tone="warning" className="mb-4">{cartError}</Alert>}
+        {loadState.error && <Alert tone="error" className="mb-4">{loadState.error}</Alert>}
+        {loadState.loading && <LoadingSkeleton count={4} />}
+
         <div className="space-y-2">
           {events.map(event => {
             const added = isInCart(event.id);
@@ -98,14 +125,14 @@ const Explore = () => {
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-sm text-slate-900">{event.name}</h4>
+                    <h4 className="font-semibold text-sm text-slate-900">{event.title}</h4>
                     <p className="text-xs text-slate-500 mt-1">
-                      {event.time} · ⭐ {event.rating} ({event.reviews})
+                      {event.scheduledTime?.slice(0, 5) || 'Flexible time'} · {event.providerName}
                     </p>
                   </div>
                   <div className="text-right ml-3">
-                    <span className={`text-sm font-bold ${event.price === 0 ? 'text-teal-600' : 'text-amber-600'}`}>
-                      {event.price === 0 ? 'Free' : `$${event.price}`}
+                    <span className={`text-sm font-bold ${event.priceCents === 0 ? 'text-teal-600' : 'text-amber-600'}`}>
+                      {formatPrice(event)}
                     </span>
                     <button
                       onClick={() => toggle(event)}
@@ -125,8 +152,8 @@ const Explore = () => {
           })}
         </div>
 
-        {events.length === 0 && (
-          <div className="text-center py-10 text-slate-400 text-sm">No experiences found in this category yet.</div>
+        {!loadState.loading && !loadState.error && events.length === 0 && (
+          <div className="text-center py-10 text-slate-400 text-sm">No provider experiences are available here yet.</div>
         )}
 
         {cart.length > 0 && (

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
+import { resendVerification } from '../utils/authService';
 import {
   Alert,
   Button,
@@ -14,31 +15,45 @@ const PASSWORD_RULE_TEXT = '12+ characters with upper, lower, number, and symbol
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, login, register } = useAuth();
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ displayName: '', email: '', password: '' });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (isAuthenticated) return <Navigate to="/start" replace />;
+  const requestedPath = typeof location.state?.from === 'string'
+    && location.state.from.startsWith('/')
+    && !location.state.from.startsWith('//')
+    ? location.state.from
+    : '/start';
+
+  if (isAuthenticated) return <Navigate to={requestedPath} replace />;
 
   const updateField = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
   const handleSubmit = async event => {
     event.preventDefault();
     setError('');
+    setSuccess('');
     setIsSubmitting(true);
     try {
       if (mode === 'login') {
         await login({ email: form.email, password: form.password });
+        navigate(requestedPath, { replace: true });
       } else {
-        await register({
+        const result = await register({
           email: form.email,
           password: form.password,
           displayName: form.displayName || undefined,
         });
+        if (result?.requiresEmailVerification) {
+          setSuccess('Check your inbox for a verification link, then return here to sign in.');
+          setMode('login');
+          setForm(prev => ({ ...prev, password: '' }));
+        }
       }
-      navigate('/start', { replace: true });
     } catch (submitError) {
       setError(submitError.message || 'Could not complete authentication');
     } finally {
@@ -47,6 +62,21 @@ const Auth = () => {
   };
 
   const isRegister = mode === 'register';
+  const needsVerification = error.toLowerCase().includes('verify your email');
+
+  const handleResend = async () => {
+    setError('');
+    setSuccess('');
+    setIsSubmitting(true);
+    try {
+      await resendVerification(form.email);
+      setSuccess('If this account still needs verification, a new link has been sent.');
+    } catch (resendError) {
+      setError(resendError.message || 'Could not resend verification email');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <ImmersivePage
@@ -142,7 +172,21 @@ const Auth = () => {
             />
           </FormField>
 
+          {!isRegister && (
+            <div className="text-right">
+              <Link to="/forgot-password" className="text-sm font-medium text-teal-700 hover:text-teal-900">
+                Forgot password?
+              </Link>
+            </div>
+          )}
+
           {error && <Alert tone="error">{error}</Alert>}
+          {success && <Alert tone="success">{success}</Alert>}
+          {needsVerification && (
+            <Button type="button" variant="secondary" fullWidth onClick={handleResend} loading={isSubmitting}>
+              Resend verification email
+            </Button>
+          )}
 
           <Button
             type="submit"

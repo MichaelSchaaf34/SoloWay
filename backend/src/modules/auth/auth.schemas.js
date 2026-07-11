@@ -14,7 +14,7 @@ const strongPassword = Joi.string()
 
 export const registerSchema = {
   body: Joi.object({
-    email: Joi.string().email().required().messages({
+    email: Joi.string().trim().lowercase().email().required().messages({
       'string.email': 'Please provide a valid email address',
       'any.required': 'Email is required',
     }),
@@ -28,7 +28,7 @@ export const registerSchema = {
 
 export const loginSchema = {
   body: Joi.object({
-    email: Joi.string().email().required(),
+    email: Joi.string().trim().lowercase().email().required(),
     password: Joi.string().required(),
   }),
 };
@@ -39,15 +39,33 @@ export const refreshTokenSchema = {
   }),
 };
 
+export const logoutSchema = {
+  body: Joi.object({
+    refreshToken: Joi.string().required(),
+  }),
+};
+
+export const verifyEmailSchema = {
+  body: Joi.object({
+    token: Joi.string().hex().length(64).required(),
+  }),
+};
+
+export const resendVerificationSchema = {
+  body: Joi.object({
+    email: Joi.string().trim().lowercase().email().required(),
+  }),
+};
+
 export const forgotPasswordSchema = {
   body: Joi.object({
-    email: Joi.string().email().required(),
+    email: Joi.string().trim().lowercase().email().required(),
   }),
 };
 
 export const resetPasswordSchema = {
   body: Joi.object({
-    token: Joi.string().required(),
+    token: Joi.string().hex().length(64).required(),
     password: strongPassword.required(),
   }),
 };

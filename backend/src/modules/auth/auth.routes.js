@@ -11,6 +11,9 @@ import {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
+  logoutSchema,
+  verifyEmailSchema,
+  resendVerificationSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
@@ -48,6 +51,20 @@ router.post(
 );
 
 router.post(
+  '/verify-email',
+  strictRateLimiter,
+  validate(verifyEmailSchema),
+  authController.verifyEmail
+);
+
+router.post(
+  '/resend-verification',
+  strictRateLimiter,
+  validate(resendVerificationSchema),
+  authController.resendVerificationEmail
+);
+
+router.post(
   '/reset-password',
   strictRateLimiter,
   validate(resetPasswordSchema),
@@ -57,7 +74,8 @@ router.post(
 // Protected routes
 router.post(
   '/logout',
-  authenticate,
+  strictRateLimiter,
+  validate(logoutSchema),
   authController.logout
 );
 

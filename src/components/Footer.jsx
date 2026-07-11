@@ -6,9 +6,9 @@ const COLUMNS = [
   {
     label: 'Product',
     links: [
-      { href: '#destinations', label: 'Destinations' },
-      { href: '#safety',       label: 'Safety' },
-      { href: '#community',    label: 'Community' },
+      { href: '/#destinations', label: 'Destinations' },
+      { href: '/#safety',       label: 'Safety' },
+      { href: '/#community',    label: 'Community' },
       { href: '/auth',         label: 'Sign in' },
     ],
   },

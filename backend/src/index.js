@@ -8,7 +8,7 @@ import { createServer } from 'http';
 
 import { config, validateConfig } from './config/index.js';
 import { errorHandler, notFoundHandler } from './shared/middleware/errorHandler.js';
-import { rateLimiter } from './shared/middleware/rateLimiter.js';
+import { configureRateLimiting, rateLimiter } from './shared/middleware/rateLimiter.js';
 import { initializeDatabase } from './shared/database/index.js';
 import { initializeRedis } from './shared/cache/redis.js';
 import { initializeWebSocket } from './shared/realtime/websocket.js';
@@ -21,6 +21,10 @@ import safetyRoutes from './modules/safety/safety.routes.js';
 import socialRoutes from './modules/social/social.routes.js';
 import buddyRoutes from './modules/buddy/buddy.routes.js';
 import waitlistRoutes from './modules/waitlist/waitlist.routes.js';
+import providerRoutes from './modules/providers/providers.routes.js';
+import experienceRoutes from './modules/experiences/experiences.routes.js';
+import paymentRoutes from './modules/payments/payments.routes.js';
+import webhookRoutes from './modules/webhooks/webhooks.routes.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -29,6 +33,7 @@ const httpServer = createServer(app);
 async function bootstrap() {
   try {
     validateConfig();
+    const apiPrefix = `/api/${config.apiVersion}`;
 
     // Security defaults
     app.disable('x-powered-by');
@@ -42,7 +47,11 @@ async function bootstrap() {
 
     // Initialize Redis
     const redisClient = await initializeRedis();
+    if (!redisClient && config.env === 'production') {
+      throw new Error('Redis is required in production for distributed security controls');
+    }
     console.log(redisClient ? 'Redis connected' : 'Redis skipped (unavailable)');
+    configureRateLimiting(redisClient);
 
     // Initialize WebSocket server
     initializeWebSocket(httpServer);
@@ -54,6 +63,9 @@ async function bootstrap() {
       origin: config.cors.origin,
       credentials: true,
     }));
+
+    // Stripe signature verification requires the untouched request body.
+    app.use(`${apiPrefix}/webhooks`, webhookRoutes);
 
     // Request parsing
     app.use(express.json({ limit: '1mb' }));
@@ -80,7 +92,6 @@ async function bootstrap() {
     });
 
     // API routes
-    const apiPrefix = `/api/${config.apiVersion}`;
     app.use(`${apiPrefix}/auth`, authRoutes);
     app.use(`${apiPrefix}/users`, userRoutes);
     app.use(`${apiPrefix}/itineraries`, itineraryRoutes);
@@ -88,6 +99,9 @@ async function bootstrap() {
     app.use(`${apiPrefix}/social`, socialRoutes);
     app.use(`${apiPrefix}/buddy`, buddyRoutes);
     app.use(`${apiPrefix}/waitlist`, waitlistRoutes);
+    app.use(`${apiPrefix}/providers`, providerRoutes);
+    app.use(`${apiPrefix}/experiences`, experienceRoutes);
+    app.use(`${apiPrefix}/payments`, paymentRoutes);
 
     // Error handling
     app.use(notFoundHandler);

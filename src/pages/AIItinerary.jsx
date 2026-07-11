@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ImmersivePage } from '../components';
+import { Alert, ImmersivePage } from '../components';
 import { useTrip } from '../context/TripContext';
 
 // TODO: Replace with real data from GET /api/v1/itineraries/:id/generated
@@ -25,7 +25,7 @@ const SAMPLE_ITINERARY = [
 
 const AIItinerary = () => {
   const navigate = useNavigate();
-  const { destination, cart, addToCart, removeFromCart, isInCart } = useTrip();
+  const { destination, cart, addToCart, removeFromCart, isInCart, cartError } = useTrip();
 
   const toggle = (item) => isInCart(item.id) ? removeFromCart(item.id) : addToCart(item);
 
@@ -57,6 +57,7 @@ const AIItinerary = () => {
           Your {destination?.name?.split(',')[0] || ''} Itinerary
         </h1>
         <p className="text-slate-500 text-sm mb-6">AI-curated based on your vibe. Tap to add to bookings.</p>
+        {cartError && <Alert tone="info" className="mb-4">{cartError} Browse the live provider catalog below.</Alert>}
 
         {SAMPLE_ITINERARY.map(day => (
           <div key={day.day} className="mb-6">

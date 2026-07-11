@@ -507,6 +507,7 @@ function formatItem(item) {
     endTime: item.end_time,
     category: item.category,
     isFlexible: item.is_flexible,
+    externalId: item.external_id,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
   };

@@ -8,12 +8,15 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { getSupabaseAdmin } from '../../shared/database/supabase.js';
 import { cache, cacheKeys } from '../../shared/cache/redis.js';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../../shared/email/mailer.js';
 import { config } from '../../config/index.js';
 import { AuthenticationError, ConflictError, NotFoundError, ValidationError } from '../../shared/middleware/errorHandler.js';
 
 const SALT_ROUNDS = 12;
 const ACCESS_TOKEN_TYPE = 'access';
 const REFRESH_TOKEN_TYPE = 'refresh';
+const VERIFY_EMAIL_TOKEN_TYPE = 'verify_email';
+const RESET_PASSWORD_TOKEN_TYPE = 'reset_password';
 
 /**
  * JWT option builders
@@ -70,6 +73,66 @@ function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
+async function createEmailToken(userId, tokenType, ttlSeconds) {
+  const supabase = getSupabaseAdmin();
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = hashToken(token);
+  const now = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + ttlSeconds * 1000).toISOString();
+
+  await supabase
+    .from('auth_email_tokens')
+    .update({ consumed_at: now })
+    .eq('user_id', userId)
+    .eq('token_type', tokenType)
+    .is('consumed_at', null);
+
+  const { error } = await supabase
+    .from('auth_email_tokens')
+    .insert({
+      user_id: userId,
+      token_hash: tokenHash,
+      token_type: tokenType,
+      expires_at: expiresAt,
+    });
+
+  if (error) {
+    throw new Error('Failed to create authentication token');
+  }
+
+  return token;
+}
+
+async function consumeEmailToken(token, tokenType) {
+  const supabase = getSupabaseAdmin();
+  const tokenHash = hashToken(token);
+  const now = new Date().toISOString();
+  const { data: record } = await supabase
+    .from('auth_email_tokens')
+    .select('id, user_id, expires_at, consumed_at')
+    .eq('token_hash', tokenHash)
+    .eq('token_type', tokenType)
+    .maybeSingle();
+
+  if (!record || record.consumed_at || new Date(record.expires_at) <= new Date()) {
+    throw new ValidationError('Invalid or expired authentication token');
+  }
+
+  const { data: consumed, error } = await supabase
+    .from('auth_email_tokens')
+    .update({ consumed_at: now })
+    .eq('id', record.id)
+    .is('consumed_at', null)
+    .select('user_id')
+    .maybeSingle();
+
+  if (error || !consumed) {
+    throw new ValidationError('Authentication token has already been used');
+  }
+
+  return consumed.user_id;
+}
+
 /**
  * Convert a duration string (e.g., "7d", "30d", "1h") to milliseconds
  */
@@ -116,14 +179,22 @@ async function storeRefreshToken(userId, refreshToken, replacedBy = null) {
  */
 async function revokeRefreshToken(tokenHash, replacedBy = null) {
   const supabase = getSupabaseAdmin();
-  await supabase
+  const { data, error } = await supabase
     .from('auth_refresh_tokens')
     .update({
       revoked_at: new Date().toISOString(),
       replaced_by: replacedBy,
     })
     .eq('token_hash', tokenHash)
-    .is('revoked_at', null);
+    .is('revoked_at', null)
+    .select('user_id')
+    .maybeSingle();
+
+  if (error) {
+    throw new Error('Failed to revoke refresh token');
+  }
+
+  return data;
 }
 
 /**
@@ -173,9 +244,9 @@ export async function register({ email, password, displayName }) {
     throw new Error('Failed to create user');
   }
 
-  // Generate tokens
-  const tokens = generateTokens(user.id);
-  await storeRefreshToken(user.id, tokens.refreshToken);
+  const verificationToken = await createEmailToken(user.id, VERIFY_EMAIL_TOKEN_TYPE, 24 * 60 * 60);
+  const verificationUrl = `${config.appUrl}/verify-email?token=${encodeURIComponent(verificationToken)}`;
+  await sendVerificationEmail(user.email, verificationUrl);
 
   return {
     user: {
@@ -183,8 +254,9 @@ export async function register({ email, password, displayName }) {
       email: user.email,
       displayName: user.display_name,
       createdAt: user.created_at,
+      emailVerified: false,
     },
-    ...tokens,
+    requiresEmailVerification: true,
   };
 }
 
@@ -197,7 +269,7 @@ export async function login(email, password) {
   // Find user by email
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, email, password_hash, display_name, avatar_url, visibility_mode, created_at')
+    .select('id, email, password_hash, display_name, avatar_url, visibility_mode, email_verified_at, created_at')
     .eq('email', email.toLowerCase())
     .single();
 
@@ -209,6 +281,10 @@ export async function login(email, password) {
   const isValidPassword = await bcrypt.compare(password, user.password_hash);
   if (!isValidPassword) {
     throw new AuthenticationError('Invalid email or password');
+  }
+
+  if (!user.email_verified_at) {
+    throw new AuthenticationError('Please verify your email before signing in');
   }
 
   // Update last seen
@@ -231,6 +307,7 @@ export async function login(email, password) {
       displayName: user.display_name,
       avatarUrl: user.avatar_url,
       visibilityMode: user.visibility_mode,
+      emailVerified: Boolean(user.email_verified_at),
       createdAt: user.created_at,
     },
     ...tokens,
@@ -262,7 +339,12 @@ export async function refreshToken(token) {
       throw new AuthenticationError('Invalid refresh token');
     }
 
+    if (tokenRecord.user_id !== decoded.userId) {
+      throw new AuthenticationError('Invalid refresh token');
+    }
+
     if (tokenRecord.revoked_at) {
+      await revokeAllRefreshTokensForUser(tokenRecord.user_id);
       throw new AuthenticationError('Refresh token revoked');
     }
 
@@ -274,19 +356,23 @@ export async function refreshToken(token) {
     // Verify user still exists
     const { data: user, error } = await supabase
       .from('users')
-      .select('id')
+      .select('id, email_verified_at')
       .eq('id', decoded.userId)
       .single();
 
-    if (error || !user) {
+    if (error || !user || !user.email_verified_at) {
       throw new AuthenticationError('User not found');
     }
 
     // Generate new tokens and rotate refresh token
     const newTokens = generateTokens(decoded.userId);
     const newTokenHash = hashToken(newTokens.refreshToken);
+    const rotatedToken = await revokeRefreshToken(tokenHash, newTokenHash);
+    if (!rotatedToken) {
+      await revokeAllRefreshTokensForUser(decoded.userId);
+      throw new AuthenticationError('Refresh token already used');
+    }
     await storeRefreshToken(decoded.userId, newTokens.refreshToken, null);
-    await revokeRefreshToken(tokenHash, newTokenHash);
 
     return newTokens;
   } catch (error) {
@@ -319,7 +405,7 @@ export async function getUserById(userId) {
   const supabase = getSupabaseAdmin();
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, email, display_name, avatar_url, visibility_mode, created_at')
+    .select('id, email, display_name, avatar_url, visibility_mode, email_verified_at, created_at')
     .eq('id', userId)
     .single();
 
@@ -333,6 +419,7 @@ export async function getUserById(userId) {
     displayName: user.display_name,
     avatarUrl: user.avatar_url,
     visibilityMode: user.visibility_mode,
+    emailVerified: Boolean(user.email_verified_at),
     createdAt: user.created_at,
   };
 
@@ -345,10 +432,55 @@ export async function getUserById(userId) {
 /**
  * Logout user
  */
-export async function logout(userId) {
-  // Clear cached session
-  await cache.del(cacheKeys.userSession(userId));
-  await revokeAllRefreshTokensForUser(userId);
+export async function logout(refreshToken) {
+  const tokenHash = hashToken(refreshToken);
+  const supabase = getSupabaseAdmin();
+  const { data: tokenRecord } = await supabase
+    .from('auth_refresh_tokens')
+    .select('user_id')
+    .eq('token_hash', tokenHash)
+    .maybeSingle();
+
+  if (!tokenRecord) {
+    return;
+  }
+
+  await Promise.all([
+    cache.del(cacheKeys.userSession(tokenRecord.user_id)),
+    revokeAllRefreshTokensForUser(tokenRecord.user_id),
+  ]);
+}
+
+export async function verifyEmail(token) {
+  const userId = await consumeEmailToken(token, VERIFY_EMAIL_TOKEN_TYPE);
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from('users')
+    .update({ email_verified_at: new Date().toISOString() })
+    .eq('id', userId);
+
+  if (error) {
+    throw new Error('Failed to verify email');
+  }
+
+  await cache.del(cacheKeys.user(userId));
+}
+
+export async function resendVerificationEmail(email) {
+  const supabase = getSupabaseAdmin();
+  const { data: user } = await supabase
+    .from('users')
+    .select('id, email, email_verified_at')
+    .eq('email', email.toLowerCase())
+    .maybeSingle();
+
+  if (!user || user.email_verified_at) {
+    return;
+  }
+
+  const token = await createEmailToken(user.id, VERIFY_EMAIL_TOKEN_TYPE, 24 * 60 * 60);
+  const verificationUrl = `${config.appUrl}/verify-email?token=${encodeURIComponent(token)}`;
+  await sendVerificationEmail(user.email, verificationUrl);
 }
 
 /**
@@ -368,33 +500,16 @@ export async function forgotPassword(email) {
     return;
   }
 
-  // Generate reset token and only persist its hash
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  const resetTokenHash = hashToken(resetToken);
-
-  await cache.set(
-    `password_reset:${resetTokenHash}`,
-    { userId: user.id, email: user.email },
-    3600
-  );
-
-  // TODO: Send email with reset link
-  if (config.env !== 'production') {
-    console.log(`Password reset token for ${email}: ${resetToken}`);
-  }
+  const resetToken = await createEmailToken(user.id, RESET_PASSWORD_TOKEN_TYPE, 60 * 60);
+  const resetUrl = `${config.appUrl}/reset-password?token=${encodeURIComponent(resetToken)}`;
+  await sendPasswordResetEmail(user.email, resetUrl);
 }
 
 /**
  * Reset password with token
  */
 export async function resetPassword(token, newPassword) {
-  const tokenHash = hashToken(token);
-  const resetCacheKey = `password_reset:${tokenHash}`;
-  const resetData = await cache.get(resetCacheKey);
-
-  if (!resetData) {
-    throw new ValidationError('Invalid or expired reset token');
-  }
+  const userId = await consumeEmailToken(token, RESET_PASSWORD_TOKEN_TYPE);
 
   const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
@@ -402,17 +517,16 @@ export async function resetPassword(token, newPassword) {
   const { error } = await supabase
     .from('users')
     .update({ password_hash: passwordHash })
-    .eq('id', resetData.userId);
+    .eq('id', userId);
 
   if (error) {
     throw new Error('Failed to reset password');
   }
 
   await Promise.all([
-    cache.del(resetCacheKey),
-    cache.del(cacheKeys.user(resetData.userId)),
-    cache.del(cacheKeys.userSession(resetData.userId)),
-    revokeAllRefreshTokensForUser(resetData.userId),
+    cache.del(cacheKeys.user(userId)),
+    cache.del(cacheKeys.userSession(userId)),
+    revokeAllRefreshTokensForUser(userId),
   ]);
 }
 

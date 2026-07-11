@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "test": "vitest",
+    "test": "vitest run",
     "lint": "eslint src/",
     "db:migrate": "node src/shared/database/migrate.js",
     "db:seed": "node src/shared/database/seed.js"
@@ -22,6 +22,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@socket.io/redis-adapter": "^8.2.1",
     "@supabase/supabase-js": "^2.39.0",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.1.0",
@@ -35,18 +36,17 @@
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "@socket.io/redis-adapter": "^8.2.1",
     "pg": "^8.11.3",
     "rate-limit-redis": "^4.2.0",
     "socket.io": "^4.7.2",
-    "uuid": "^9.0.1"
+    "stripe": "^22.3.1"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
     "nodemon": "^3.0.2",
-    "vitest": "^1.1.0"
+    "vitest": "^4.1.10"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   }
 }

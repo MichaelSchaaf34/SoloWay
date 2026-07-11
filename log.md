@@ -166,3 +166,40 @@
 - Refactor `src/pages/Itineraries.jsx`: replaced native `<select>`/`<input>` forms with design-system primitives, added proper `EmptyState` for zero-trips, `LoadingSkeleton` while fetching, structured status ring badges, and accessible per-card delete confirmation swap
 - Refactor `src/pages/ItineraryDetail.jsx`: replaced `window.confirm` destructive delete with an accessible modal dialog (role=dialog, aria-modal, aria-labelledby, backdrop click-to-dismiss), rebuilt planned-items list with keyboard-reachable action buttons, collapsed trip settings behind an explicit toggle, and wrapped loading/not-found states in Skeleton + EmptyState primitives
 - Validation: `ReadLints` clean on all touched files; `npm run build` passed (350.41 kB JS / 103.72 kB gzipped, 74.46 kB CSS / 12.57 kB gzipped); `node --check` clean on new backend module + `backend/src/index.js`
+
+## 2026-07-11 - Interval 31 (auth + Stripe Connect MVP)
+- Repaired auth session lifecycle with single-flight access-token refresh/retry, refresh-token replay detection, expired-access logout support, global session revocation on logout, required separate refresh secrets, and Redis-backed distributed rate limiting that fails closed in production
+- Added database-backed one-time email verification and password-reset tokens, Resend transactional email delivery, verification/reset/change-password UI, and email verification gating before token issuance
+- Added frontend and backend auth tests for refresh concurrency, failed refresh, protected routes, registration verification, login gating, token replay, one-time email tokens, and logout
+- Added normalized commerce schema for providers, experiences, orders, line items, payments, refunds, and idempotent webhook events with money/currency, commission, provider, cancellation cutoff, and timezone snapshots
+- Implemented Stripe Connect Express onboarding, server-authoritative experience catalog, single-provider Stripe Checkout destination charges, application fees, signed raw-body webhooks, stale-event recovery, idempotent fulfillment, amount reconciliation, refunds, and dispute state handling
+- Replaced the demo card form with Stripe-hosted payment collection and a webhook-confirmed booking return page; paid orders now create linked itinerary items only after verified payment
+- Added security tests for altered client totals, mixed providers, unavailable inventory, duplicate checkout/webhook/fulfillment events, mismatched Stripe amounts, refunds, and disputes
+- Updated deployment/environment documentation, removed an unused vulnerable UUID dependency, upgraded Vite/Vitest security dependencies, and reached zero npm audit findings for frontend and backend
+- Validation: frontend 9/9 tests passed; backend 36/36 tests passed; frontend production build passed; all backend JavaScript passed `node --check`; dedicated security re-review found no remaining medium-or-higher issues
+
+## 2026-07-11 - Interval 32 (local registration connectivity)
+- Fixed account-creation `Failed to fetch`: rebuilt an unreadable OneDrive-cached backend dependency, limited the separate refresh-secret startup requirement to production, and started the local API on port 3001
+- Applied pending `004_auth_email_tokens.sql` and `005_commerce.sql` migrations successfully
+- Updated root `npm run dev` to launch both Vite and the backend together so local auth no longer silently runs without an API
+- Validation: `/health` returned 200 and `POST /api/v1/auth/register` returned the expected structured validation response with localhost CORS enabled
+
+## 2026-07-11 - Interval 33 (transactional auth email)
+- Confirmed successful registration was generating a development verification preview; real delivery was blocked only by missing Resend credentials
+- Upgraded verification and password-reset emails with a branded, responsive SoloWay template, clear CTA, copyable fallback URL, expiry/security guidance, and plain-text alternative
+- Added an ignored local `backend/.env` scaffold for `RESEND_API_KEY`, sandbox sender, and local app URL without committing credentials
+- Improved frontend API errors to display specific validation details instead of the generic `Validation failed` message
+- Added transactional email tests; validation now passes with frontend 9/9 tests, backend 38/38 tests, and a clean production build
+
+## 2026-07-11 - Interval 34 (live homepage experiences)
+- Connected the public homepage to the existing `GET /api/v1/experiences` provider inventory and added responsive live-experience cards with provider, location, time, duration, and server-authoritative pricing
+- Added deterministic local-day rotation for both the destination atlas order and the featured destination, including an automatic midnight refresh while the page remains open
+- Kept homepage discovery aligned with in-app checkout by using only active SoloWay provider experiences; added loading, unavailable, and API-error states for empty inventory
+- Added destination-rotation unit coverage; frontend validation passes with 12/12 tests, a clean lint check on touched files, and a successful production build
+
+## 2026-07-11 - Interval 35 (public destination discovery)
+- Replaced destination-card authentication redirects with public `/destinations/:destinationSlug` pages for all six homepage cities
+- Added editorial destination overviews, trip-cost/season context, activity ideas, and public live provider inventory with loading, empty, error, and unsupported-slug states
+- Deferred authentication until booking intent: selected destination and experience are retained in trip state, and sign-in now safely returns users to their intended in-app path
+- Updated cross-page navigation hashes to return to homepage sections correctly
+- Added public browsing and booking-intent tests; frontend validation passes with 15/15 tests, a clean lint check on touched files, and a successful production build

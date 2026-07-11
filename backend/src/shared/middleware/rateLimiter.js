@@ -4,6 +4,7 @@
  */
 
 import rateLimit from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
 import { config } from '../../config/index.js';
 
 /**
@@ -69,10 +70,17 @@ const lenientLimiter = createDynamicLimiter({
 /**
  * Configure Redis store when Redis is available
  */
-export function configureRateLimiting(redisStore) {
-  defaultLimiter.setStore(redisStore);
-  strictLimiter.setStore(redisStore);
-  lenientLimiter.setStore(redisStore);
+export function configureRateLimiting(redisClient) {
+  if (!redisClient) return;
+
+  const createStore = prefix => new RedisStore({
+    sendCommand: (...args) => redisClient.call(...args),
+    prefix: `soloway:rate-limit:${prefix}:`,
+  });
+
+  defaultLimiter.setStore(createStore('default'));
+  strictLimiter.setStore(createStore('strict'));
+  lenientLimiter.setStore(createStore('lenient'));
 }
 
 /**

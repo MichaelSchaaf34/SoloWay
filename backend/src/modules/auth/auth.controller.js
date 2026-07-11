@@ -76,11 +76,35 @@ export async function getCurrentUser(req, res, next) {
  */
 export async function logout(req, res, next) {
   try {
-    await authService.logout(req.userId);
+    await authService.logout(req.body.refreshToken);
 
     res.json({
       success: true,
       message: 'Logged out successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function verifyEmail(req, res, next) {
+  try {
+    await authService.verifyEmail(req.body.token);
+    res.json({
+      success: true,
+      message: 'Email verified successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resendVerificationEmail(req, res, next) {
+  try {
+    await authService.resendVerificationEmail(req.body.email);
+    res.json({
+      success: true,
+      message: 'If the account still needs verification, a new link has been sent',
     });
   } catch (error) {
     next(error);

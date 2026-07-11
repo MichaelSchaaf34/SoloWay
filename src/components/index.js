@@ -22,6 +22,7 @@ export { default as Footer } from './Footer';
 // Section Components
 export { default as Hero } from './Hero';
 export { default as Destinations } from './Destinations';
+export { default as FeaturedExperiences } from './FeaturedExperiences';
 export { default as Safety } from './Safety';
 export { default as FieldNotes } from './FieldNotes';
 export { default as CTA } from './CTA';

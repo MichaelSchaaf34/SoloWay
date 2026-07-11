@@ -67,6 +67,20 @@ export const config = {
     origin: parseCorsOrigins(process.env.CORS_ORIGIN),
   },
 
+  // Public app URL and transactional email
+  appUrl: process.env.APP_BASE_URL || 'http://localhost:3000',
+  email: {
+    resendApiKey: process.env.RESEND_API_KEY || null,
+    from: process.env.EMAIL_FROM || null,
+  },
+
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY || null,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || null,
+    connectCountry: process.env.STRIPE_CONNECT_COUNTRY || 'US',
+    defaultCommissionBps: parseInt(process.env.STRIPE_DEFAULT_COMMISSION_BPS, 10) || 1500,
+  },
+
   // External APIs
   externalApis: {
     mapsApiKey: process.env.MAPS_API_KEY,
@@ -77,6 +91,13 @@ export const config = {
 
 // Validate required configuration in non-test environments
 export function validateConfig() {
+  if (
+    config.stripe.defaultCommissionBps < 0 ||
+    config.stripe.defaultCommissionBps > 5000
+  ) {
+    throw new Error('STRIPE_DEFAULT_COMMISSION_BPS must be between 0 and 5000');
+  }
+
   const requiredInNonTest = [
     'SUPABASE_URL',
     'SUPABASE_ANON_KEY',
@@ -90,6 +111,21 @@ export function validateConfig() {
     const missing = requiredInNonTest.filter(key => !process.env[key]);
     if (missing.length > 0) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    }
+  }
+
+  if (config.env === 'production') {
+    const requiredInProduction = [
+      'APP_BASE_URL',
+      'JWT_REFRESH_SECRET',
+      'RESEND_API_KEY',
+      'EMAIL_FROM',
+      'STRIPE_SECRET_KEY',
+      'STRIPE_WEBHOOK_SECRET',
+    ];
+    const missing = requiredInProduction.filter(key => !process.env[key]);
+    if (missing.length > 0) {
+      throw new Error(`Missing production environment variables: ${missing.join(', ')}`);
     }
   }
 }

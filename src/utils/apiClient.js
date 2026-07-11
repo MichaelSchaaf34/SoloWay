@@ -11,13 +11,18 @@ export class ApiError extends Error {
 
 let getAccessToken = () => null;
 let onUnauthorized = null;
+let refreshAccessToken = null;
+let refreshPromise = null;
 
-export function configureApiClient({ getToken, handleUnauthorized } = {}) {
+export function configureApiClient({ getToken, handleUnauthorized, refreshToken } = {}) {
   if (typeof getToken === 'function') {
     getAccessToken = getToken;
   }
   if (typeof handleUnauthorized === 'function') {
     onUnauthorized = handleUnauthorized;
+  }
+  if (typeof refreshToken === 'function') {
+    refreshAccessToken = refreshToken;
   }
 }
 
@@ -38,6 +43,7 @@ export async function apiRequest(path, options = {}) {
     auth = false,
     signal,
     ignoreUnauthorized = false,
+    _retriedAfterRefresh = false,
   } = options;
 
   const requestHeaders = {
@@ -68,11 +74,49 @@ export async function apiRequest(path, options = {}) {
   const payload = await parseResponse(response);
 
   if (!response.ok) {
-    if (response.status === 401 && onUnauthorized && !ignoreUnauthorized && hasAuthHeader) {
+    const shouldRefresh =
+      response.status === 401 &&
+      hasAuthHeader &&
+      !ignoreUnauthorized &&
+      !_retriedAfterRefresh &&
+      refreshAccessToken;
+
+    if (shouldRefresh) {
+      try {
+        if (!refreshPromise) {
+          refreshPromise = Promise.resolve(refreshAccessToken())
+            .finally(() => {
+              refreshPromise = null;
+            });
+        }
+
+        const token = await refreshPromise;
+        if (token) {
+          return apiRequest(path, {
+            ...options,
+            _retriedAfterRefresh: true,
+          });
+        }
+      } catch {
+        // The refresh handler owns session cleanup.
+      }
+    }
+
+    if (
+      response.status === 401 &&
+      onUnauthorized &&
+      !ignoreUnauthorized &&
+      hasAuthHeader
+    ) {
       onUnauthorized();
     }
 
+    const validationMessage = payload?.error?.details
+      ?.map(detail => detail.message)
+      .filter(Boolean)
+      .join('. ');
     const message =
+      validationMessage ||
       payload?.message ||
       payload?.error?.message ||
       payload?.error ||
