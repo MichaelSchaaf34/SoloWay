@@ -1,30 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { ImmersivePage } from '../components';
 import { useTrip } from '../context/TripContext';
-import { getDestinationIds } from '../data/activityCatalog';
+import { getLiveDestinations } from '../utils/liveDestinations';
 
-const ALL_DESTINATIONS = [
-  { id: 'kyoto', name: 'Kyoto, Japan', emoji: '🏯', vibe: 'Temples & Tea' },
-  { id: 'lisbon', name: 'Lisbon, Portugal', emoji: '🌊', vibe: 'Sun & Soul' },
-  { id: 'medellin', name: 'Medellín, Colombia', emoji: '🌺', vibe: 'Mountains & Music' },
-  { id: 'florence', name: 'Florence, Italy', emoji: '🎨', vibe: 'Art & Aperitivo' },
-  { id: 'bangkok', name: 'Bangkok, Thailand', emoji: '🛕', vibe: 'Street Food & Temples' },
-  { id: 'cape-town', name: 'Cape Town, South Africa', emoji: '🦁', vibe: 'Nature & Culture' },
-  { id: 'barcelona', name: 'Barcelona, Spain', emoji: '🌇', vibe: 'Beach & Architecture' },
-  { id: 'reykjavik', name: 'Reykjavík, Iceland', emoji: '🌋', vibe: 'Fire & Ice' },
-  { id: 'bali', name: 'Bali, Indonesia', emoji: '🌴', vibe: 'Surf & Serenity' },
-  { id: 'marrakech', name: 'Marrakech, Morocco', emoji: '🕌', vibe: 'Souks & Spice' },
-  { id: 'new-york', name: 'New York, USA', emoji: '🗽', vibe: 'City That Never Sleeps' },
-  { id: 'paris', name: 'Paris, France', emoji: '🥐', vibe: 'Cafés & Culture' },
-  { id: 'buenos-aires', name: 'Buenos Aires, Argentina', emoji: '💃', vibe: 'Tango & Steak' },
-  { id: 'seoul', name: 'Seoul, South Korea', emoji: '🎶', vibe: 'K-Culture & Street Food' },
-  { id: 'prague', name: 'Prague, Czech Republic', emoji: '🏰', vibe: 'Castles & Beer' },
-];
-
-const supportedIds = new Set(getDestinationIds());
-const SAMPLE_DESTINATIONS = ALL_DESTINATIONS.filter(d => supportedIds.has(d.id));
+const ONBOARDING_DESTINATIONS = getLiveDestinations();
 
 const FirstChoice = () => {
   const navigate = useNavigate();
@@ -34,11 +15,17 @@ const FirstChoice = () => {
   const [step, setStep] = useState(location.state?.step || (destination ? 'choose-path' : 'destination'));
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filtered = SAMPLE_DESTINATIONS
-    .filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    .slice(0, 5);
+  const filtered = ONBOARDING_DESTINATIONS
+    .filter(d => `${d.name}, ${d.country}`.toLowerCase().includes(searchQuery.toLowerCase()))
+    .slice(0, searchQuery.trim() ? 8 : 6);
 
   const canContinue = !!destination;
+
+  // Same destination shape DestinationDetail stores in TripContext.
+  const openDestination = d => {
+    setDestination({ id: d.id, name: `${d.name}, ${d.country}`, vibe: d.vibe });
+    navigate(`/destinations/${d.id}`);
+  };
 
   const dateDisplay = dates.start && dates.end
     ? `${new Date(dates.start + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(dates.end + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
@@ -70,7 +57,7 @@ const FirstChoice = () => {
           <h1 className="text-3xl font-bold text-slate-900 mb-1">
             Where to next{user?.displayName ? `, ${user.displayName}` : ''}?
           </h1>
-          <p className="text-slate-500 text-sm mb-7">Pick a destination and we'll handle the rest.</p>
+          <p className="text-slate-500 text-sm mb-7">Pick a city to see live experiences and events happening there.</p>
 
           <input
             type="text"
@@ -89,25 +76,23 @@ const FirstChoice = () => {
               filtered.map(d => (
                 <button
                   key={d.id}
-                  onClick={() => setDestination(d)}
-                  className={`w-full flex items-center gap-3.5 rounded-2xl px-4 py-4 text-left transition-all duration-150 border-2 ${
-                    destination?.id === d.id
-                      ? 'bg-teal-50 border-teal-500 shadow-lg shadow-teal-500/15 scale-[1.02]'
-                      : 'bg-white/40 border-transparent hover:bg-white/80 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
-                  }`}
+                  onClick={() => openDestination(d)}
+                  className="w-full flex items-center gap-3.5 rounded-2xl px-3.5 py-3 text-left transition-all duration-150 border-2 bg-white/40 border-transparent hover:bg-white/80 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5"
                 >
-                  <span className="text-3xl">{d.emoji}</span>
-                  <div className="flex-1">
-                    <div className={`font-semibold text-[15px] ${destination?.id === d.id ? 'text-teal-800' : 'text-slate-900'}`}>{d.name}</div>
-                    <div className={`text-xs ${destination?.id === d.id ? 'text-teal-600' : 'text-slate-500'}`}>{d.vibe}</div>
+                  <img
+                    src={d.image?.replace('w=1200', 'w=160')}
+                    alt=""
+                    className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+                    style={{ objectPosition: d.imagePosition }}
+                    loading="lazy"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-[15px] text-slate-900">{d.name}, {d.country}</div>
+                    <div className="text-xs text-slate-500 truncate">{d.vibe} · {d.highlights?.[0]}</div>
                   </div>
-                  {destination?.id === d.id && (
-                    <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  )}
+                  <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               ))
             )}
@@ -135,17 +120,31 @@ const FirstChoice = () => {
             </div>
           </div>
 
-          <button
-            onClick={() => canContinue && setStep('choose-path')}
-            disabled={!canContinue}
-            className={`w-full py-4 rounded-xl font-semibold text-[15px] transition-all duration-300 ${
-              canContinue
-                ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-lg shadow-teal-500/25'
-                : 'bg-slate-200/50 text-slate-400 cursor-not-allowed'
-            }`}
-          >
-            Continue →
-          </button>
+          {canContinue && (
+            <button
+              onClick={() => setStep('choose-path')}
+              className="w-full py-4 rounded-xl font-semibold text-[15px] transition-all duration-300 bg-teal-500 hover:bg-teal-400 text-white shadow-lg shadow-teal-500/25 mb-2"
+            >
+              Continue with {destination.name} →
+            </button>
+          )}
+
+          <div className="flex flex-col items-center gap-2 pt-4 border-t border-slate-200/60">
+            <Link
+              to={user?.isAdmin ? '/admin' : '/'}
+              className="text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors"
+            >
+              {user?.isAdmin ? 'Skip for now — open admin portal' : 'Skip for now'}
+            </Link>
+            {!user?.isAdmin && (
+              <Link
+                to="/admin"
+                className="text-xs text-teal-600/80 hover:text-teal-700 transition-colors"
+              >
+                Admin portal →
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
@@ -160,7 +159,7 @@ const FirstChoice = () => {
           </button>
 
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">
-            {destination?.emoji} {destination?.name}
+            {destination?.name}
           </h1>
           <p className="text-slate-500 text-sm mb-8">
             {dateDisplay ? `${dateDisplay} · ` : ''}How do you want to plan?

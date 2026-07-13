@@ -23,8 +23,11 @@ import buddyRoutes from './modules/buddy/buddy.routes.js';
 import waitlistRoutes from './modules/waitlist/waitlist.routes.js';
 import providerRoutes from './modules/providers/providers.routes.js';
 import experienceRoutes from './modules/experiences/experiences.routes.js';
+import eventRoutes from './modules/events/events.routes.js';
+import reviewRoutes from './modules/reviews/reviews.routes.js';
 import paymentRoutes from './modules/payments/payments.routes.js';
 import webhookRoutes from './modules/webhooks/webhooks.routes.js';
+import adminRoutes from './modules/admin/admin.routes.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -101,7 +104,10 @@ async function bootstrap() {
     app.use(`${apiPrefix}/waitlist`, waitlistRoutes);
     app.use(`${apiPrefix}/providers`, providerRoutes);
     app.use(`${apiPrefix}/experiences`, experienceRoutes);
+    app.use(`${apiPrefix}/events`, eventRoutes);
+    app.use(`${apiPrefix}/reviews`, reviewRoutes);
     app.use(`${apiPrefix}/payments`, paymentRoutes);
+    app.use(`${apiPrefix}/admin`, adminRoutes);
 
     // Error handling
     app.use(notFoundHandler);

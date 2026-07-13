@@ -8,15 +8,16 @@ import Safety from '../components/Safety';
 import FieldNotes from '../components/FieldNotes';
 import CTA from '../components/CTA';
 import Footer from '../components/Footer';
-import { millisecondsUntilNextLocalDay } from '../utils/destinationRotation';
+import { millisecondsUntilNextRotation } from '../utils/destinationRotation';
 
 const Landing = () => {
   const [rotationDate, setRotationDate] = useState(() => new Date());
 
   useEffect(() => {
+    // Re-render at 12am Eastern so an open tab picks up the day's rotation.
     const timeoutId = window.setTimeout(
       () => setRotationDate(new Date()),
-      millisecondsUntilNextLocalDay(rotationDate) + 100
+      millisecondsUntilNextRotation(rotationDate) + 100
     );
 
     return () => window.clearTimeout(timeoutId);

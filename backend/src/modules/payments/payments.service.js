@@ -463,13 +463,55 @@ export async function recordPaymentFailed(paymentIntent) {
   });
 }
 
-export async function refundOrder(userId, orderId, reason) {
-  const { order } = await loadOrder(orderId, userId);
+async function executeFullRefund(order, requestedBy, reason, stripeReason) {
   if (!['paid', 'fulfilled'].includes(order.status)) {
     throw new ConflictError('Only paid orders can be refunded');
   }
   if (!order.stripe_payment_intent_id) {
     throw new ConflictError('This order does not have a refundable Stripe payment');
+  }
+
+  const refund = await getStripe().refunds.create({
+    payment_intent: order.stripe_payment_intent_id,
+    reverse_transfer: true,
+    refund_application_fee: true,
+    reason: stripeReason,
+    metadata: {
+      order_id: order.id,
+      requested_by: requestedBy,
+      customer_reason: reason || '',
+    },
+  }, {
+    idempotencyKey: `full-refund-${order.id}`,
+  });
+
+  const paymentResult = await query(
+    `SELECT id FROM payments WHERE order_id = $1 LIMIT 1`,
+    [order.id]
+  );
+  await query(
+    `INSERT INTO refunds
+      (order_id, payment_id, requested_by, amount_cents, reason, status, stripe_refund_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (stripe_refund_id) DO NOTHING`,
+    [
+      order.id,
+      paymentResult.rows[0].id,
+      requestedBy,
+      refund.amount,
+      reason || null,
+      refund.status === 'succeeded' ? 'succeeded' : 'pending',
+      refund.id,
+    ]
+  );
+
+  return { id: refund.id, status: refund.status, amountCents: refund.amount };
+}
+
+export async function refundOrder(userId, orderId, reason) {
+  const { order } = await loadOrder(orderId, userId);
+  if (!['paid', 'fulfilled'].includes(order.status)) {
+    throw new ConflictError('Only paid orders can be refunded');
   }
 
   const refundEligibility = await query(
@@ -488,41 +530,16 @@ export async function refundOrder(userId, orderId, reason) {
     throw new ConflictError('The cancellation deadline for this booking has passed');
   }
 
-  const refund = await getStripe().refunds.create({
-    payment_intent: order.stripe_payment_intent_id,
-    reverse_transfer: true,
-    refund_application_fee: true,
-    reason: 'requested_by_customer',
-    metadata: {
-      order_id: orderId,
-      requested_by: userId,
-      customer_reason: reason || '',
-    },
-  }, {
-    idempotencyKey: `full-refund-${orderId}`,
-  });
+  return executeFullRefund(order, userId, reason, 'requested_by_customer');
+}
 
-  const paymentResult = await query(
-    `SELECT id FROM payments WHERE order_id = $1 LIMIT 1`,
-    [orderId]
-  );
-  await query(
-    `INSERT INTO refunds
-      (order_id, payment_id, requested_by, amount_cents, reason, status, stripe_refund_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
-     ON CONFLICT (stripe_refund_id) DO NOTHING`,
-    [
-      orderId,
-      paymentResult.rows[0].id,
-      userId,
-      refund.amount,
-      reason || null,
-      refund.status === 'succeeded' ? 'succeeded' : 'pending',
-      refund.id,
-    ]
-  );
-
-  return { id: refund.id, status: refund.status, amountCents: refund.amount };
+/**
+ * Admin-initiated full refund: skips the ownership and cancellation-window
+ * checks that apply to traveler-requested refunds.
+ */
+export async function refundOrderAsAdmin(adminUserId, orderId, reason) {
+  const { order } = await loadOrder(orderId);
+  return executeFullRefund(order, adminUserId, reason, 'requested_by_customer');
 }
 
 export async function recordChargeRefunded(charge) {

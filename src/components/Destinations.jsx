@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Users } from 'lucide-react';
+import DestinationScene from './DestinationScene';
 import { rotateForDate } from '../utils/destinationRotation';
 
 /**
@@ -21,6 +22,11 @@ export const DESTINATIONS = [
     bestTime: 'Dec – Mar',
     avgPerDay: 55,
     highlights: ['Salsa nights', 'Comuna 13 art walks', 'Coffee-country day trips'],
+    scene: 'canopy',
+    sceneCaption: 'Andean valley air',
+    image: 'https://images.unsplash.com/photo-1727813658887-abf22d586862?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Medellín skyline surrounded by green mountains',
+    imagePosition: 'center',
     gradient:
       'radial-gradient(at 20% 20%, rgba(255,170,80,0.95) 0%, rgba(255,170,80,0) 55%), radial-gradient(at 80% 80%, rgba(236,72,153,0.85) 0%, rgba(236,72,153,0) 60%), linear-gradient(135deg, #7c2d12 0%, #312e81 100%)',
   },
@@ -35,6 +41,11 @@ export const DESTINATIONS = [
     bestTime: 'May – Oct',
     avgPerDay: 90,
     highlights: ['Alfama food walks', 'Sunset miradouros', 'Sintra day trips'],
+    scene: 'sunglow',
+    sceneCaption: 'Atlantic golden hour',
+    image: 'https://images.unsplash.com/photo-1702758045561-7d5d5fe33d4a?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Historic Lisbon streets and colorful buildings',
+    imagePosition: 'center',
     gradient:
       'radial-gradient(at 15% 25%, rgba(253,224,71,0.9) 0%, rgba(253,224,71,0) 55%), radial-gradient(at 85% 85%, rgba(59,130,246,0.85) 0%, rgba(59,130,246,0) 60%), linear-gradient(135deg, #0c4a6e 0%, #701a75 100%)',
   },
@@ -49,6 +60,11 @@ export const DESTINATIONS = [
     bestTime: 'Oct – Nov',
     avgPerDay: 140,
     highlights: ['Temple walks', 'Tea ceremonies', 'Arashiyama cycling'],
+    scene: 'petals',
+    sceneCaption: 'Falling blossom season',
+    image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Travelers wearing traditional kimono in Kyoto',
+    imagePosition: 'center',
     gradient:
       'radial-gradient(at 25% 30%, rgba(45,212,191,0.85) 0%, rgba(45,212,191,0) 55%), radial-gradient(at 80% 75%, rgba(217,70,239,0.7) 0%, rgba(217,70,239,0) 60%), linear-gradient(135deg, #064e3b 0%, #1e1b4b 100%)',
   },
@@ -63,6 +79,11 @@ export const DESTINATIONS = [
     bestTime: 'Oct – Apr',
     avgPerDay: 70,
     highlights: ['Table Mountain hikes', 'Cape Peninsula tours', 'Local food markets'],
+    scene: 'coast',
+    sceneCaption: 'Two-ocean sea mist',
+    image: 'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Cape Town coastline beneath Table Mountain',
+    imagePosition: 'center',
     gradient:
       'radial-gradient(at 30% 25%, rgba(251,146,60,0.9) 0%, rgba(251,146,60,0) 55%), radial-gradient(at 80% 80%, rgba(37,99,235,0.9) 0%, rgba(37,99,235,0) 60%), linear-gradient(135deg, #7c2d12 0%, #0c4a6e 100%)',
   },
@@ -77,6 +98,11 @@ export const DESTINATIONS = [
     bestTime: 'May – Jun · Sep',
     avgPerDay: 105,
     highlights: ['Gaudí architecture', 'Tapas walks', 'Mediterranean sailing'],
+    scene: 'sunglow',
+    sceneCaption: 'Mediterranean light',
+    image: 'https://images.unsplash.com/photo-1711534283558-812f4dadb433?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Barcelona city lights viewed from above',
+    imagePosition: 'center',
     gradient:
       'radial-gradient(at 25% 20%, rgba(244,114,182,0.9) 0%, rgba(244,114,182,0) 55%), radial-gradient(at 85% 85%, rgba(251,191,36,0.85) 0%, rgba(251,191,36,0) 60%), linear-gradient(135deg, #831843 0%, #78350f 100%)',
   },
@@ -91,6 +117,11 @@ export const DESTINATIONS = [
     bestTime: 'Sep – Mar',
     avgPerDay: 160,
     highlights: ['Northern lights tours', 'Geothermal lagoons', 'Golden Circle trips'],
+    scene: 'aurora',
+    sceneCaption: 'Aurora over the harbor',
+    image: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Icelandic landscape near Reykjavík',
+    imagePosition: 'center',
     gradient:
       'radial-gradient(at 20% 30%, rgba(34,211,238,0.85) 0%, rgba(34,211,238,0) 55%), radial-gradient(at 80% 85%, rgba(139,92,246,0.85) 0%, rgba(139,92,246,0) 60%), linear-gradient(135deg, #0c4a6e 0%, #1e1b4b 100%)',
   },
@@ -128,7 +159,16 @@ const Destinations = ({ rotationDate = new Date() }) => {
                 className="relative h-44 overflow-hidden"
                 style={{ backgroundImage: d.gradient }}
               >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_140%,rgba(0,0,0,0.35),transparent_60%)]" />
+                <img
+                  src={d.image}
+                  alt={d.imageAlt}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  style={{ objectPosition: d.imagePosition }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/5 to-black/45" />
+                <DestinationScene scene={d.scene} compact className="opacity-80" />
                 <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.18em] uppercase ring-1 ring-inset ring-white/20">
                     <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${d.vibeColor}`} />

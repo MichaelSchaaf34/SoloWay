@@ -269,7 +269,7 @@ export async function login(email, password) {
   // Find user by email
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, email, password_hash, display_name, avatar_url, visibility_mode, email_verified_at, created_at')
+    .select('id, email, password_hash, display_name, avatar_url, visibility_mode, is_admin, email_verified_at, created_at')
     .eq('email', email.toLowerCase())
     .single();
 
@@ -307,6 +307,7 @@ export async function login(email, password) {
       displayName: user.display_name,
       avatarUrl: user.avatar_url,
       visibilityMode: user.visibility_mode,
+      isAdmin: Boolean(user.is_admin),
       emailVerified: Boolean(user.email_verified_at),
       createdAt: user.created_at,
     },
@@ -405,7 +406,7 @@ export async function getUserById(userId) {
   const supabase = getSupabaseAdmin();
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, email, display_name, avatar_url, visibility_mode, email_verified_at, created_at')
+    .select('id, email, display_name, avatar_url, visibility_mode, is_admin, email_verified_at, created_at')
     .eq('id', userId)
     .single();
 
@@ -419,6 +420,7 @@ export async function getUserById(userId) {
     displayName: user.display_name,
     avatarUrl: user.avatar_url,
     visibilityMode: user.visibility_mode,
+    isAdmin: Boolean(user.is_admin),
     emailVerified: Boolean(user.email_verified_at),
     createdAt: user.created_at,
   };

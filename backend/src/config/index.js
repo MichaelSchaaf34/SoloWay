@@ -86,6 +86,8 @@ export const config = {
     mapsApiKey: process.env.MAPS_API_KEY,
     safetyApiKey: process.env.SAFETY_API_KEY,
     pushNotificationKey: process.env.PUSH_NOTIFICATION_KEY,
+    // Optional: powers the "Happening in {city}" section. Absent key = empty results.
+    ticketmasterApiKey: process.env.TICKETMASTER_API_KEY || null,
   },
 };
 

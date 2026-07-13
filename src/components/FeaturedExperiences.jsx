@@ -5,6 +5,7 @@ import useAuth from '../hooks/useAuth';
 import { useTrip } from '../context/TripContext';
 import { listExperiences } from '../utils/experienceService';
 import { rotateForDate } from '../utils/destinationRotation';
+import { getSuggestedExperiences } from '../utils/suggestedExperiences';
 import { DESTINATIONS } from './Destinations';
 
 const CATEGORY_LABELS = {
@@ -71,12 +72,25 @@ const FeaturedExperiences = ({ rotationDate = new Date() }) => {
     [experiences, featuredDestination]
   );
 
+  // When no live inventory exists anywhere, fall back to the day's rotated
+  // destination with curated solo-friendly picks so the section never vanishes.
+  const isLive = Boolean(featuredDestination);
+  const curatedDestination = useMemo(
+    () => rotateForDate(DESTINATIONS, rotationDate)[0],
+    [rotationDate]
+  );
+  const displayDestination = featuredDestination || curatedDestination;
+  const curatedPicks = useMemo(
+    () => (isLive ? [] : getSuggestedExperiences(curatedDestination?.id).slice(0, 4)),
+    [isLive, curatedDestination]
+  );
+
   const chooseDestination = () => {
-    if (!featuredDestination) return;
+    if (!displayDestination) return;
     setDestination({
-      id: featuredDestination.id,
-      name: `${featuredDestination.name}, ${featuredDestination.country}`,
-      vibe: featuredDestination.vibe,
+      id: displayDestination.id,
+      name: `${displayDestination.name}, ${displayDestination.country}`,
+      vibe: displayDestination.vibe,
     });
   };
 
@@ -87,25 +101,27 @@ const FeaturedExperiences = ({ rotationDate = new Date() }) => {
           <div className="max-w-2xl">
             <span className="mb-4 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-600 dark:text-teal-400">
               <Sparkles className="h-3.5 w-3.5" />
-              Live from SoloWay
+              {isLive ? 'Live from SoloWay' : 'From the SoloWay atlas'}
             </span>
             <h2 id="live-experiences-heading" className="text-balance text-[clamp(1.85rem,3.4vw,2.75rem)] font-semibold leading-[1.1] text-slate-900 dark:text-white">
-              {featuredDestination
-                ? `What’s happening in ${featuredDestination.name}.`
-                : 'Book something worth remembering.'}
+              {isLive
+                ? `What’s happening in ${displayDestination.name}.`
+                : `A solo day in ${displayDestination.name}.`}
             </h2>
             <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-slate-600 dark:text-slate-400">
-              Real experiences from verified SoloWay providers. The featured destination changes every day.
+              {isLive
+                ? 'Real experiences from verified SoloWay providers. The featured destination changes every day.'
+                : 'Curated solo-friendly picks while local providers onboard. The featured destination changes every day.'}
             </p>
           </div>
 
-          {featuredDestination && (
+          {displayDestination && (
             <Link
-              to={isAuthenticated ? '/explore' : '/auth'}
+              to={isLive ? (isAuthenticated ? '/explore' : '/auth') : `/destinations/${displayDestination.id}`}
               onClick={chooseDestination}
               className="group inline-flex items-center gap-2 self-start rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 md:self-auto"
             >
-              Explore {featuredDestination.name}
+              Explore {displayDestination.name}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           )}
@@ -165,7 +181,48 @@ const FeaturedExperiences = ({ rotationDate = new Date() }) => {
           </div>
         )}
 
-        {!loadState.loading && featuredExperiences.length === 0 && (
+        {!loadState.loading && featuredExperiences.length === 0 && curatedPicks.length > 0 && (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {curatedPicks.map(pick => (
+              <article
+                key={pick.id}
+                className="flex min-h-64 flex-col rounded-[24px] border border-slate-200/80 bg-slate-50 p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-20px_rgba(15,23,42,0.25)] dark:border-slate-800 dark:bg-slate-900"
+              >
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:bg-teal-950 dark:text-teal-300">
+                    {pick.soloTag}
+                  </span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    {pick.priceCents === 0 ? 'Free' : `$${Math.round(pick.priceCents / 100)}`}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-semibold leading-snug text-slate-900 dark:text-white">
+                  {pick.title}
+                </h3>
+                <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">
+                  {pick.soloNote}
+                </p>
+
+                <div className="mt-auto space-y-2 border-t border-slate-200/80 pt-5 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+                  <p className="flex items-center gap-2">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-teal-500" />
+                    <span>{displayDestination.name}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Clock3 className="h-3.5 w-3.5 shrink-0 text-sky-500" />
+                    <span>{pick.displayTime}</span>
+                  </p>
+                  <p className="pt-1 text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                    Curated pick — bookable providers coming soon
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {!loadState.loading && featuredExperiences.length === 0 && curatedPicks.length === 0 && (
           <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-900/60">
             <p className="font-semibold text-slate-800 dark:text-slate-100">
               {loadState.error ? 'Live experiences are taking a short detour.' : 'New provider experiences are coming soon.'}

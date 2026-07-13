@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Alert, ImmersivePage, LoadingSkeleton } from '../components';
 import { useTrip } from '../context/TripContext';
 import { listExperiences } from '../utils/experienceService';
+import { getSuggestedExperiences } from '../utils/suggestedExperiences';
 
 const CATEGORIES = [
   { id: 'food', label: 'Food & Dining', icon: '🍜' },
@@ -37,6 +38,12 @@ const Explore = () => {
       active = false;
     };
   }, [destination?.id, selectedCat]);
+
+  // Curated preview ideas shown when no bookable inventory exists here yet.
+  const suggestions =
+    !loadState.loading && !loadState.error && events.length === 0
+      ? getSuggestedExperiences(destination?.id, { category: selectedCat || undefined })
+      : [];
 
   const dateDisplay = dates.start && dates.end
     ? `${new Date(dates.start + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(dates.end + 'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
@@ -152,7 +159,39 @@ const Explore = () => {
           })}
         </div>
 
-        {!loadState.loading && !loadState.error && events.length === 0 && (
+        {!loadState.loading && !loadState.error && events.length === 0 && suggestions.length > 0 && (
+          <div>
+            <p className="text-xs text-slate-500 bg-teal-50/70 border border-teal-200/60 rounded-xl px-3.5 py-2.5 mb-3">
+              Bookable providers are coming to this city. Until then, here are curated
+              solo-friendly ideas to plan around.
+            </p>
+            <div className="space-y-2">
+              {suggestions.map(suggestion => (
+                <div key={suggestion.id} className="rounded-2xl p-4 border bg-white/40 border-slate-200/60">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sm text-slate-900">{suggestion.title}</h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {suggestion.displayTime} · {suggestion.soloTag}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">{suggestion.soloNote}</p>
+                    </div>
+                    <div className="text-right ml-3">
+                      <span className={`text-sm font-bold ${suggestion.priceCents === 0 ? 'text-teal-600' : 'text-amber-600'}`}>
+                        {suggestion.priceCents === 0 ? 'Free' : `$${Math.round(suggestion.priceCents / 100)}`}
+                      </span>
+                      <span className="block mt-1.5 px-3.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-400">
+                        Preview
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!loadState.loading && !loadState.error && events.length === 0 && suggestions.length === 0 && (
           <div className="text-center py-10 text-slate-400 text-sm">No provider experiences are available here yet.</div>
         )}
 

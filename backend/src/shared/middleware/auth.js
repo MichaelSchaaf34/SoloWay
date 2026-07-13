@@ -44,7 +44,7 @@ export async function authenticate(req, res, next) {
     const supabase = getSupabaseAdmin();
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, visibility_mode, created_at')
+      .select('id, email, visibility_mode, is_admin, created_at')
       .eq('id', decoded.userId)
       .single();
 
@@ -99,6 +99,18 @@ export async function optionalAuth(req, res, next) {
     // Silently continue without user
     next();
   }
+}
+
+/**
+ * Require the authenticated user to be an admin.
+ * Must run after `authenticate`. The flag is only settable directly
+ * in the database — there is no API path that grants admin.
+ */
+export function requireAdmin(req, res, next) {
+  if (!req.user?.is_admin) {
+    return next(new AuthorizationError('Admin access required'));
+  }
+  next();
 }
 
 /**

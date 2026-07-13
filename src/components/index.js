@@ -30,3 +30,4 @@ export { default as CTA } from './CTA';
 // Other Components
 export { default as ItineraryItem } from './ItineraryItem';
 export { default as ProtectedRoute } from './ProtectedRoute';
+export { default as AdminRoute } from './AdminRoute';
