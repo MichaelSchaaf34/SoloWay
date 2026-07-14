@@ -2,7 +2,7 @@
 
 **Travel Solo, Not Alone.** The intelligent travel companion for solo explorers.
 
-Life is short — go explore.
+Life is short. Go explore.
 
 ![SoloWay](https://via.placeholder.com/800x400/1e293b/ffffff?text=SoloWay)
 
