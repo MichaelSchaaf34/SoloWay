@@ -32,51 +32,44 @@ SoloWay is designed for people who want to enjoy life — those who believe the 
 
 From that perfect rooftop bar at golden hour to the local cooking class that becomes the highlight of your trip, SoloWay turns "I'm here alone" into "I'm here and ready for anything."
 
-## Roadmap
+## Where things stand
 
-### Phase 1: Frontend (Current)
+### Shipped
 
-- [x] Landing page
-- [ ] User authentication UI
-- [ ] Explore/search page
-- [ ] Itinerary builder UI
-- [ ] Profile page
+- [x] Landing experience: destination atlas, featured experiences, field notes, community reviews
+- [x] Accounts: email/password auth with verification and password reset
+- [x] Trips: itinerary builder with destination-aware planning
+- [x] Bookings: commission-based in-app checkout with Stripe Connect providers
+- [x] QR buddy system: invite someone you meet to an itinerary item, SMS-verified
+- [x] Local events: what's happening tonight in your destination
+- [x] Admin portal: users, orders, catalog, reviews, waitlist
+- [x] Production readiness: CI, error monitoring, nightly off-site database backups
 
-### Phase 2: Backend
+### Next
 
-- [ ] API setup (Node.js/Express or similar)
-- [ ] Database (PostgreSQL or MongoDB)
-- [ ] User authentication (OAuth, email)
-- [ ] Experience/event API integration
-
-### Phase 3: Core Features
-
-- [ ] Smart itinerary generation
-- [ ] Safety features & check-ins
-- [ ] QR buddy system
-- [ ] Location-aware recommendations
-
-### Phase 4: Monetization
-
-- [ ] Venue partnerships and commissions
-- [ ] Featured experiences
+- [ ] AI itinerary generation (currently marked "Coming Soon" in-app)
+- [ ] Safety Guardian in the app: check-ins and emergency alerts (API is live)
+- [ ] Social Radar in the app: nearby solo travelers and messaging (API is live)
+- [ ] Expanded bookable inventory via marketplace partners
 
 ---
 
 ## Tech Stack
 
-- **Frontend**: React 18, Vite, Tailwind CSS
-- **Routing**: React Router v6
-- **Icons**: Lucide React
-- **Backend**: TBD (Express, Fastify, or serverless)
-- **Database**: TBD (PostgreSQL, MongoDB)
-- **Auth**: TBD (Auth0, Clerk, or custom)
+- **Frontend**: React 18, Vite, Tailwind CSS, React Router v6, Lucide icons
+- **Backend**: Node.js + Express modular monolith, Socket.io realtime
+- **Data**: Supabase (PostgreSQL + PostGIS), Redis
+- **Auth**: Custom JWT (access/refresh) — no third-party auth vendor
+- **Payments**: Stripe Connect (commission-based bookings only)
+- **Email / SMS**: Resend / Twilio
+
+Operational docs: [DEPLOY.md](DEPLOY.md) (launch checklist), [BACKUPS.md](BACKUPS.md) (backup & restore), [MIGRATION.md](MIGRATION.md) (AWS migration strategy).
 
 ---
 
 ## License
 
-MIT © 2025 SoloWay
+MIT © 2026 SoloWay
 
 ---
 

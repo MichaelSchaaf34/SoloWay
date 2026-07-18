@@ -10,7 +10,7 @@
 | Mar 2026 | 22–28 | Security hardening, booking flow, QR Buddy system |
 | Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
 | Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
-| Jul 2026 | 33–45 | Stripe commerce, public destinations, reviews, admin portal |
+| Jul 2026 | 33–49 | Stripe commerce, public destinations, reviews, admin portal, production readiness |
 
 ---
 
@@ -304,6 +304,19 @@
 - Hash links (e.g. `/#destinations`, `/privacy#cookies`) still scroll to their target element
 - Validation: production build zero errors
 
+## 2026-07-18 - Interval 49 (production launch readiness)
+- **Git hygiene:** committed intervals 46-48 (`7-13-changes`), merged to `main` along with remote README edits, pushed both branches
+- **QR Buddy fixed for production:** `GuestJoin.jsx` now consumes the real flat `joinPreview` payload (`event_title`/`event_time`/`event_location`) and maps the API's 400 reason codes (`invite_expired`, `party_full`, `invite_cancelled`, `invite_not_found`) to the dedicated expired/full/error cards — previously dead code paths; guest-entered phone numbers are normalized to E.164 before submit
+- **Real SMS:** new `shared/sms/sms.js` sends buddy verification codes via Twilio's REST API (`TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_FROM_NUMBER`, required in production by `validateConfig`); development still prints `[DEV SMS]` codes to the console; send failures surface as a friendly 502 without leaking provider details
+- **AI stub gated:** `/ai-preferences` and `/ai-itinerary` (hardcoded Kyoto sample) now redirect to `/start`; added a catch-all route redirecting unknown URLs to `/`; `BookingCart` back button always returns to `/explore`
+- **No more silent-localhost builds:** deploy builds (Vercel/Render/Netlify/CI) fail hard when `VITE_API_URL` is unset (vite.config.js); local builds warn; a production bundle without it refuses to boot (`src/utils/env.js`)
+- **Backend ops hardening:** pino structured JSON logging replaces console/morgan (`shared/logging/logger.js`, pino-http request logs, redaction of auth headers/tokens); `errorHandler` now always logs (error for 5xx with stack, warn for 4xx) with method/url/userId context; `/health` probes Postgres and Redis with a 2.5s timeout and returns 503 when unhealthy; graceful shutdown closes Socket.io, HTTP, DB pool, and Redis with a 10s failsafe; `uncaughtException`/`unhandledRejection` log fatal and exit for a clean platform restart; Postgres TLS now verifies the Supabase CA via `DATABASE_CA_CERT` (raw-PEM-with-\n or base64) instead of `rejectUnauthorized: false`, with a loud boot warning if unset
+- **Error monitoring:** Sentry on both tiers (`@sentry/react` via `src/utils/monitoring.js`, `@sentry/node` via `backend/src/instrument.js` + Express error handler for 5xx only) — enabled only when `VITE_SENTRY_DSN`/`SENTRY_DSN` are set
+- **CI:** `.github/workflows/ci.yml` runs frontend lint/test/build and backend lint/test on PRs and pushes to `main`; added the missing backend `.eslintrc.cjs` and a root `.eslintrc.cjs` (react + hooks presets) — `npm run lint` now actually works in both packages; fixed two pre-existing dead-code lint errors (`safety.service.js` unused import, `social.service.js` unused variable)
+- **Off-platform backups:** `.github/workflows/db-backup.yml` runs a nightly `pg_dump --format=custom --schema=public` of the production database and uploads to S3 (versioned, encrypted, put-only IAM key); `BACKUPS.md` documents the 15-minute AWS setup (bucket, lifecycle to Glacier, IAM policy, GitHub secrets), the restore runbook, and the secrets-backup procedure
+- **Launch + migration docs:** `DEPLOY.md` rewritten as an ordered launch checklist (domain/DNS, Supabase Pro, Upstash, Render, Vercel-vs-Cloudflare-Pages licensing note, Resend domain verification, Stripe Connect + webhooks, Twilio A2P 10DLC note, Sentry, final end-to-end verification pass, ~$35-55/mo cost estimate); new `MIGRATION.md` documents the phased AWS path (lift-and-shift compute → optional frontend/data moves), the Supabase-JS-client data-layer caveat (9 modules would need SQL rewrites before RDS), cutover mechanics, and cost comparison
+- Validation: frontend 24/24 tests + lint + build clean (with and without Sentry DSN); backend 52/52 tests + lint clean (also with `backend/.env` absent, proving CI-safety); smoke-booted the API — health returns `database: ok`, structured logs verified, and the EADDRINUSE crash handler exercised the new fatal-log + graceful-exit path in the wild
+
 ---
 
 ### Shipped and wired
@@ -311,15 +324,17 @@
 - **Auth & accounts:** JWT access/refresh with rotation, email verification, password reset, Resend transactional email, protected routes, profile
 - **Booking & commerce:** server-authoritative experience catalog, Stripe Connect checkout, webhook-confirmed fulfillment, booking return page, provider onboarding, admin portal for users/orders/catalog/reviews
 - **Trips:** itinerary CRUD, dual-path AI/manual booking flow, TripContext cart, destination catalog selectors
-- **QR Buddy:** full backend + frontend (invite modal, guest join, history, connection requests) — SMS verification requires provider credentials in production
-- **Ops:** waitlist API, DB seed script, deployment docs (`DEPLOY.md`, `render.yaml`), PWA/SEO assets, legal pages
+- **QR Buddy:** full backend + frontend (invite modal, guest join, history, connection requests) — Twilio SMS wired; set `TWILIO_*` env vars in production, dev prints codes to console
+- **Ops:** waitlist API, DB seed script, CI (`.github/workflows/ci.yml`), nightly S3 database backups (`db-backup.yml` + `BACKUPS.md`), structured logging, deep health check, graceful shutdown, Sentry hooks, launch checklist (`DEPLOY.md`), AWS migration strategy (`MIGRATION.md`), PWA/SEO assets, legal pages
 
 ### Known gaps / not yet consumed
+- AI itinerary generation is stubbed and gated: FirstChoice shows "Coming Soon", `/ai-preferences` + `/ai-itinerary` redirect to `/start` until a real LLM-backed endpoint exists
 - Safety Guardian and Social Radar backend APIs exist but have no frontend wiring yet
 - WebSocket/realtime backend exists but no frontend Socket.io client
 - Public itinerary endpoints (`GET /itineraries/public`, `GET /itineraries/nearby`) unused
 - Design-preview themes (Dune/Porcelain/Aqua) are exploratory HTML only — production app still uses the immersive light-glass traveler UI
 - Viator Partner API merchant inventory deferred (see roadmap note above)
+- Buddy/waitlist rate limiters are in-memory (fine single-instance; move to the Redis store when scaling out)
 
 ### Test coverage snapshot
 - Frontend: 24/24 tests (`vitest run`)

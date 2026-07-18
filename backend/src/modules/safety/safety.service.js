@@ -6,7 +6,7 @@
 import { getSupabaseAdmin } from '../../shared/database/supabase.js';
 import { query } from '../../shared/database/index.js';
 import { cache, cacheKeys } from '../../shared/cache/redis.js';
-import { emitToContacts, emitToUser } from '../../shared/realtime/websocket.js';
+import { emitToContacts } from '../../shared/realtime/websocket.js';
 import { NotFoundError } from '../../shared/middleware/errorHandler.js';
 
 /**

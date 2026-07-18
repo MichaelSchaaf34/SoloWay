@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { query, transaction } from '../../shared/database/index.js';
-import { config } from '../../config/index.js';
 import { NotFoundError } from '../../shared/middleware/errorHandler.js';
+import { sendVerificationSms } from '../../shared/sms/sms.js';
 
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
@@ -312,8 +312,14 @@ export async function initiateGuestVerification(token, phoneNumber, displayName)
     guestId = insertResult.rows[0].id;
   }
 
-  if (config.env === 'development') {
-    console.log(`[DEV SMS] Verification code for ${phoneNumber}: ${code}`);
+  try {
+    await sendVerificationSms(phoneNumber, code);
+  } catch (err) {
+    // Do not leak provider details to the guest; retrying issues a fresh code.
+    throw Object.assign(
+      new Error('Could not send the verification text. Check the number and try again.'),
+      { status: 502, cause: err }
+    );
   }
 
   return { guest_id: guestId, message: 'Verification code sent' };

@@ -3,6 +3,8 @@
  * Provides consistent error responses across the API
  */
 
+import { logger } from '../logging/logger.js';
+
 export class AppError extends Error {
   constructor(message, statusCode, code = 'INTERNAL_ERROR') {
     super(message);
@@ -62,8 +64,8 @@ export function notFoundHandler(req, res, next) {
  * Global error handler
  */
 export function errorHandler(err, req, res, next) {
-  // Default values
-  let statusCode = err.statusCode || 500;
+  // Default values (some services throw plain errors with `status` instead of `statusCode`)
+  let statusCode = err.statusCode || err.status || 500;
   let message = err.message || 'Internal server error';
   let code = err.code || 'INTERNAL_ERROR';
 
@@ -81,13 +83,20 @@ export function errorHandler(err, req, res, next) {
     message = 'Database operation failed';
   }
 
-  // Log error in development
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Error:', {
-      message: err.message,
-      stack: err.stack,
-      code: err.code,
-    });
+  // Always log; unexpected failures (5xx) with the stack, expected
+  // operational rejections (4xx) as warnings for visibility without noise.
+  const logContext = {
+    err,
+    status: statusCode,
+    code,
+    method: req.method,
+    url: req.originalUrl,
+    userId: req.userId,
+  };
+  if (statusCode >= 500) {
+    logger.error(logContext, err.message);
+  } else {
+    logger.warn(logContext, err.message);
   }
 
   // Don't expose internal errors in production

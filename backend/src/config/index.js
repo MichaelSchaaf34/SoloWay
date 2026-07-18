@@ -74,6 +74,13 @@ export const config = {
     from: process.env.EMAIL_FROM || null,
   },
 
+  // SMS (buddy guest verification). Unset in development = console preview.
+  sms: {
+    twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || null,
+    twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || null,
+    twilioFromNumber: process.env.TWILIO_FROM_NUMBER || null,
+  },
+
   stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY || null,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || null,
@@ -124,6 +131,10 @@ export function validateConfig() {
       'EMAIL_FROM',
       'STRIPE_SECRET_KEY',
       'STRIPE_WEBHOOK_SECRET',
+      // Buddy guest verification sends real SMS in production.
+      'TWILIO_ACCOUNT_SID',
+      'TWILIO_AUTH_TOKEN',
+      'TWILIO_FROM_NUMBER',
     ];
     const missing = requiredInProduction.filter(key => !process.env[key]);
     if (missing.length > 0) {

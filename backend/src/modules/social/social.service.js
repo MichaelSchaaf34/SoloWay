@@ -211,8 +211,6 @@ export async function respondToConnection(userId, connectionId, accept) {
     throw new NotFoundError('Connection request');
   }
 
-  const newStatus = accept ? 'accepted' : 'pending'; // 'pending' will be deleted
-
   if (!accept) {
     // Delete declined requests
     await supabase

@@ -14,19 +14,21 @@ Solo travel companion app — "Travel Solo, Not Alone." Helps solo travelers dis
 
 ### Frontend (from project root)
 ```bash
-npm run dev          # Vite dev server on port 3000 (auto-opens browser)
+npm run dev          # Runs web (Vite, port 3000) + api (port 3001) together via concurrently
+npm run dev:web      # Vite dev server only
 npm run build        # Production build to dist/ with sourcemaps
 npm run lint         # ESLint check
+npm test             # Vitest (jsdom)
 ```
 
 ### Backend (from `backend/` directory)
 ```bash
 npm run dev          # Nodemon watching src/index.js (port 3001)
 npm start            # Production: node src/index.js
-npm test             # Vitest (minimal test coverage currently)
+npm test             # Vitest
 npm run lint         # ESLint on src/
 npm run db:migrate   # Run database migrations
-npm run db:seed      # Seed database
+npm run db:seed      # Seed database (refuses in production)
 ```
 
 ### Verification after changes
@@ -34,15 +36,19 @@ npm run db:seed      # Seed database
 - Backend: run `node --check <file>` on new/modified backend files to verify syntax
 
 ### Required Environment Variables (backend `.env`)
-`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`
+Dev minimum: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`
 
-Frontend uses `VITE_API_URL` (defaults to `http://localhost:3001/api/v1`).
+Production additionally requires: `APP_BASE_URL`, `JWT_REFRESH_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` (enforced by `validateConfig()`). Optional: `DATABASE_CA_CERT` (Postgres TLS verification), `SENTRY_DSN`, `LOG_LEVEL`, `TICKETMASTER_API_KEY`. Full list in `backend/.env.example`.
+
+Frontend uses `VITE_API_URL` (dev default `http://localhost:3001/api/v1`; **required for production** — deploy builds fail without it and prod bundles refuse to boot). Optional `VITE_SENTRY_DSN`.
 
 ## Tech Stack
 
 **Frontend:** React 18 + Vite + Tailwind CSS + React Router v6, Lucide React icons, ES modules
 
-**Backend:** Node.js 18+ + Express (modular monolith), Supabase (PostgreSQL + PostGIS), Redis (caching, rate limiting, refresh tokens, pub/sub), Socket.io with Redis adapter, JWT auth (access/refresh token separation, issuer/audience verification), Joi validation
+**Backend:** Node.js 20+ + Express (modular monolith), Supabase (PostgreSQL + PostGIS), Redis (caching, rate limiting, refresh tokens, pub/sub), Socket.io with Redis adapter, JWT auth (access/refresh token separation, issuer/audience verification), Joi validation, pino structured logging, Stripe Connect, Resend email, Twilio SMS
+
+**Ops:** GitHub Actions CI (`.github/workflows/ci.yml`), nightly Postgres backup to S3 (`.github/workflows/db-backup.yml`, see `BACKUPS.md`), Sentry error monitoring (both tiers, DSN-gated). Launch runbook: `DEPLOY.md`. AWS migration strategy: `MIGRATION.md`.
 
 ## Architecture
 
@@ -58,11 +64,12 @@ Frontend uses `VITE_API_URL` (defaults to `http://localhost:3001/api/v1`).
 ### Backend patterns:
 - Modules live in `backend/src/modules/{name}/` with: `{name}.routes.js`, `{name}.controller.js`, `{name}.service.js`, `{name}.schemas.js`
 - Shared middleware in `backend/src/shared/middleware/` — `auth.js`, `validate.js`, `errorHandler.js`, `rateLimiter.js`
-- Database access via `getSupabaseAdmin()` from `backend/src/shared/database/supabase.js`
+- Database access: older modules use `getSupabaseAdmin()` from `backend/src/shared/database/supabase.js`; newer modules (buddy, payments, webhooks, admin) use raw SQL via `query`/`transaction` from `backend/src/shared/database/index.js` — prefer raw SQL for new modules (eases any future move off Supabase, see `MIGRATION.md`)
+- Logging: `logger` from `backend/src/shared/logging/logger.js` (pino) — do NOT use `console.*` in app code
 - Validation: `validate({ params: schema, body: schema, query: schema })` using Joi
 - User ID on authenticated requests: `req.userId` (NOT `req.user.id`)
 - Config validation on startup via `validateConfig()`
-- All routes mounted at `/api/v1/{module}` (auth, users, itineraries, safety, social, buddy)
+- All routes mounted at `/api/v1/{module}` (auth, users, itineraries, safety, social, buddy, waitlist, providers, experiences, events, reviews, payments, webhooks, admin)
 
 ### Backend JWT details:
 - Separate access (15m) and refresh (30d) tokens with distinct secrets and audiences
@@ -98,24 +105,22 @@ Implementation spec: `buddy-frontend-v2.md` in project root.
 ## Current State
 
 ### Completed:
-- Landing page (hero, features, safety section, CTA/waitlist, footer)
-- Auth system (login/register, JWT, refresh tokens, protected routes)
-- Itinerary CRUD (create, list, detail, add/update/delete items)
-- Destination selection (country/region/city with bidirectional auto-fill)
-- Dual-path onboarding: "Create My Trip" vs "Explore First"
-- Two-path booking flow: AI-powered itinerary generation vs manual browse (TripContext, AIPreferences, AIItinerary, BookingCart pages)
-- Backend security hardening: stricter JWT, Joi validation, WebSocket sanitization
-- QR Buddy backend: 5 files in `backend/src/modules/buddy/`, 4 Supabase tables
-- Frontend buddy service files: `buddyService.js` and `guestService.js`
+- Landing experience (destination atlas with daily rotation, featured experiences, field notes, reviews, CTA/waitlist, footer)
+- Auth system (login/register, JWT, refresh tokens, email verification, password reset, protected routes)
+- Itinerary CRUD (create, list, detail, add/update/delete items) with destination selection
+- Booking & commerce: Stripe Connect checkout, webhook-confirmed orders, refunds, provider onboarding
+- QR Buddy end-to-end: backend module + InviteBuddyModal, GuestJoin (`/join/:token`), BuddyHistory; Twilio SMS verification (dev prints codes to console)
+- Community reviews (public page + API), local events (Ticketmaster, optional key), admin portal (`/admin`)
+- Production readiness: CI, structured logging, deep health check, graceful shutdown, Sentry hooks, nightly S3 database backups, launch checklist (`DEPLOY.md`)
 
-### In Progress:
-- QR Buddy frontend UI (InviteBuddyModal, GuestJoin page at `/join/:token`, BuddyHistory page)
+### Gated (routes redirect until built):
+- AI itinerary generation — `/ai-preferences` and `/ai-itinerary` are stubs that redirect to `/start`; FirstChoice shows "Coming Soon"
 
 ### Known Gaps:
-- Frontend calls `POST /waitlist` but no backend `/waitlist` route is mounted
 - Backend safety + social APIs exist but frontend doesn't consume them yet
 - WebSocket/realtime backend exists but no frontend WebSocket client wiring
 - Public itinerary endpoints (`GET /itineraries/public`, `GET /itineraries/nearby`) unused
+- Buddy/waitlist rate limiters are in-memory (fine single-instance; use Redis store when scaling out)
 
 ## Important Rules
 

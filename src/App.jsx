@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
 import DestinationDetail from './pages/DestinationDetail';
 import Reviews from './pages/Reviews';
@@ -7,8 +7,6 @@ import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import FirstChoice from './pages/FirstChoice';
 import Explore from './pages/Explore';
-import AIPreferences from './pages/AIPreferences';
-import AIItinerary from './pages/AIItinerary';
 import BookingCart from './pages/BookingCart';
 import Itineraries from './pages/Itineraries';
 import ItineraryDetail from './pages/ItineraryDetail';
@@ -44,8 +42,9 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/start" element={<ProtectedRoute><FirstChoice /></ProtectedRoute>} />
         <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
-        <Route path="/ai-preferences" element={<ProtectedRoute><AIPreferences /></ProtectedRoute>} />
-        <Route path="/ai-itinerary" element={<ProtectedRoute><AIItinerary /></ProtectedRoute>} />
+        {/* AI trip planning is not launched yet; the pages are stubs (see FirstChoice "Coming Soon"). */}
+        <Route path="/ai-preferences" element={<Navigate to="/start" replace />} />
+        <Route path="/ai-itinerary" element={<Navigate to="/start" replace />} />
         <Route path="/cart" element={<ProtectedRoute><BookingCart /></ProtectedRoute>} />
         <Route path="/booking/return" element={<ProtectedRoute><BookingReturn /></ProtectedRoute>} />
         <Route path="/provider/onboarding" element={<ProtectedRoute><ProviderOnboarding /></ProtectedRoute>} />
@@ -64,6 +63,7 @@ function App() {
         <Route path="/join/:token" element={<GuestJoin />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

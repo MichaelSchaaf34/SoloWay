@@ -5,6 +5,8 @@
 
 import pg from 'pg';
 import { config } from '../../config/index.js';
+import { logger } from '../logging/logger.js';
+import { buildPgSslConfig } from './ssl.js';
 
 const { Pool } = pg;
 
@@ -24,8 +26,7 @@ export async function initializeDatabase() {
     max: config.database.pool.max,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
-    // SSL configuration for production
-    ssl: config.env === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: buildPgSslConfig({ warn: (msg) => logger.warn(msg) }),
   });
 
   // Test connection
@@ -34,13 +35,13 @@ export async function initializeDatabase() {
     await client.query('SELECT NOW()');
     client.release();
   } catch (error) {
-    console.error('Failed to connect to database:', error.message);
+    logger.error({ err: error }, 'Failed to connect to database');
     throw error;
   }
 
   // Handle pool errors
   pool.on('error', (err) => {
-    console.error('Unexpected database pool error:', err);
+    logger.error({ err }, 'Unexpected database pool error');
   });
 
   return pool;
@@ -66,9 +67,7 @@ export async function query(text, params) {
   const result = await getPool().query(text, params);
   const duration = Date.now() - start;
 
-  if (config.env === 'development') {
-    console.log('Executed query', { text: text.substring(0, 100), duration, rows: result.rowCount });
-  }
+  logger.debug({ query: text.substring(0, 100), duration, rows: result.rowCount }, 'Executed query');
 
   return result;
 }

@@ -5,6 +5,7 @@
 
 import Redis from 'ioredis';
 import { config } from '../../config/index.js';
+import { logger } from '../logging/logger.js';
 
 let redis = null;
 let subscriber = null;
@@ -15,7 +16,7 @@ let publisher = null;
  */
 export async function initializeRedis() {
   if (!config.redis.url) {
-    console.warn('Redis URL not configured. Caching disabled.');
+    logger.warn('Redis URL not configured. Caching disabled.');
     return null;
   }
 
@@ -43,7 +44,7 @@ export async function initializeRedis() {
 
     return redis;
   } catch (error) {
-    console.warn('Redis unavailable — caching, rate-limit store, and pub/sub disabled:', error.message);
+    logger.warn({ err: error }, 'Redis unavailable â€” caching, rate-limit store, and pub/sub disabled');
     redis = null;
     return null;
   }
@@ -77,7 +78,7 @@ export const cache = {
       const value = await redis.get(key);
       return value ? JSON.parse(value) : null;
     } catch (error) {
-      console.error('Cache get error:', error);
+      logger.error({ err: error }, 'Cache get error');
       return null;
     }
   },
@@ -94,7 +95,7 @@ export const cache = {
       await redis.setex(key, ttlSeconds, JSON.stringify(value));
       return true;
     } catch (error) {
-      console.error('Cache set error:', error);
+      logger.error({ err: error }, 'Cache set error');
       return false;
     }
   },
@@ -109,7 +110,7 @@ export const cache = {
       await redis.del(key);
       return true;
     } catch (error) {
-      console.error('Cache delete error:', error);
+      logger.error({ err: error }, 'Cache delete error');
       return false;
     }
   },
@@ -131,7 +132,7 @@ export const cache = {
       } while (cursor !== '0');
       return true;
     } catch (error) {
-      console.error('Cache delete pattern error:', error);
+      logger.error({ err: error }, 'Cache delete pattern error');
       return false;
     }
   },

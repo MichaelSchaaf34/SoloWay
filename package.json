@@ -16,6 +16,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sentry/react": "^10.66.0",
     "lucide-react": "^0.263.1",
     "qrcode.react": "^4.2.0",
     "react": "^18.2.0",

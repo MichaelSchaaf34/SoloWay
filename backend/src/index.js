@@ -1,17 +1,21 @@
 import 'dotenv/config';
+// Sentry must be initialized before everything else it instruments.
+import { isSentryEnabled } from './instrument.js';
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import morgan from 'morgan';
+import pinoHttp from 'pino-http';
 import { createServer } from 'http';
 
 import { config, validateConfig } from './config/index.js';
+import { logger } from './shared/logging/logger.js';
 import { errorHandler, notFoundHandler } from './shared/middleware/errorHandler.js';
 import { configureRateLimiting, rateLimiter } from './shared/middleware/rateLimiter.js';
-import { initializeDatabase } from './shared/database/index.js';
-import { initializeRedis } from './shared/cache/redis.js';
-import { initializeWebSocket } from './shared/realtime/websocket.js';
+import { initializeDatabase, closeDatabase, query } from './shared/database/index.js';
+import { initializeRedis, getRedis, closeRedis } from './shared/cache/redis.js';
+import { initializeWebSocket, closeWebSocket } from './shared/realtime/websocket.js';
 
 // Import route modules
 import authRoutes from './modules/auth/auth.routes.js';
@@ -32,6 +36,26 @@ import adminRoutes from './modules/admin/admin.routes.js';
 const app = express();
 const httpServer = createServer(app);
 
+/**
+ * Run a dependency probe with a timeout so a hung connection can never
+ * stall the health endpoint (load balancers expect fast answers).
+ */
+async function probe(label, fn, timeoutMs = 2500) {
+  try {
+    await Promise.race([
+      fn(),
+      new Promise((_, reject) => {
+        const timer = setTimeout(() => reject(new Error(`${label} probe timed out`)), timeoutMs);
+        timer.unref();
+      }),
+    ]);
+    return 'ok';
+  } catch (error) {
+    logger.error({ err: error }, `Health check: ${label} failed`);
+    return 'error';
+  }
+}
+
 // Initialize services
 async function bootstrap() {
   try {
@@ -46,19 +70,19 @@ async function bootstrap() {
 
     // Initialize database connection pool
     await initializeDatabase();
-    console.log('Database connected');
+    logger.info('Database connected');
 
     // Initialize Redis
     const redisClient = await initializeRedis();
     if (!redisClient && config.env === 'production') {
       throw new Error('Redis is required in production for distributed security controls');
     }
-    console.log(redisClient ? 'Redis connected' : 'Redis skipped (unavailable)');
+    logger.info(redisClient ? 'Redis connected' : 'Redis skipped (unavailable)');
     configureRateLimiting(redisClient);
 
     // Initialize WebSocket server
     initializeWebSocket(httpServer);
-    console.log('WebSocket server initialized');
+    logger.info('WebSocket server initialized');
 
     // Security middleware
     app.use(helmet());
@@ -77,20 +101,41 @@ async function bootstrap() {
     // Compression
     app.use(compression());
 
-    // Logging
+    // Structured request logging
     if (config.env !== 'test') {
-      app.use(morgan(config.env === 'development' ? 'dev' : 'combined'));
+      app.use(pinoHttp({
+        logger,
+        autoLogging: {
+          ignore: (req) => req.url === '/health',
+        },
+        customLogLevel: (req, res, err) => {
+          if (err || res.statusCode >= 500) return 'error';
+          if (res.statusCode >= 400) return 'warn';
+          return 'info';
+        },
+        serializers: {
+          req: (req) => ({ method: req.method, url: req.url, remoteAddress: req.remoteAddress }),
+          res: (res) => ({ statusCode: res.statusCode }),
+        },
+      }));
     }
 
     // Rate limiting
     app.use(rateLimiter);
 
-    // Health check endpoint
-    app.get('/health', (req, res) => {
-      res.json({
-        status: 'healthy',
+    // Health check endpoint — verifies critical dependencies, not just the process
+    app.get('/health', async (req, res) => {
+      const database = await probe('database', () => query('SELECT 1'));
+      const redisConn = getRedis();
+      const redis = redisConn ? await probe('redis', () => redisConn.ping()) : 'disabled';
+
+      const healthy = database === 'ok' && redis !== 'error';
+      res.status(healthy ? 200 : 503).json({
+        status: healthy ? 'healthy' : 'unhealthy',
         timestamp: new Date().toISOString(),
         version: config.apiVersion,
+        uptime_seconds: Math.round(process.uptime()),
+        checks: { database, redis },
       });
     });
 
@@ -109,35 +154,74 @@ async function bootstrap() {
     app.use(`${apiPrefix}/payments`, paymentRoutes);
     app.use(`${apiPrefix}/admin`, adminRoutes);
 
-    // Error handling
+    // Error handling (Sentry reports first, then our handler shapes the response)
     app.use(notFoundHandler);
+    if (isSentryEnabled()) {
+      Sentry.setupExpressErrorHandler(app, {
+        // Report unexpected failures only; operational 4xx rejections are just noise.
+        shouldHandleError: (error) => (error.statusCode || error.status || 500) >= 500,
+      });
+    }
     app.use(errorHandler);
 
     // Start server (0.0.0.0 required for PaaS / Docker — not only localhost)
     httpServer.listen(config.port, '0.0.0.0', () => {
-      console.log(`SoloWay API listening on port ${config.port} (${config.env})`);
+      logger.info({ port: config.port, env: config.env }, 'SoloWay API listening');
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.fatal({ err: error }, 'Failed to start server');
     process.exit(1);
   }
 }
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  httpServer.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
-  });
+// Graceful shutdown: stop accepting connections, then release resources.
+let shuttingDown = false;
+
+async function shutdown(reason, exitCode = 0) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logger.info({ reason }, 'Shutting down gracefully...');
+
+  // Failsafe: never hang forever on a connection that refuses to drain.
+  const failsafe = setTimeout(() => {
+    logger.error('Graceful shutdown timed out — forcing exit');
+    process.exit(1);
+  }, 10000);
+  failsafe.unref();
+
+  try {
+    await closeWebSocket(); // disconnects clients; also closes the attached HTTP server
+    await new Promise((resolve, reject) => {
+      httpServer.close((err) => {
+        // Already closed via Socket.io is fine.
+        if (err && err.code !== 'ERR_SERVER_NOT_RUNNING') reject(err);
+        else resolve();
+      });
+    });
+    await closeDatabase();
+    await closeRedis();
+    logger.info('Shutdown complete');
+    process.exit(exitCode);
+  } catch (error) {
+    logger.error({ err: error }, 'Error during shutdown');
+    process.exit(1);
+  }
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Last-resort handlers: log with full context, then exit non-zero so the
+// platform restarts a clean process instead of running in an unknown state.
+process.on('uncaughtException', (err) => {
+  logger.fatal({ err }, 'Uncaught exception');
+  shutdown('uncaughtException', 1);
 });
 
-process.on('SIGINT', async () => {
-  console.log('SIGINT received. Shutting down gracefully...');
-  httpServer.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
-  });
+process.on('unhandledRejection', (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  logger.fatal({ err }, 'Unhandled promise rejection');
+  shutdown('unhandledRejection', 1);
 });
 
 bootstrap();

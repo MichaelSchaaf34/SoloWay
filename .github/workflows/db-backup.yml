@@ -1,0 +1,82 @@
+name: Nightly database backup
+
+# Dumps the production Supabase Postgres database and uploads it to S3.
+# Setup, IAM policy, and the restore procedure are documented in BACKUPS.md.
+#
+# Required repository secrets:
+#   BACKUP_DATABASE_URL   Direct/session-pooler connection string (port 5432,
+#                         NOT the transaction pooler on 6543 - pg_dump needs
+#                         session semantics).
+#   AWS_ACCESS_KEY_ID     IAM user restricted to s3:PutObject on the bucket.
+#   AWS_SECRET_ACCESS_KEY
+#   AWS_REGION            e.g. us-east-1
+#   BACKUP_S3_BUCKET      e.g. soloway-db-backups
+
+on:
+  schedule:
+    # 07:20 UTC nightly (~3:20am US Eastern) - low-traffic window.
+    - cron: '20 7 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check configuration
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+        run: |
+          missing=""
+          [ -z "$BACKUP_DATABASE_URL" ] && missing="$missing BACKUP_DATABASE_URL"
+          [ -z "$BACKUP_S3_BUCKET" ] && missing="$missing BACKUP_S3_BUCKET"
+          if [ -n "$missing" ]; then
+            echo "::error::Backup secrets not configured:$missing - see BACKUPS.md"
+            exit 1
+          fi
+
+      - name: Install PostgreSQL 17 client
+        # PGDG build so pg_dump is never older than the Supabase server version.
+        run: |
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo gpg --dearmor -o /usr/share/keyrings/postgresql.gpg
+          echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          pg_dump --version
+
+      - name: Dump database
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+        run: |
+          STAMP="$(date -u +%Y-%m-%dT%H%M%SZ)"
+          FILE="soloway-${STAMP}.dump"
+          echo "FILE=$FILE" >> "$GITHUB_ENV"
+          echo "PREFIX=postgres/$(date -u +%Y/%m)" >> "$GITHUB_ENV"
+          # Custom format: compressed, supports selective pg_restore.
+          # public schema only: the app owns it entirely; Supabase-managed
+          # schemas (auth/storage/extensions) are not ours and block restores.
+          pg_dump --format=custom --no-owner --no-privileges \
+            --schema=public \
+            --file="$FILE" "$BACKUP_DATABASE_URL"
+
+      - name: Verify archive integrity
+        run: |
+          pg_restore --list "$FILE" > /dev/null
+          ls -lh "$FILE"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload to S3
+        env:
+          BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+        run: |
+          aws s3 cp "$FILE" "s3://${BACKUP_S3_BUCKET}/${PREFIX}/${FILE}" --no-progress
+          echo "Uploaded s3://${BACKUP_S3_BUCKET}/${PREFIX}/${FILE}"

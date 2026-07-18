@@ -9,6 +9,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { config } from '../../config/index.js';
 import { getPubSubClients } from '../cache/redis.js';
 import { getSupabaseAdmin } from '../database/supabase.js';
+import { logger } from '../logging/logger.js';
 
 let io = null;
 
@@ -58,7 +59,7 @@ export function initializeWebSocket(httpServer) {
   const { subscriber, publisher } = getPubSubClients();
   if (subscriber && publisher) {
     io.adapter(createAdapter(publisher, subscriber));
-    console.log('WebSocket Redis adapter enabled');
+    logger.info('WebSocket Redis adapter enabled');
   }
 
   // Authentication middleware
@@ -82,7 +83,7 @@ export function initializeWebSocket(httpServer) {
 
   // Connection handler
   io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.userId}`);
+    logger.debug({ userId: socket.userId }, 'WebSocket user connected');
 
     // Join personal room for direct messages
     socket.join(`user:${socket.userId}`);
@@ -220,7 +221,7 @@ export function initializeWebSocket(httpServer) {
 
     // Handle disconnect
     socket.on('disconnect', (reason) => {
-      console.log(`User disconnected: ${socket.userId}, reason: ${reason}`);
+      logger.debug({ userId: socket.userId, reason }, 'WebSocket user disconnected');
     });
   });
 
@@ -235,6 +236,23 @@ export function getIO() {
     throw new Error('WebSocket server not initialized');
   }
   return io;
+}
+
+/**
+ * Disconnect all clients and stop the Socket.io server.
+ * Note: io.close() also closes the HTTP server it is attached to.
+ */
+export function closeWebSocket() {
+  if (!io) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    io.close(() => {
+      io = null;
+      resolve();
+    });
+  });
 }
 
 /**

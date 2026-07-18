@@ -5,6 +5,31 @@ import {
   CheckCircle2, AlertCircle, PartyPopper, ShieldCheck,
 } from 'lucide-react';
 import { getInviteInfo, startVerification, confirmCode } from '../utils/guestService';
+import { ApiError } from '../utils/apiClient';
+
+// The join endpoints reject invalid invites with a 400 and a snake_case
+// reason code (e.g. { error: 'invite_expired' }). Map those to dedicated UI.
+const REASON_STEPS = {
+  invite_expired: 'expired',
+  party_full: 'full',
+};
+
+const REASON_MESSAGES = {
+  invite_cancelled: 'The host cancelled this invite. Ask them to generate a new one from their itinerary.',
+  invite_not_found: 'This invite link is invalid or no longer exists.',
+};
+
+function getApiReason(err) {
+  const raw = err?.payload?.error;
+  const value = typeof raw === 'string' ? raw : raw?.message;
+  return typeof value === 'string' && /^[a-z_]+$/.test(value) ? value : null;
+}
+
+// Backend requires E.164 (+15551234567); strip the formatting people
+// naturally type, e.g. "+1 (555) 123-4567".
+function normalizePhone(value) {
+  return value.replace(/[^\d+]/g, '');
+}
 
 export default function GuestJoin() {
   const { token } = useParams();
@@ -22,23 +47,36 @@ export default function GuestJoin() {
     validateToken();
   }, [token]);
 
+  const handleInviteRejection = (err, fallbackMessage) => {
+    const reason = getApiReason(err);
+    if (REASON_STEPS[reason]) {
+      setStep(REASON_STEPS[reason]);
+      return true;
+    }
+    if (REASON_MESSAGES[reason]) {
+      setError(REASON_MESSAGES[reason]);
+      setStep('error');
+      return true;
+    }
+    if (fallbackMessage) {
+      setError(fallbackMessage);
+      setStep('error');
+      return true;
+    }
+    return false;
+  };
+
   const validateToken = async () => {
     try {
       const data = await getInviteInfo(token);
-      if (!data.valid) {
-        if (data.reason === 'invite_expired') setStep('expired');
-        else if (data.reason === 'party_full') setStep('full');
-        else {
-          setError(data.reason || 'Invalid invite');
-          setStep('error');
-        }
-        return;
-      }
       setInvite(data);
       setStep('preview');
     } catch (err) {
-      setError(err.message || 'Failed to load invite');
-      setStep('error');
+      const fallback =
+        err instanceof ApiError && err.status === 400
+          ? REASON_MESSAGES.invite_not_found
+          : 'We could not load this invite. Check your connection and try again.';
+      handleInviteRejection(err, fallback);
     }
   };
 
@@ -47,11 +85,13 @@ export default function GuestJoin() {
     setSubmitting(true);
     setError(null);
     try {
-      await startVerification(token, phone.trim(), displayName.trim());
+      await startVerification(token, normalizePhone(phone), displayName.trim());
       setStep('verify');
       setTimeout(() => codeInputRef.current?.focus(), 100);
     } catch (err) {
-      setError(err.message || 'Failed to send verification code');
+      if (!handleInviteRejection(err)) {
+        setError(err.message || 'Failed to send verification code');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -62,12 +102,14 @@ export default function GuestJoin() {
     setSubmitting(true);
     setError(null);
     try {
-      const data = await confirmCode(token, phone.trim(), code);
+      const data = await confirmCode(token, normalizePhone(phone), code);
       setResult(data);
       setStep('success');
     } catch (err) {
-      setError(err.message || 'Verification failed');
-      setCode('');
+      if (!handleInviteRejection(err)) {
+        setError(err.message || 'Verification failed');
+        setCode('');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -112,35 +154,29 @@ export default function GuestJoin() {
               </p>
             </div>
 
-            {invite.event && (
-              <div className="bg-white/5 rounded-xl p-4 mb-5 border border-white/5">
-                <h3 className="text-white font-semibold text-base">
-                  {invite.event.title}
-                </h3>
-                {invite.event.description && (
-                  <p className="text-white/50 text-sm mt-1">{invite.event.description}</p>
-                )}
-                <div className="flex flex-col gap-2 mt-3">
-                  {invite.event.start_time && (
-                    <span className="flex items-center gap-2 text-white/60 text-xs">
-                      <Clock className="w-3.5 h-3.5" />
-                      {formatTime(invite.event.start_time)}
-                      {invite.event.end_time && ` – ${formatTime(invite.event.end_time)}`}
-                    </span>
-                  )}
-                  {invite.event.location_name && (
-                    <span className="flex items-center gap-2 text-white/60 text-xs">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {invite.event.location_name}
-                    </span>
-                  )}
+            <div className="bg-white/5 rounded-xl p-4 mb-5 border border-white/5">
+              <h3 className="text-white font-semibold text-base">
+                {invite.event_title || 'A SoloWay experience'}
+              </h3>
+              <div className="flex flex-col gap-2 mt-3">
+                {invite.event_time && (
                   <span className="flex items-center gap-2 text-white/60 text-xs">
-                    <Users className="w-3.5 h-3.5" />
-                    {invite.spots_remaining} spot{invite.spots_remaining !== 1 ? 's' : ''} remaining
+                    <Clock className="w-3.5 h-3.5" />
+                    {formatTime(invite.event_time)}
                   </span>
-                </div>
+                )}
+                {invite.event_location && (
+                  <span className="flex items-center gap-2 text-white/60 text-xs">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {invite.event_location}
+                  </span>
+                )}
+                <span className="flex items-center gap-2 text-white/60 text-xs">
+                  <Users className="w-3.5 h-3.5" />
+                  {invite.spots_remaining} spot{invite.spots_remaining !== 1 ? 's' : ''} remaining
+                </span>
               </div>
-            )}
+            </div>
 
             <button
               onClick={() => setStep('phone')}

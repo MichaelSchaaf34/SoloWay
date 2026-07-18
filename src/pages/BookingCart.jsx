@@ -19,12 +19,12 @@ const BookingCart = () => {
     cart,
     removeFromCart,
     cartTotalCents,
-    path,
   } = useTrip();
   const idempotencyKey = useRef(makeIdempotencyKey());
   const [status, setStatus] = useState({ loading: false, error: '' });
 
-  const goBack = () => navigate(path === 'ai' ? '/ai-itinerary' : '/explore');
+  // The AI planning path is gated until launch; browsing is the only entry into the cart.
+  const goBack = () => navigate('/explore');
   const currency = cart[0]?.currency?.toUpperCase() || 'USD';
   const formatter = useMemo(() => new Intl.NumberFormat('en-US', {
     style: 'currency',
