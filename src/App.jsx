@@ -28,11 +28,12 @@ import AdminWaitlist from './pages/admin/AdminWaitlist';
 import AdminCatalog from './pages/admin/AdminCatalog';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminReviews from './pages/admin/AdminReviews';
-import { ProtectedRoute, AdminRoute } from './components';
+import { ProtectedRoute, AdminRoute, ScrollToTop } from './components';
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/destinations/:destinationSlug" element={<DestinationDetail />} />

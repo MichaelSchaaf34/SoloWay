@@ -286,9 +286,25 @@
 - Frontend: `AdminRoute` guard (redirects non-admins to `/`), `adminService.js` API client, and an `/admin` portal (sidebar layout with nested routes) with Dashboard, Users (search, detail panel, delete), Waitlist (CSV export), Providers & Experiences (activate/deactivate), Orders (status filter, detail panel, refund), and Reviews (moderate/delete) pages — intentionally a functional dark dashboard rather than the immersive traveler UI
 - Validation: backend 52/52 tests pass (refund refactor covered by existing payments tests), `node --check` clean on all touched backend files, production build zero errors — run `npm run db:migrate` then `UPDATE users SET is_admin = true WHERE email = '<your email>';` to get access
 
----
+## 2026-07-13 - Interval 46 (destination experience location map)
+- Added a dynamic GPS map to destination experience pages (`DestinationDetail`): sticky sidebar on desktop (top-right of the experiences section), inline above cards on mobile
+- Map updates as users hover, focus, or scroll experience cards — active card gets a teal highlight ring; includes a local OpenStreetMap embed plus a small world-context inset
+- New `ExperienceLocationMap` component, `destinationCoordinates.js` (city centers), `activityLocations.js` (landmark coords for curated catalog picks), and `resolveExperienceLocation` helper (catalog coords → jittered fallback for live provider inventory)
+- Validation: production build zero errors; `DestinationDetail` tests 3/3 pass (IntersectionObserver guarded for jsdom)
 
-## Current state (as of 2026-07-13)
+## 2026-07-13 - Interval 47 (hero discovery card)
+- Replaced the static Kyoto itinerary mock in the landing hero with a dynamic `HeroDiscoveryCard` that rotates daily destinations (same Eastern-midnight flip as `Destinations` / `FeaturedExperiences`)
+- New `useHeroDiscovery` hook: fetches public `GET /experiences`, shows live inventory when available for the spotlight city, otherwise falls back to curated `activityCatalog` picks; Chill/Adventure mood toggle filters experiences client-side
+- Extended `ItineraryItem` with optional `Link` wrapper and price display; destination title, timeline rows, and radar footer all link to `/destinations/:slug`
+- Same discovery card for signed-in and signed-out users; `Landing.jsx` now passes `rotationDate` into `Hero`
+- Validation: production build zero errors
+
+## 2026-07-18 - Interval 48 (scroll to top on navigation)
+- Added `ScrollToTop` component mounted inside the router in `App.jsx`: every route change now lands at the top of the new page instead of inheriting the previous scroll position
+- Hash links (e.g. `/#destinations`, `/privacy#cookies`) still scroll to their target element
+- Validation: production build zero errors
+
+---
 
 ### Shipped and wired
 - **Public discovery:** landing atlas with Eastern-midnight rotation, live provider experiences, destination detail pages with nature scenes + fallback activity catalog, Ticketmaster events (informational external links), and community reviews

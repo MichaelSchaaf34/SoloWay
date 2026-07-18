@@ -4,6 +4,8 @@ import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useDarkMode } from '../context/DarkModeContext';
 import useAuth from '../hooks/useAuth';
 
+const ADMIN_EMAIL = 'michaelschaaf34@yahoo.com';
+
 const navLinks = [
   { href: '/#destinations', label: 'Destinations' },
   { href: '/reviews',       label: 'Reviews'      },
@@ -46,6 +48,13 @@ const Navbar = () => {
 
   const displayName = user?.displayName || user?.email?.split('@')?.[0] || 'Account';
   const initials = initialsOf(user?.displayName, user?.email);
+  const showAdminLink = isAuthenticated
+    && user?.email?.toLowerCase() === ADMIN_EMAIL;
+
+  const primaryLinks = [
+    ...navLinks,
+    ...(showAdminLink ? [{ href: '/admin', label: 'Admin' }] : []),
+  ];
 
   const shellClass = scrolled
     ? 'border-slate-200/70 bg-white/80 shadow-[0_8px_30px_rgb(15,23,42,0.06)] backdrop-blur-2xl dark:border-slate-700/70 dark:bg-slate-900/80'
@@ -76,7 +85,7 @@ const Navbar = () => {
               </Link>
 
               <div className="hidden lg:flex items-center gap-7">
-                {navLinks.map(l => (
+                {primaryLinks.map(l => (
                   <NavAnchor
                     key={l.href}
                     href={l.href}
@@ -193,7 +202,7 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md pt-24 px-6 md:hidden">
           <div className="flex flex-col gap-1 text-lg font-medium text-slate-900 dark:text-slate-100">
-            {navLinks.map(l => (
+            {primaryLinks.map(l => (
               <NavAnchor
                 key={l.href}
                 href={l.href}

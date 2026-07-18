@@ -27,7 +27,7 @@ const Landing = () => {
     <div className="relative min-h-screen overflow-x-clip bg-slate-50 dark:bg-slate-900 font-sans text-slate-600 dark:text-slate-300">
       <Background />
       <Navbar />
-      <Hero />
+      <Hero rotationDate={rotationDate} />
       <Destinations rotationDate={rotationDate} />
       <FeaturedExperiences rotationDate={rotationDate} />
       <Safety />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -17,6 +17,7 @@ import {
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import DestinationScene from '../components/DestinationScene';
+import ExperienceLocationMap from '../components/ExperienceLocationMap';
 import { getLiveDestination } from '../utils/liveDestinations';
 import useAuth from '../hooks/useAuth';
 import { useTrip } from '../context/TripContext';
@@ -26,6 +27,7 @@ import {
   getSuggestedExperiences,
   groupSuggestionsByTimeSlot,
 } from '../utils/suggestedExperiences';
+import { resolveExperienceLocation } from '../utils/experienceLocation';
 
 const DAY_MOMENTS = [
   { label: 'Morning', icon: Sunrise },
@@ -74,6 +76,9 @@ const DestinationDetail = () => {
   const [experiences, setExperiences] = useState([]);
   const [loadState, setLoadState] = useState({ loading: true, error: '' });
   const [liveEvents, setLiveEvents] = useState([]);
+  const [hoveredExperienceId, setHoveredExperienceId] = useState(null);
+  const [visibleExperienceId, setVisibleExperienceId] = useState(null);
+  const experienceCardRefs = useRef(new Map());
 
   useEffect(() => {
     if (!destination) return undefined;
@@ -132,6 +137,83 @@ const DestinationDetail = () => {
   const suggestionGroups = groupSuggestionsByTimeSlot(
     destination ? getSuggestedExperiences(destination.id) : []
   );
+
+  const experienceCards = useMemo(() => {
+    if (experiences.length > 0) {
+      return experiences.map(experience => ({ id: experience.id, item: experience }));
+    }
+
+    return suggestionGroups.flatMap(group =>
+      group.items.map(item => ({ id: item.id, item }))
+    );
+  }, [experiences, suggestionGroups]);
+
+  const registerExperienceCard = useCallback((id, node) => {
+    if (node) experienceCardRefs.current.set(id, node);
+    else experienceCardRefs.current.delete(id);
+  }, []);
+
+  useEffect(() => {
+    if (experienceCards.length === 0) {
+      setVisibleExperienceId(null);
+      return undefined;
+    }
+
+    setVisibleExperienceId(previous => previous ?? experienceCards[0].id);
+
+    if (typeof IntersectionObserver === 'undefined') {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const visibleEntries = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visibleEntries[0]?.target?.dataset?.experienceId) {
+          setVisibleExperienceId(visibleEntries[0].target.dataset.experienceId);
+        }
+      },
+      { threshold: [0.35, 0.6, 0.85], rootMargin: '-8% 0px -40% 0px' }
+    );
+
+    const frame = window.requestAnimationFrame(() => {
+      experienceCardRefs.current.forEach(node => observer.observe(node));
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [experienceCards]);
+
+  const activeExperienceId =
+    hoveredExperienceId ?? visibleExperienceId ?? experienceCards[0]?.id ?? null;
+
+  const activeExperienceLocation = useMemo(() => {
+    if (!destination) return null;
+
+    const activeCard = experienceCards.find(card => card.id === activeExperienceId);
+    if (activeCard) return resolveExperienceLocation(activeCard.item, destination);
+
+    return resolveExperienceLocation(
+      { title: destination.name, locationName: destination.name },
+      destination
+    );
+  }, [activeExperienceId, destination, experienceCards]);
+
+  const getExperienceCardProps = id => ({
+    'data-experience-id': id,
+    ref: node => registerExperienceCard(id, node),
+    onMouseEnter: () => setHoveredExperienceId(id),
+    onMouseLeave: () => setHoveredExperienceId(null),
+    onFocus: () => setHoveredExperienceId(id),
+    onBlur: () => setHoveredExperienceId(null),
+    tabIndex: 0,
+  });
+
+  const isActiveExperienceCard = id => activeExperienceId === id;
 
   const tripDestination = destination
     ? {
@@ -291,25 +373,36 @@ const DestinationDetail = () => {
 
         <section className="bg-slate-50 py-20 dark:bg-slate-900" aria-labelledby="destination-experiences">
           <div className="container mx-auto px-6">
-            <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_min(100%,320px)] xl:items-start">
               <div>
-                <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-teal-600 dark:text-teal-400">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Live provider inventory
-                </span>
-                <h2 id="destination-experiences" className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">
-                  Experiences in {destination.name}
-                </h2>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                  Browse freely. You only need an account when you are ready to book.
-                </p>
-              </div>
-              {experiences.length > 0 && (
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  {experiences.length} {experiences.length === 1 ? 'experience' : 'experiences'} available
-                </span>
-              )}
-            </div>
+                <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-teal-600 dark:text-teal-400">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Live provider inventory
+                    </span>
+                    <h2 id="destination-experiences" className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">
+                      Experiences in {destination.name}
+                    </h2>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                      Browse freely. You only need an account when you are ready to book.
+                    </p>
+                  </div>
+                  {experiences.length > 0 && (
+                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                      {experiences.length} {experiences.length === 1 ? 'experience' : 'experiences'} available
+                    </span>
+                  )}
+                </div>
+
+                {!loadState.loading && experienceCards.length > 0 && (
+                  <div className="mb-8 xl:hidden">
+                    <ExperienceLocationMap location={activeExperienceLocation} />
+                    <p className="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">
+                      Tap or scroll cards to update the map
+                    </p>
+                  </div>
+                )}
 
             {loadState.loading && (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Loading destination experiences">
@@ -322,7 +415,15 @@ const DestinationDetail = () => {
             {!loadState.loading && experiences.length > 0 && (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {experiences.map(experience => (
-                  <article key={experience.id} className="flex min-h-72 flex-col rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                  <article
+                    key={experience.id}
+                    {...getExperienceCardProps(experience.id)}
+                    className={`flex min-h-72 flex-col rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-slate-950 ${
+                      isActiveExperienceCard(experience.id)
+                        ? 'border-teal-400/70 ring-2 ring-teal-500/20 dark:border-teal-700'
+                        : 'border-slate-200/80 dark:border-slate-800'
+                    }`}
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:bg-teal-950 dark:text-teal-300">
                         {CATEGORY_LABELS[experience.category] || CATEGORY_LABELS.other}
@@ -393,7 +494,12 @@ const DestinationDetail = () => {
                         {group.items.map(suggestion => (
                           <article
                             key={suggestion.id}
-                            className="flex flex-col rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+                            {...getExperienceCardProps(suggestion.id)}
+                            className={`flex flex-col rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-slate-950 ${
+                              isActiveExperienceCard(suggestion.id)
+                                ? 'border-teal-400/70 ring-2 ring-teal-500/20 dark:border-teal-700'
+                                : 'border-slate-200/80 dark:border-slate-800'
+                            }`}
                           >
                             <div className="flex items-center justify-between gap-3">
                               <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:bg-teal-950 dark:text-teal-300">
@@ -455,6 +561,19 @@ const DestinationDetail = () => {
                 </p>
               </div>
             )}
+              </div>
+
+              {!loadState.loading && experienceCards.length > 0 && (
+                <aside className="hidden xl:block">
+                  <div className="sticky top-24">
+                    <ExperienceLocationMap location={activeExperienceLocation} />
+                    <p className="mt-3 text-center text-xs text-slate-400 dark:text-slate-500">
+                      Hover or scroll cards to update the map
+                    </p>
+                  </div>
+                </aside>
+              )}
+            </div>
           </div>
         </section>
 
