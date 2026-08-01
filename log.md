@@ -10,7 +10,8 @@
 | Mar 2026 | 22–28 | Security hardening, booking flow, QR Buddy system |
 | Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
 | Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
-| Jul 2026 | 33–49 | Stripe commerce, public destinations, reviews, admin portal, production readiness |
+| Jul 2026 | 33–51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
+| Aug 2026 | 52 | Landing redesign preview route (`/preview/home`) — live `/` unchanged |
 
 ---
 
@@ -304,6 +305,28 @@
 - Hash links (e.g. `/#destinations`, `/privacy#cookies`) still scroll to their target element
 - Validation: production build zero errors
 
+## 2026-07-18 - Interval 50 (homepage atlas shows new cities daily)
+- **Root cause:** atlas “rotation” only reordered the same 6 hardcoded cities, so returning after a few days looked unchanged
+- Expanded the atlas pool to 15 destinations (Florence, Bangkok, Bali, Marrakech, New York, Paris, Buenos Aires, Seoul, Prague + original six)
+- Added `selectForDate()` — each Eastern midnight advances a 6-card window through the pool so consecutive days surface mostly new cities (not a reshuffle of the same set)
+- Hero discovery + featured experiences now use the same daily lead city; featured section no longer sticks when live inventory covers only one city
+- Open tabs refresh rotation on `visibilitychange` (catches throttled midnight timers) as well as at Eastern midnight
+- Copy updated (“The atlas · refreshes daily”)
+- Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
+
+## 2026-08-01 - Interval 52 (landing redesign preview)
+- Added public `/preview/home` route with a self-contained mock-matched home (nav, hero, tabbed plan card, 3-segment search, inspiration + phone, features)
+- Live `/` landing left unchanged; purple banner links back for side-by-side compare
+- Preview reuses `useHeroDiscovery` + atlas rotation; search is visual-only (no TripContext submit)
+- Validation: production build
+
+## 2026-07-30 - Interval 51 (clickable experience detail pages)
+- Destination experience cards (live inventory + curated suggestions) now link to a public detail URL: `/destinations/:destinationSlug/experiences/:experienceId`
+- Added `ExperienceDetail` page with map, timing/location, solo framing, and book/plan CTAs
+- Curated ideas resolve from the activity catalog (`suggested-*` ids); live experiences use new public `GET /api/v1/experiences/:experienceId`
+- Book/plan CTAs remain separate from the card body so detail navigation and checkout stay distinct
+- Validation: frontend tests + production build
+
 ## 2026-07-18 - Interval 49 (production launch readiness)
 - **Git hygiene:** committed intervals 46-48 (`7-13-changes`), merged to `main` along with remote README edits, pushed both branches
 - **QR Buddy fixed for production:** `GuestJoin.jsx` now consumes the real flat `joinPreview` payload (`event_title`/`event_time`/`event_location`) and maps the API's 400 reason codes (`invite_expired`, `party_full`, `invite_cancelled`, `invite_not_found`) to the dedicated expired/full/error cards — previously dead code paths; guest-entered phone numbers are normalized to E.164 before submit
@@ -320,7 +343,7 @@
 ---
 
 ### Shipped and wired
-- **Public discovery:** landing atlas with Eastern-midnight rotation, live provider experiences, destination detail pages with nature scenes + fallback activity catalog, Ticketmaster events (informational external links), and community reviews
+- **Public discovery:** landing atlas with Eastern-midnight 6-of-15 city window, live provider experiences, destination detail pages with nature scenes + fallback activity catalog, per-experience detail URLs, Ticketmaster events (informational external links), and community reviews
 - **Auth & accounts:** JWT access/refresh with rotation, email verification, password reset, Resend transactional email, protected routes, profile
 - **Booking & commerce:** server-authoritative experience catalog, Stripe Connect checkout, webhook-confirmed fulfillment, booking return page, provider onboarding, admin portal for users/orders/catalog/reviews
 - **Trips:** itinerary CRUD, dual-path AI/manual booking flow, TripContext cart, destination catalog selectors
@@ -337,6 +360,6 @@
 - Buddy/waitlist rate limiters are in-memory (fine single-instance; move to the Redis store when scaling out)
 
 ### Test coverage snapshot
-- Frontend: 24/24 tests (`vitest run`)
+- Frontend: 34/34 tests (`vitest run`)
 - Backend: 52/52 tests (`vitest run`)
 - Apply pending migrations before new features: `cd backend && npm run db:migrate` (includes `006_reviews.sql`, `007_admin.sql`)

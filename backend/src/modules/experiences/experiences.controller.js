@@ -9,6 +9,15 @@ export async function list(req, res, next) {
   }
 }
 
+export async function getById(req, res, next) {
+  try {
+    const experience = await experiencesService.getExperience(req.params.experienceId);
+    res.json({ success: true, data: { experience } });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function create(req, res, next) {
   try {
     const experience = await experiencesService.createExperience(req.userId, req.body);

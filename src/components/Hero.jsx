@@ -8,7 +8,7 @@ const Hero = ({ rotationDate = new Date() }) => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <header className="relative z-10 pt-32 pb-24 lg:pt-44 lg:pb-36">
+    <header className="relative z-10 pt-32 pb-16 lg:pt-44 lg:pb-24">
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
 

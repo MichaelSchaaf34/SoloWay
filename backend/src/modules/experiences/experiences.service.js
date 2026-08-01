@@ -65,6 +65,22 @@ export async function listExperiences({ destination, category, limit = 50 }) {
   return (data || []).map(formatExperience);
 }
 
+export async function getExperience(experienceId) {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from('experiences')
+    .select('*, providers!inner(display_name, onboarding_status, charges_enabled, payouts_enabled)')
+    .eq('id', experienceId)
+    .eq('is_active', true)
+    .eq('providers.onboarding_status', 'active')
+    .eq('providers.charges_enabled', true)
+    .maybeSingle();
+
+  if (error) throw new Error('Failed to fetch experience');
+  if (!data) throw new NotFoundError('Experience');
+  return formatExperience(data);
+}
+
 export async function createExperience(userId, input) {
   assertValidTimezone(input.timezone);
   const provider = await findProvider(userId);

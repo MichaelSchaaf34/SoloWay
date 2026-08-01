@@ -2,13 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Users } from 'lucide-react';
 import DestinationScene from './DestinationScene';
-import { rotateForDate } from '../utils/destinationRotation';
+import { ATLAS_CARD_COUNT, selectForDate } from '../utils/destinationRotation';
 
 /**
- * Curated destination picks. The header area is an atmospheric CSS gradient
- * (two radial stops + a linear base) so we don't need per-destination photos
- * while still feeling editorial. Easy to swap for real imagery later by
- * replacing `gradient` with a photo URL.
+ * Full atlas pool. The homepage shows {@link ATLAS_CARD_COUNT} of these each
+ * day (Eastern midnight), advancing through the pool so visitors see new
+ * cities — not just a reordered list of the same six.
  */
 export const DESTINATIONS = [
   {
@@ -125,25 +124,196 @@ export const DESTINATIONS = [
     gradient:
       'radial-gradient(at 20% 30%, rgba(34,211,238,0.85) 0%, rgba(34,211,238,0) 55%), radial-gradient(at 80% 85%, rgba(139,92,246,0.85) 0%, rgba(139,92,246,0) 60%), linear-gradient(135deg, #0c4a6e 0%, #1e1b4b 100%)',
   },
+  {
+    id: 'florence',
+    name: 'Florence',
+    country: 'Italy',
+    vibe: 'Artful',
+    vibeColor: 'from-rose-400 to-amber-400',
+    nearby: 19,
+    desc: 'Renaissance streets, aperitivo hours, and galleries you can linger in alone without feeling rushed.',
+    bestTime: 'Apr – Jun · Sep',
+    avgPerDay: 110,
+    highlights: ['Uffizi Gallery', 'Tuscan wine', 'Duomo climb'],
+    scene: 'petals',
+    sceneCaption: 'Oltrarno evening light',
+    image: 'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Florence skyline with the Duomo',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 20% 25%, rgba(251,113,133,0.85) 0%, rgba(251,113,133,0) 55%), radial-gradient(at 80% 80%, rgba(251,191,36,0.85) 0%, rgba(251,191,36,0) 60%), linear-gradient(135deg, #881337 0%, #78350f 100%)',
+  },
+  {
+    id: 'bangkok',
+    name: 'Bangkok',
+    country: 'Thailand',
+    vibe: 'Electric',
+    vibeColor: 'from-amber-400 to-teal-400',
+    nearby: 28,
+    desc: 'Temples at dawn, street food until late, and a transit system that makes solo exploring effortless.',
+    bestTime: 'Nov – Feb',
+    avgPerDay: 45,
+    highlights: ['Grand Palace', 'Floating markets', 'Rooftop bars'],
+    scene: 'canopy',
+    sceneCaption: 'Chao Phraya heat haze',
+    image: 'https://images.unsplash.com/photo-1768392810963-017c92313d79?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Wat Arun temple at sunset in Bangkok',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 25% 30%, rgba(251,191,36,0.85) 0%, rgba(251,191,36,0) 55%), radial-gradient(at 80% 75%, rgba(20,184,166,0.85) 0%, rgba(20,184,166,0) 60%), linear-gradient(135deg, #78350f 0%, #134e4a 100%)',
+  },
+  {
+    id: 'bali',
+    name: 'Bali',
+    country: 'Indonesia',
+    vibe: 'Grounded',
+    vibeColor: 'from-emerald-400 to-teal-400',
+    nearby: 31,
+    desc: 'Rice terraces, temple sunrises, and a coworking/café circuit built for travelers on their own clock.',
+    bestTime: 'Apr – Oct',
+    avgPerDay: 50,
+    highlights: ['Rice terraces', 'Temple sunrise', 'Beach clubs'],
+    scene: 'coast',
+    sceneCaption: 'Island monsoon light',
+    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Balinese rice terraces',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 20% 30%, rgba(52,211,153,0.85) 0%, rgba(52,211,153,0) 55%), radial-gradient(at 80% 80%, rgba(20,184,166,0.85) 0%, rgba(20,184,166,0) 60%), linear-gradient(135deg, #064e3b 0%, #0c4a6e 100%)',
+  },
+  {
+    id: 'marrakech',
+    name: 'Marrakech',
+    country: 'Morocco',
+    vibe: 'Sensory',
+    vibeColor: 'from-orange-400 to-rose-500',
+    nearby: 14,
+    desc: 'Souks, riads, and Atlas day trips — stay in a well-located medina base and the city opens up solo.',
+    bestTime: 'Mar – May · Oct',
+    avgPerDay: 60,
+    highlights: ['Medina souks', 'Riads', 'Atlas day trips'],
+    scene: 'sunglow',
+    sceneCaption: 'Medina dusk spice',
+    image: 'https://images.unsplash.com/photo-1773500164244-d79b2d29e29c?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Marrakech medina at dusk',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 25% 25%, rgba(251,146,60,0.9) 0%, rgba(251,146,60,0) 55%), radial-gradient(at 80% 80%, rgba(244,63,94,0.85) 0%, rgba(244,63,94,0) 60%), linear-gradient(135deg, #7c2d12 0%, #881337 100%)',
+  },
+  {
+    id: 'new-york',
+    name: 'New York',
+    country: 'USA',
+    vibe: 'Kinetic',
+    vibeColor: 'from-sky-400 to-indigo-500',
+    nearby: 52,
+    desc: 'Museums, neighborhoods, and late kitchens — a city where dining alone is a flex, not a compromise.',
+    bestTime: 'Apr – Jun · Sep – Nov',
+    avgPerDay: 180,
+    highlights: ['Broadway', 'Central Park', 'Food halls'],
+    scene: 'sunglow',
+    sceneCaption: 'Manhattan street glow',
+    image: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Manhattan skyline',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 20% 20%, rgba(56,189,248,0.85) 0%, rgba(56,189,248,0) 55%), radial-gradient(at 80% 85%, rgba(99,102,241,0.85) 0%, rgba(99,102,241,0) 60%), linear-gradient(135deg, #0c4a6e 0%, #312e81 100%)',
+  },
+  {
+    id: 'paris',
+    name: 'Paris',
+    country: 'France',
+    vibe: 'Classic',
+    vibeColor: 'from-indigo-400 to-rose-400',
+    nearby: 38,
+    desc: 'Café tables for one, museum mornings, and Seine walks that never ask you to share the moment.',
+    bestTime: 'May – Jun · Sep – Oct',
+    avgPerDay: 150,
+    highlights: ['Museum mornings', 'Seine walks', 'Bistro nights'],
+    scene: 'petals',
+    sceneCaption: 'Left Bank soft rain',
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Paris skyline with the Eiffel Tower',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 25% 30%, rgba(129,140,248,0.85) 0%, rgba(129,140,248,0) 55%), radial-gradient(at 80% 75%, rgba(244,114,182,0.85) 0%, rgba(244,114,182,0) 60%), linear-gradient(135deg, #312e81 0%, #831843 100%)',
+  },
+  {
+    id: 'buenos-aires',
+    name: 'Buenos Aires',
+    country: 'Argentina',
+    vibe: 'Passionate',
+    vibeColor: 'from-rose-400 to-amber-400',
+    nearby: 24,
+    desc: 'Palermo cafés, late dinners, and tango nights where solo travelers are the default guest.',
+    bestTime: 'Mar – May · Sep – Nov',
+    avgPerDay: 55,
+    highlights: ['Palermo cafés', 'Tango shows', 'Steak houses'],
+    scene: 'sunglow',
+    sceneCaption: 'Palermo night breeze',
+    image: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Buenos Aires street at night',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 20% 25%, rgba(244,114,182,0.85) 0%, rgba(244,114,182,0) 55%), radial-gradient(at 85% 80%, rgba(251,191,36,0.85) 0%, rgba(251,191,36,0) 60%), linear-gradient(135deg, #881337 0%, #78350f 100%)',
+  },
+  {
+    id: 'seoul',
+    name: 'Seoul',
+    country: 'South Korea',
+    vibe: 'Neon',
+    vibeColor: 'from-violet-400 to-pink-400',
+    nearby: 27,
+    desc: 'Night markets, palace mornings, and a metro that makes every neighborhood feel walkable alone.',
+    bestTime: 'Apr – May · Sep – Oct',
+    avgPerDay: 85,
+    highlights: ['Night markets', 'Palace walks', 'Han river sunsets'],
+    scene: 'sunglow',
+    sceneCaption: 'Han River neon dusk',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Seoul cityscape at night',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 25% 25%, rgba(167,139,250,0.85) 0%, rgba(167,139,250,0) 55%), radial-gradient(at 80% 80%, rgba(244,114,182,0.85) 0%, rgba(244,114,182,0) 60%), linear-gradient(135deg, #4c1d95 0%, #831843 100%)',
+  },
+  {
+    id: 'prague',
+    name: 'Prague',
+    country: 'Czech Republic',
+    vibe: 'Storybook',
+    vibeColor: 'from-amber-400 to-red-400',
+    nearby: 21,
+    desc: 'Castle views, beer halls, and old-town streets that reward wandering without a plan.',
+    bestTime: 'May – Sep',
+    avgPerDay: 75,
+    highlights: ['Old Town square', 'Castle views', 'Beer halls'],
+    scene: 'petals',
+    sceneCaption: 'Vltava morning mist',
+    image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=1200&q=82',
+    imageAlt: 'Prague old town and Charles Bridge',
+    imagePosition: 'center',
+    gradient:
+      'radial-gradient(at 20% 30%, rgba(251,191,36,0.85) 0%, rgba(251,191,36,0) 55%), radial-gradient(at 80% 75%, rgba(248,113,113,0.85) 0%, rgba(248,113,113,0) 60%), linear-gradient(135deg, #78350f 0%, #7f1d1d 100%)',
+  },
 ];
 
 const Destinations = ({ rotationDate = new Date() }) => {
-  const orderedDestinations = rotateForDate(DESTINATIONS, rotationDate);
+  const orderedDestinations = selectForDate(DESTINATIONS, ATLAS_CARD_COUNT, rotationDate);
 
   return (
-    <section id="destinations" className="relative py-24 lg:py-32 bg-slate-50 dark:bg-slate-900">
+    <section id="destinations" className="relative bg-slate-50 pb-24 pt-16 dark:bg-slate-900 lg:pb-32 lg:pt-20">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 lg:mb-16">
           <div className="max-w-2xl">
             <span className="inline-block text-[11px] font-semibold tracking-[0.22em] text-teal-600 dark:text-teal-400 uppercase mb-4">
-              The atlas
+              The atlas · refreshes daily
             </span>
             <h2 className="text-balance text-[clamp(1.85rem,3.4vw,2.75rem)] font-semibold text-slate-900 dark:text-white leading-[1.1]">
               Where solo travelers <span className="font-serif-italic bg-gradient-to-r from-teal-500 via-sky-500 to-indigo-500 bg-clip-text text-transparent">thrive</span>.
             </h2>
           </div>
           <p className="md:max-w-sm text-pretty text-[15px] text-slate-600 dark:text-slate-400 leading-relaxed">
-            Hand-picked cities that are safe, social, and easy to navigate on your own — ranked by the SoloWay community.
+            A fresh set of hand-picked cities every day — safe, social, and easy to navigate on your own.
           </p>
         </div>
 

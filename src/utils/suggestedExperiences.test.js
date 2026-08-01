@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getSuggestedExperienceById,
   getSuggestedExperiences,
   getTimeSlot,
   groupSuggestionsByTimeSlot,
@@ -69,5 +70,11 @@ describe('suggested experiences adapter', () => {
       expect(group.items.length).toBeGreaterThan(0);
       expect(group.items.every(item => item.timeSlot === group.id)).toBe(true);
     }
+  });
+
+  it('resolves a curated suggestion by public detail id', () => {
+    const suggestion = getSuggestedExperienceById('marrakech', 'suggested-mrk-2');
+    expect(suggestion?.title).toBe('Medina Souk & Spice Tour');
+    expect(getSuggestedExperienceById('marrakech', 'missing')).toBeNull();
   });
 });

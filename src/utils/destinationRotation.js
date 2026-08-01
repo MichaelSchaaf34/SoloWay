@@ -53,6 +53,30 @@ export function rotateForDate(items, date = new Date()) {
   return [...items.slice(offset), ...items.slice(0, offset)];
 }
 
+/**
+ * How many destination cards the homepage atlas shows each day.
+ * Kept smaller than the full pool so consecutive days can surface
+ * different cities (not merely a reordered list of the same six).
+ */
+export const ATLAS_CARD_COUNT = 6;
+
+/**
+ * Pick `count` items for the given Eastern calendar day.
+ *
+ * When the pool is larger than `count`, the window advances by `count`
+ * each day so visitors see a mostly-new set of cities every 24 hours.
+ * When the pool is the same size as `count`, falls back to a one-step
+ * rotate so order still changes daily.
+ */
+export function selectForDate(items, count = ATLAS_CARD_COUNT, date = new Date()) {
+  if (!items.length || count <= 0) return [];
+
+  const take = Math.min(count, items.length);
+  const step = items.length > take ? take : 1;
+  const offset = (getRotationDayNumber(date) * step) % items.length;
+  return [...items.slice(offset), ...items.slice(0, offset)].slice(0, take);
+}
+
 export function millisecondsUntilNextRotation(date = new Date()) {
   let remaining = MILLISECONDS_PER_DAY - getEasternMillisecondsIntoDay(date);
 

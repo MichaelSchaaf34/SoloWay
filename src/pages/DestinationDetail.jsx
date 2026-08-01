@@ -418,46 +418,57 @@ const DestinationDetail = () => {
                   <article
                     key={experience.id}
                     {...getExperienceCardProps(experience.id)}
-                    className={`flex min-h-72 flex-col rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-slate-950 ${
+                    className={`group/card flex min-h-72 flex-col rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-slate-950 ${
                       isActiveExperienceCard(experience.id)
                         ? 'border-teal-400/70 ring-2 ring-teal-500/20 dark:border-teal-700'
-                        : 'border-slate-200/80 dark:border-slate-800'
+                        : 'border-slate-200/80 hover:border-teal-300/80 dark:border-slate-800 dark:hover:border-teal-800'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:bg-teal-950 dark:text-teal-300">
-                        {CATEGORY_LABELS[experience.category] || CATEGORY_LABELS.other}
-                      </span>
-                      <span className="font-bold text-slate-900 dark:text-white">{formatPrice(experience)}</span>
-                    </div>
+                    <Link
+                      to={`/destinations/${destination.id}/experiences/${experience.id}`}
+                      className="flex flex-1 flex-col outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:bg-teal-950 dark:text-teal-300">
+                          {CATEGORY_LABELS[experience.category] || CATEGORY_LABELS.other}
+                        </span>
+                        <span className="font-bold text-slate-900 dark:text-white">{formatPrice(experience)}</span>
+                      </div>
 
-                    <h3 className="mt-5 text-xl font-semibold text-slate-900 dark:text-white">{experience.title}</h3>
-                    {experience.description && (
-                      <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                        {experience.description}
-                      </p>
-                    )}
+                      <h3 className="mt-5 text-xl font-semibold text-slate-900 transition-colors group-hover/card:text-teal-700 dark:text-white dark:group-hover/card:text-teal-300">
+                        {experience.title}
+                      </h3>
+                      {experience.description && (
+                        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                          {experience.description}
+                        </p>
+                      )}
 
-                    <div className="mt-5 space-y-2 text-xs text-slate-500 dark:text-slate-400">
-                      <p className="flex items-center gap-2">
-                        <MapPin className="h-3.5 w-3.5 text-teal-500" />
-                        {experience.locationName || destination.name}
+                      <div className="mt-5 space-y-2 text-xs text-slate-500 dark:text-slate-400">
+                        <p className="flex items-center gap-2">
+                          <MapPin className="h-3.5 w-3.5 text-teal-500" />
+                          {experience.locationName || destination.name}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <Clock3 className="h-3.5 w-3.5 text-sky-500" />
+                          {experience.scheduledTime?.slice(0, 5) || 'Flexible time'}
+                          {experience.durationMinutes ? ` · ${experience.durationMinutes} min` : ''}
+                        </p>
+                        <p className="pt-1 text-slate-400 dark:text-slate-500">
+                          Hosted by {experience.providerName || 'a SoloWay provider'}
+                        </p>
+                      </div>
+
+                      <p className="mt-auto pt-5 text-sm font-semibold text-teal-700 dark:text-teal-300">
+                        View details
                       </p>
-                      <p className="flex items-center gap-2">
-                        <Clock3 className="h-3.5 w-3.5 text-sky-500" />
-                        {experience.scheduledTime?.slice(0, 5) || 'Flexible time'}
-                        {experience.durationMinutes ? ` · ${experience.durationMinutes} min` : ''}
-                      </p>
-                      <p className="pt-1 text-slate-400 dark:text-slate-500">
-                        Hosted by {experience.providerName || 'a SoloWay provider'}
-                      </p>
-                    </div>
+                    </Link>
 
                     <Link
                       to={isAuthenticated ? '/cart' : '/auth'}
                       state={isAuthenticated ? undefined : { from: '/cart' }}
                       onClick={() => rememberBooking(experience)}
-                      className="group mt-auto flex items-center justify-between border-t border-slate-200 pt-5 text-sm font-semibold text-slate-900 dark:border-slate-800 dark:text-white"
+                      className="group mt-4 flex items-center justify-between border-t border-slate-200 pt-5 text-sm font-semibold text-slate-900 dark:border-slate-800 dark:text-white"
                     >
                       {isAuthenticated ? 'Book experience' : 'Create account to book'}
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -495,43 +506,52 @@ const DestinationDetail = () => {
                           <article
                             key={suggestion.id}
                             {...getExperienceCardProps(suggestion.id)}
-                            className={`flex flex-col rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-slate-950 ${
+                            className={`group/card flex flex-col rounded-[24px] border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-slate-950 ${
                               isActiveExperienceCard(suggestion.id)
                                 ? 'border-teal-400/70 ring-2 ring-teal-500/20 dark:border-teal-700'
-                                : 'border-slate-200/80 dark:border-slate-800'
+                                : 'border-slate-200/80 hover:border-teal-300/80 dark:border-slate-800 dark:hover:border-teal-800'
                             }`}
                           >
-                            <div className="flex items-center justify-between gap-3">
-                              <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:bg-teal-950 dark:text-teal-300">
-                                {suggestion.soloTag}
-                              </span>
-                              <span className="font-bold text-slate-900 dark:text-white">
-                                {formatSuggestionPrice(suggestion)}
-                              </span>
-                            </div>
+                            <Link
+                              to={`/destinations/${destination.id}/experiences/${suggestion.id}`}
+                              className="flex flex-1 flex-col outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <span className="rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700 dark:bg-teal-950 dark:text-teal-300">
+                                  {suggestion.soloTag}
+                                </span>
+                                <span className="font-bold text-slate-900 dark:text-white">
+                                  {formatSuggestionPrice(suggestion)}
+                                </span>
+                              </div>
 
-                            <h4 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
-                              {suggestion.title}
-                            </h4>
-                            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                              {suggestion.soloNote}
-                            </p>
+                              <h4 className="mt-5 text-lg font-semibold text-slate-900 transition-colors group-hover/card:text-teal-700 dark:text-white dark:group-hover/card:text-teal-300">
+                                {suggestion.title}
+                              </h4>
+                              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                                {suggestion.soloNote}
+                              </p>
 
-                            <div className="mt-4 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                              <span className="flex items-center gap-1.5">
-                                <Clock3 className="h-3.5 w-3.5 text-sky-500" />
-                                {suggestion.displayTime}
-                              </span>
-                              <span>
-                                ★ {suggestion.rating} ({suggestion.reviews})
-                              </span>
-                            </div>
+                              <div className="mt-4 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                                <span className="flex items-center gap-1.5">
+                                  <Clock3 className="h-3.5 w-3.5 text-sky-500" />
+                                  {suggestion.displayTime}
+                                </span>
+                                <span>
+                                  ★ {suggestion.rating} ({suggestion.reviews})
+                                </span>
+                              </div>
+
+                              <p className="mt-auto pt-5 text-sm font-semibold text-teal-700 dark:text-teal-300">
+                                View details
+                              </p>
+                            </Link>
 
                             <Link
                               to={isAuthenticated ? '/start' : '/auth'}
                               state={isAuthenticated ? undefined : { from: '/start' }}
                               onClick={rememberDestination}
-                              className="group mt-auto flex items-center justify-between border-t border-slate-200 pt-5 text-sm font-semibold text-slate-900 dark:border-slate-800 dark:text-white"
+                              className="group mt-4 flex items-center justify-between border-t border-slate-200 pt-5 text-sm font-semibold text-slate-900 dark:border-slate-800 dark:text-white"
                             >
                               <span className="flex items-center gap-2">
                                 Plan this into a trip

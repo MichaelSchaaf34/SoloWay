@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DESTINATIONS } from '../components/Destinations';
 import { getActivitiesForDestination } from '../data/activityCatalog';
-import { rotateForDate } from '../utils/destinationRotation';
+import { ATLAS_CARD_COUNT, selectForDate } from '../utils/destinationRotation';
 import { listExperiences } from '../utils/experienceService';
 import { toSuggestedExperience } from '../utils/suggestedExperiences';
 
@@ -93,7 +93,7 @@ export default function useHeroDiscovery(rotationDate = new Date()) {
   const [loading, setLoading] = useState(true);
 
   const destination = useMemo(
-    () => rotateForDate(DESTINATIONS, rotationDate)[0],
+    () => selectForDate(DESTINATIONS, ATLAS_CARD_COUNT, rotationDate)[0],
     [rotationDate]
   );
 

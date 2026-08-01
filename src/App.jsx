@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
+import LandingPreview from './pages/LandingPreview';
 import DestinationDetail from './pages/DestinationDetail';
+import ExperienceDetail from './pages/ExperienceDetail';
 import Reviews from './pages/Reviews';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
@@ -34,7 +36,12 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/preview/home" element={<LandingPreview />} />
         <Route path="/destinations/:destinationSlug" element={<DestinationDetail />} />
+        <Route
+          path="/destinations/:destinationSlug/experiences/:experienceId"
+          element={<ExperienceDetail />}
+        />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

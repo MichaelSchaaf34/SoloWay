@@ -72,6 +72,10 @@ describe('DestinationDetail', () => {
     expect(screen.getByRole('heading', { name: 'Lisbon', level: 1 })).toBeInTheDocument();
     expect(await screen.findByText('Alfama evening food walk')).toBeInTheDocument();
     expect(listExperiences).toHaveBeenCalledWith({ destination: 'lisbon', limit: 24 });
+    expect(screen.getByRole('link', { name: /view details/i })).toHaveAttribute(
+      'href',
+      '/destinations/lisbon/experiences/experience-1'
+    );
     expect(screen.getByRole('link', { name: /create account to book/i })).toHaveAttribute('href', '/auth');
   });
 

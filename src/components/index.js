@@ -21,6 +21,7 @@ export { default as Footer } from './Footer';
 
 // Section Components
 export { default as Hero } from './Hero';
+export { default as HeroSearchBar } from './HeroSearchBar';
 export { default as Destinations } from './Destinations';
 export { default as FeaturedExperiences } from './FeaturedExperiences';
 export { default as Safety } from './Safety';

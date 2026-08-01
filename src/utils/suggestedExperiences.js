@@ -77,6 +77,15 @@ export function getSuggestedExperiences(destinationSlug, { category } = {}) {
     : suggestions;
 }
 
+/** Resolve a curated suggestion by its `suggested-*` id for public detail URLs. */
+export function getSuggestedExperienceById(destinationSlug, experienceId) {
+  if (!destinationSlug || !experienceId) return null;
+  return (
+    getSuggestedExperiences(destinationSlug).find(suggestion => suggestion.id === experienceId) ||
+    null
+  );
+}
+
 /** Groups suggestions into the free-time slots a solo/work traveler plans around. */
 export function groupSuggestionsByTimeSlot(suggestions) {
   return TIME_SLOTS.map(slot => ({

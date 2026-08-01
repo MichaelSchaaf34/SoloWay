@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Background from '../components/Background';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
+import HeroSearchBar from '../components/HeroSearchBar';
 import Destinations from '../components/Destinations';
 import FeaturedExperiences from '../components/FeaturedExperiences';
 import Safety from '../components/Safety';
@@ -14,13 +15,24 @@ const Landing = () => {
   const [rotationDate, setRotationDate] = useState(() => new Date());
 
   useEffect(() => {
+    const refreshRotation = () => setRotationDate(new Date());
+
     // Re-render at 12am Eastern so an open tab picks up the day's rotation.
     const timeoutId = window.setTimeout(
-      () => setRotationDate(new Date()),
+      refreshRotation,
       millisecondsUntilNextRotation(rotationDate) + 100
     );
 
-    return () => window.clearTimeout(timeoutId);
+    // Background tabs may throttle long timers — catch up on focus.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshRotation();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [rotationDate]);
 
   return (
@@ -28,6 +40,7 @@ const Landing = () => {
       <Background />
       <Navbar />
       <Hero rotationDate={rotationDate} />
+      <HeroSearchBar />
       <Destinations rotationDate={rotationDate} />
       <FeaturedExperiences rotationDate={rotationDate} />
       <Safety />

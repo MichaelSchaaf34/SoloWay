@@ -4,6 +4,7 @@ import { authenticate } from '../../shared/middleware/auth.js';
 import { validate } from '../../shared/middleware/validate.js';
 import {
   createExperienceSchema,
+  experienceIdSchema,
   listExperiencesSchema,
   updateExperienceSchema,
 } from './experiences.schemas.js';
@@ -11,6 +12,7 @@ import {
 const router = Router();
 
 router.get('/', validate(listExperiencesSchema), experiencesController.list);
+router.get('/:experienceId', validate(experienceIdSchema), experiencesController.getById);
 router.post('/', authenticate, validate(createExperienceSchema), experiencesController.create);
 router.patch(
   '/:experienceId',

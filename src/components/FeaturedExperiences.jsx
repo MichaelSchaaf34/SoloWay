@@ -4,7 +4,7 @@ import { ArrowRight, Clock3, MapPin, Sparkles } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import { useTrip } from '../context/TripContext';
 import { listExperiences } from '../utils/experienceService';
-import { rotateForDate } from '../utils/destinationRotation';
+import { ATLAS_CARD_COUNT, selectForDate } from '../utils/destinationRotation';
 import { getSuggestedExperiences } from '../utils/suggestedExperiences';
 import { DESTINATIONS } from './Destinations';
 
@@ -59,30 +59,25 @@ const FeaturedExperiences = ({ rotationDate = new Date() }) => {
     };
   }, []);
 
-  const featuredDestination = useMemo(() => {
-    const activeSlugs = new Set(experiences.map(experience => experience.destinationSlug));
-    const availableDestinations = DESTINATIONS.filter(destination => activeSlugs.has(destination.id));
-    return rotateForDate(availableDestinations, rotationDate)[0];
-  }, [experiences, rotationDate]);
+  // Always feature today's atlas lead so sparse live inventory cannot pin
+  // the section to a single city for days. Show provider experiences when
+  // that city has them; otherwise curated solo-friendly picks.
+  const displayDestination = useMemo(
+    () => selectForDate(DESTINATIONS, ATLAS_CARD_COUNT, rotationDate)[0],
+    [rotationDate]
+  );
 
   const featuredExperiences = useMemo(
     () => experiences
-      .filter(experience => experience.destinationSlug === featuredDestination?.id)
+      .filter(experience => experience.destinationSlug === displayDestination?.id)
       .slice(0, 4),
-    [experiences, featuredDestination]
+    [experiences, displayDestination]
   );
 
-  // When no live inventory exists anywhere, fall back to the day's rotated
-  // destination with curated solo-friendly picks so the section never vanishes.
-  const isLive = Boolean(featuredDestination);
-  const curatedDestination = useMemo(
-    () => rotateForDate(DESTINATIONS, rotationDate)[0],
-    [rotationDate]
-  );
-  const displayDestination = featuredDestination || curatedDestination;
+  const isLive = featuredExperiences.length > 0;
   const curatedPicks = useMemo(
-    () => (isLive ? [] : getSuggestedExperiences(curatedDestination?.id).slice(0, 4)),
-    [isLive, curatedDestination]
+    () => (isLive ? [] : getSuggestedExperiences(displayDestination?.id).slice(0, 4)),
+    [isLive, displayDestination]
   );
 
   const chooseDestination = () => {
@@ -163,7 +158,7 @@ const FeaturedExperiences = ({ rotationDate = new Date() }) => {
                 <div className="mt-auto space-y-2 border-t border-slate-200/80 pt-5 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
                   <p className="flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5 shrink-0 text-teal-500" />
-                    <span>{experience.locationName || featuredDestination.name}</span>
+                    <span>{experience.locationName || displayDestination.name}</span>
                   </p>
                   <p className="flex items-center gap-2">
                     <Clock3 className="h-3.5 w-3.5 shrink-0 text-sky-500" />

@@ -9,6 +9,10 @@ export function listExperiences({ destination, category, limit } = {}) {
   return apiRequest(`/experiences${query ? `?${query}` : ''}`);
 }
 
+export function getExperience(experienceId) {
+  return apiRequest(`/experiences/${experienceId}`);
+}
+
 export function createExperience(payload) {
   return apiRequest('/experiences', {
     method: 'POST',
