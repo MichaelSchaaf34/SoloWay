@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, CalendarDays, MapPin, Search } from 'lucide-react';
 import { getLiveDestinations } from '../../utils/liveDestinations';
+import HomeDatePicker, { formatDateRange } from './HomeDatePicker';
 
-const DATE_OPTIONS = ['Anytime', 'This weekend', 'Next week', 'Next month'];
 const TRIP_TYPES = ['Any duration', 'Weekend', 'A few days', 'Week+'];
 
 /** Hero search pill: pick a destination, then jump to its page. */
@@ -12,7 +12,7 @@ const HomeSearchBar = () => {
   const destinations = useMemo(() => getLiveDestinations(), []);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(null);
-  const [datesLabel, setDatesLabel] = useState('Anytime');
+  const [dates, setDates] = useState({ start: null, end: null });
   const [tripType, setTripType] = useState('Any duration');
   const [open, setOpen] = useState(null);
   const rootRef = useRef(null);
@@ -108,23 +108,18 @@ const HomeSearchBar = () => {
           className="min-w-0 flex-1 text-left"
         >
           <p className="text-[11.5px] font-semibold text-[var(--sw-ink)] dark:text-white">Dates</p>
-          <p className="text-[13.5px] text-slate-500 dark:text-slate-400">{datesLabel}</p>
+          <p className="text-[13.5px] text-slate-500 dark:text-slate-400">
+            {formatDateRange(dates.start, dates.end)}
+          </p>
         </button>
         {open === 'dates' && (
-          <div className="absolute left-0 top-[calc(100%+0.75rem)] z-40 w-56 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-[#15192b]">
-            {DATE_OPTIONS.map(option => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => {
-                  setDatesLabel(option);
-                  setOpen(null);
-                }}
-                className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                {option}
-              </button>
-            ))}
+          <div className="absolute left-0 top-[calc(100%+0.75rem)] z-40">
+            <HomeDatePicker
+              start={dates.start}
+              end={dates.end}
+              onChange={setDates}
+              onClose={() => setOpen(null)}
+            />
           </div>
         )}
       </div>

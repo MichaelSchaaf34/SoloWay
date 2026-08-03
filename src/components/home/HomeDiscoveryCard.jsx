@@ -10,7 +10,7 @@ const ITEMS = [
     time: '10:00 AM',
     title: 'Gothic Quarter Walking Tour',
     tag: 'Event',
-    tagClass: 'bg-[#EEF0FE] text-[var(--sw-accent)] dark:bg-[var(--sw-accent)]/20',
+    tagClass: 'bg-[#EEF0FE] text-[var(--sw-accent)] dark:bg-[#6C70F2]/25',
     meta: '6 spots left',
     image: img('photo-1511527661048-7fe73d85e9a4', 160),
     avatars: pickAvatars(4, 0),

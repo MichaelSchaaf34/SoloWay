@@ -11,7 +11,7 @@
 | Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
 | Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
 | Jul 2026 | 33–51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
-| Aug 2026 | 52–56 | Landing redesign: preview at `/preview/home`, then **promoted to the live `/` homepage** (branch `home-redesign`) with dark mode + working search |
+| Aug 2026 | 52–57 | Landing redesign: preview at `/preview/home`, then **promoted to the live `/` homepage** (branch `home-redesign`) with dark mode, working search, and a real date-range calendar |
 
 ---
 
@@ -313,6 +313,14 @@
 - Open tabs refresh rotation on `visibilitychange` (catches throttled midnight timers) as well as at Eastern midnight
 - Copy updated (“The atlas · refreshes daily”)
 - Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
+
+## 2026-08-01 - Interval 57 (real calendar in the hero search bar)
+- Replaced the Dates preset dropdown (Anytime/This weekend/…) with `HomeDatePicker` — a real month-grid range picker; no new dependency (the only prior date UI was raw `<input type="date">` in the legacy `HeroSearchBar`)
+- Range selection with hover preview, past dates disabled, prev-month disabled at the current month, "Anytime" clear + "Done"; segment label renders as `Aug 7 – Aug 12`
+- Accessible: `role="dialog"`, per-day `aria-label`/`aria-pressed`, roving tabindex with Arrow/Home/End/PageUp/PageDown/Escape (verified Aug 7 →→ Aug 8 →↓ Aug 15)
+- **Tailwind gotcha fixed:** `bg-[var(--sw-accent)]/10` emits nothing — an opacity modifier cannot be applied to a `var()` color. The in-range band was invisible. Now uses literal `bg-[#6C70F2]/10 dark:bg-[#6C70F2]/25` (constant `RANGE_BG`); same bug fixed on the date picker's Done hover and the discovery card's dark Event pill
+- Note for future debugging: newly created files can serve stale Tailwind CSS in the running dev server until a full reload — two "dark mode bugs" during this work were that artifact, not code
+- Validation: eslint, production build, 34/34 tests; light + dark verified by computed color/contrast on panel, day text, disabled days, range band, endpoints
 
 ## 2026-08-01 - Interval 56 (redesign promoted to the live homepage)
 - `/` now renders the redesign. Promoted `landing-preview/Preview*` → `components/home/Home*` (Nav, Hero, DiscoveryCard, SearchBar, Phone, Inspiration, Features, homeAssets); CSS vars renamed `--pv-*` → `--sw-*`
