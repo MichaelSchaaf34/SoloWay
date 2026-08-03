@@ -25,16 +25,16 @@ const FEATURES = [
 ];
 
 const PreviewFeatures = () => (
-  <section className="bg-white px-5 pb-20 pt-6 sm:px-8">
-    <div className="mx-auto grid max-w-[1280px] gap-8 sm:grid-cols-2 lg:grid-cols-4">
+  <section className="bg-white px-5 pb-20 pt-2 sm:px-8">
+    <div className="mx-auto grid max-w-[1360px] gap-8 sm:grid-cols-2 lg:grid-cols-4">
       {FEATURES.map(({ icon: Icon, title, body }) => (
         <div key={title} className="flex items-start gap-4">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-slate-200 text-[var(--pv-ink)]">
             <Icon className="h-5 w-5" strokeWidth={1.75} />
           </span>
           <span>
-            <h3 className="text-[15px] font-semibold text-[var(--pv-ink)]">{title}</h3>
-            <p className="mt-1 max-w-[210px] text-[13px] leading-relaxed text-slate-500">{body}</p>
+            <h3 className="text-[16px] font-semibold text-[var(--pv-ink)]">{title}</h3>
+            <p className="mt-1 max-w-[230px] text-[13.5px] leading-relaxed text-slate-500">{body}</p>
           </span>
         </div>
       ))}

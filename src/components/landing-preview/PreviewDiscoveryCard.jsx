@@ -40,11 +40,11 @@ const PreviewDiscoveryCard = () => {
   const [tab, setTab] = useState('For you');
 
   return (
-    <div className="w-[290px] rounded-3xl border border-white/60 bg-white/95 p-4 shadow-[0_30px_70px_-30px_rgba(20,24,43,0.45)] backdrop-blur">
+    <div className="w-[310px] rounded-3xl border border-white/60 bg-white/95 p-5 shadow-[0_30px_70px_-30px_rgba(20,24,43,0.45)] backdrop-blur">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[11px] font-medium text-slate-400">Discover today</p>
-          <h3 className="mt-0.5 text-[16px] font-bold tracking-tight text-[var(--pv-ink)]">
+          <h3 className="mt-0.5 text-[17px] font-bold tracking-tight text-[var(--pv-ink)]">
             Barcelona, Spain
           </h3>
         </div>
@@ -81,7 +81,7 @@ const PreviewDiscoveryCard = () => {
             />
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-slate-400">{item.time}</p>
-              <p className="text-[12.5px] font-semibold leading-snug text-[var(--pv-ink)]">
+              <p className="text-[13px] font-semibold leading-snug text-[var(--pv-ink)]">
                 {item.title}
               </p>
               <p className="mt-0.5 text-[10px] text-slate-400">{item.meta}</p>

@@ -45,7 +45,7 @@ const PreviewNav = () => {
               <NavItem
                 key={link.label}
                 {...link}
-                className="text-[13.5px] font-medium text-slate-500 transition-colors hover:text-[var(--pv-ink)]"
+                className="text-[14px] font-medium text-slate-500 transition-colors hover:text-[var(--pv-ink)]"
               />
             ))}
           </nav>

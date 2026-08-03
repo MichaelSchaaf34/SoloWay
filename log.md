@@ -11,7 +11,7 @@
 | Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
 | Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
 | Jul 2026 | 33–51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
-| Aug 2026 | 52 | Landing redesign preview route (`/preview/home`) — live `/` unchanged |
+| Aug 2026 | 52–55 | Landing redesign preview (`/preview/home`): mock-matched design, promoted to full homepage draft (6 rotation cards + live sections), hero spacing fixes — live `/` unchanged |
 
 ---
 
@@ -313,6 +313,27 @@
 - Open tabs refresh rotation on `visibilitychange` (catches throttled midnight timers) as well as at Eastern midnight
 - Copy updated (“The atlas · refreshes daily”)
 - Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
+
+## 2026-08-01 - Interval 55 (preview spacing fix: discovery card vs phone mockup)
+- Fixed the hero plan card and phone mockup intersecting (measured 66×15px overlap at 1459px): pulled the card left (`min-[1440px]:mr-40`) and dropped the phone below it (`-top-16`, `right-0`)
+- Result holds across widths since both containers are centered/fixed-max: 22px horizontal + 31px vertical gap card→phone, 68px grid→phone, no horizontal overflow
+- Phone now floats only at ≥1440px (`min-[1440px]:block`); between xl and 1440 there isn't room for a 250px lane beside a 1000px grid, so it hides and the cards use full width
+- Validation: production build (zero errors) + eslint clean; verified at 1366/1440/1459px
+
+## 2026-08-01 - Interval 54 (preview promoted to full homepage draft)
+- `/preview/home` is now a complete homepage: new hero/search/discovery design on top, then FeaturedExperiences, Safety, FieldNotes, CTA, Footer from the live landing
+- Inspiration section now shows six destination cards (3×2) fed by the daily atlas rotation (`selectForDate` + `ATLAS_CARD_COUNT`) with vibe badges, replacing the four static mock cards; removed the carousel arrow
+- Scaled the design up for ~1536px viewports (wider containers 1200/1360, 60px hero heading, larger search pill/discovery card/nav text) after feedback that it looked "zoomed out"
+- Rotation state restored in `LandingPreview` (midnight-Eastern refresh + visibility catch-up), passed to inspiration + featured sections
+- Git note: user's push `7f60d2d` already contains the earlier preview work; local is in sync with `origin/main`, only this session's edits are uncommitted
+- Validation: production build (zero errors) + eslint clean
+
+## 2026-08-01 - Interval 53 (preview rebuilt 1:1 against the approved mock)
+- Rebuilt all `/preview/home` components to replicate the mock exactly: static "Discover today" Barcelona card (underline tabs, Event/Meetup/Experience pills, avatar clusters, "View full plan"), Marrakech phone mockup overlapping hero→inspiration, icon-led 3-segment search pill straddling the hero photo edge, Tokyo/Bali/New York/Lisbon inspiration cards with mock badges/copy/counts, icon-circle features row
+- Dropped daily rotation/live data on the preview (content is pinned to the mock); dropped the purple banner; page is intentionally light-only so it always matches the snapshot regardless of theme
+- New: `PreviewPhone.jsx`, `previewAssets.js` (shared avatar/photo helpers); fixed lucide-react 0.263 compat (`UserRound` → `User`)
+- Iterated against the mock via headless-Chrome screenshots at 1440×1024 + mobile 375 overflow check
+- Validation: production build (zero errors) + eslint clean
 
 ## 2026-08-01 - Interval 52 (landing redesign preview)
 - Added public `/preview/home` route with a self-contained mock-matched home (nav, hero, tabbed plan card, 3-segment search, inspiration + phone, features)

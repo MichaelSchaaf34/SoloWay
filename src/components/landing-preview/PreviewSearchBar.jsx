@@ -36,13 +36,13 @@ const PreviewSearchBar = () => {
     <form
       ref={rootRef}
       onSubmit={event => event.preventDefault()}
-      className="flex max-w-[720px] flex-col rounded-[28px] border border-slate-100 bg-white p-2 shadow-[0_18px_45px_-20px_rgba(20,24,43,0.35)] sm:flex-row sm:items-center sm:rounded-full"
+      className="flex max-w-[780px] flex-col rounded-[28px] border border-slate-100 bg-white p-2 shadow-[0_18px_45px_-20px_rgba(20,24,43,0.35)] sm:flex-row sm:items-center sm:rounded-full"
       aria-label="Search destinations"
     >
       <div className="relative flex min-w-0 flex-1 items-center gap-3 rounded-full px-4 py-2 hover:bg-slate-50 sm:px-5">
         <MapPin className="h-4 w-4 shrink-0 text-slate-400" strokeWidth={1.75} />
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold text-[var(--pv-ink)]">Where to?</p>
+          <p className="text-[11.5px] font-semibold text-[var(--pv-ink)]">Where to?</p>
           <input
             type="text"
             value={query}
@@ -53,7 +53,7 @@ const PreviewSearchBar = () => {
               setQuery(event.target.value);
               setOpen('where');
             }}
-            className="w-full bg-transparent text-[13px] text-slate-600 placeholder:text-slate-400 focus:outline-none"
+            className="w-full bg-transparent text-[13.5px] text-slate-600 placeholder:text-slate-400 focus:outline-none"
           />
         </div>
         {open === 'where' && suggestions.length > 0 && (
@@ -92,8 +92,8 @@ const PreviewSearchBar = () => {
           onClick={() => setOpen(open === 'dates' ? null : 'dates')}
           className="min-w-0 flex-1 text-left"
         >
-          <p className="text-[11px] font-semibold text-[var(--pv-ink)]">Dates</p>
-          <p className="text-[13px] text-slate-500">{datesLabel}</p>
+          <p className="text-[11.5px] font-semibold text-[var(--pv-ink)]">Dates</p>
+          <p className="text-[13.5px] text-slate-500">{datesLabel}</p>
         </button>
         {open === 'dates' && (
           <div className="absolute left-0 top-[calc(100%+0.75rem)] z-40 w-56 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl">
@@ -123,8 +123,8 @@ const PreviewSearchBar = () => {
           onClick={() => setOpen(open === 'trip' ? null : 'trip')}
           className="min-w-0 flex-1 text-left"
         >
-          <p className="text-[11px] font-semibold text-[var(--pv-ink)]">Trip type</p>
-          <p className="text-[13px] text-slate-500">{tripType}</p>
+          <p className="text-[11.5px] font-semibold text-[var(--pv-ink)]">Trip type</p>
+          <p className="text-[13.5px] text-slate-500">{tripType}</p>
         </button>
         {open === 'trip' && (
           <div className="absolute left-0 top-[calc(100%+0.75rem)] z-40 w-52 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl sm:left-auto sm:right-0">
@@ -147,7 +147,7 @@ const PreviewSearchBar = () => {
 
       <button
         type="submit"
-        className="m-1 flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-full bg-[var(--pv-ink)] text-white transition-colors hover:bg-[#1f2440] sm:self-center"
+        className="m-1 flex h-12 w-12 shrink-0 items-center justify-center self-end rounded-full bg-[var(--pv-ink)] text-white transition-colors hover:bg-[#1f2440] sm:self-center"
         aria-label="Search"
       >
         <Search className="h-4 w-4" />
