@@ -1,14 +1,6 @@
 import React from 'react';
-import {
-  Bookmark,
-  MapPin,
-  MessageCircle,
-  Signal,
-  Sun,
-  User,
-  Wifi,
-} from 'lucide-react';
-import { img, pickAvatars } from './previewAssets';
+import { Bookmark, MapPin, MessageCircle, Signal, Sun, User, Wifi } from 'lucide-react';
+import { img, pickAvatars } from './homeAssets';
 
 const TABS = ['For you', 'Events', 'Solo travelers', 'Ideas'];
 
@@ -17,7 +9,7 @@ const ITEMS = [
     time: '10:00 AM',
     title: 'Medina Walking Tour',
     tag: 'Event',
-    tagClass: 'bg-[#EEF0FE] text-[var(--pv-accent)]',
+    tagClass: 'bg-[#EEF0FE] text-[var(--sw-accent)]',
     meta: '6 spots left',
     image: img('photo-1597211833712-5e41faa202ea', 120),
     avatars: pickAvatars(3, 1),
@@ -51,29 +43,32 @@ const NAV = [
   { icon: User, label: 'Profile' },
 ];
 
-/** Static Marrakech phone mockup floating on the right of the page, per the mock. */
-const PreviewPhone = () => (
-  <div className="rounded-[36px] bg-[var(--pv-ink)] p-[9px] shadow-[0_45px_90px_-35px_rgba(20,24,43,0.6)]">
+/**
+ * Marrakech phone mockup floating on the right of the inspiration section.
+ * The device screen stays light in both themes — it depicts the mobile app.
+ */
+const HomePhone = () => (
+  <div className="rounded-[36px] bg-[#14182B] p-[9px] shadow-[0_45px_90px_-35px_rgba(20,24,43,0.6)]">
     <div className="overflow-hidden rounded-[28px] bg-white">
-      <div className="flex items-center justify-between px-4 pt-3 text-[var(--pv-ink)]">
+      <div className="flex items-center justify-between px-4 pt-3 text-[#14182B]">
         <span className="text-[10px] font-semibold">9:41</span>
         <span className="flex items-center gap-1">
           <Signal className="h-2.5 w-2.5" />
           <Wifi className="h-2.5 w-2.5" />
-          <span className="ml-0.5 h-[7px] w-3.5 rounded-[2px] bg-[var(--pv-ink)]" />
+          <span className="ml-0.5 h-[7px] w-3.5 rounded-[2px] bg-[#14182B]" />
         </span>
       </div>
 
       <div className="mt-1.5 flex items-start justify-between px-4">
         <div>
           <p className="text-[9px] font-medium text-slate-400">Discover</p>
-          <h4 className="text-[12.5px] font-bold tracking-tight text-[var(--pv-ink)]">
+          <h4 className="text-[12.5px] font-bold tracking-tight text-[#14182B]">
             Marrakech, Morocco
           </h4>
         </div>
         <span className="flex items-center gap-1 pt-1">
           <Sun className="h-3 w-3 text-amber-400" />
-          <span className="text-[9.5px] font-semibold text-[var(--pv-ink)]">24°C</span>
+          <span className="text-[9.5px] font-semibold text-[#14182B]">24°C</span>
         </span>
       </div>
 
@@ -83,7 +78,7 @@ const PreviewPhone = () => (
             key={label}
             className={`whitespace-nowrap pb-1.5 text-[8.5px] ${
               i === 0
-                ? '-mb-px border-b-2 border-[var(--pv-accent)] font-semibold text-[var(--pv-ink)]'
+                ? '-mb-px border-b-2 border-[var(--sw-accent)] font-semibold text-[#14182B]'
                 : 'font-medium text-slate-400'
             }`}
           >
@@ -93,8 +88,8 @@ const PreviewPhone = () => (
       </div>
 
       <div className="mt-2.5 flex items-center justify-between px-4">
-        <h5 className="text-[11px] font-bold text-[var(--pv-ink)]">Today&rsquo;s highlights</h5>
-        <span className="text-[9px] font-semibold text-[var(--pv-accent)] underline underline-offset-2">
+        <h5 className="text-[11px] font-bold text-[#14182B]">Today&rsquo;s highlights</h5>
+        <span className="text-[9px] font-semibold text-[var(--sw-accent)] underline underline-offset-2">
           View all
         </span>
       </div>
@@ -105,9 +100,7 @@ const PreviewPhone = () => (
             <img src={item.image} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover" />
             <div className="min-w-0 flex-1">
               <p className="text-[8px] text-slate-400">{item.time}</p>
-              <p className="truncate text-[10px] font-semibold text-[var(--pv-ink)]">
-                {item.title}
-              </p>
+              <p className="truncate text-[10px] font-semibold text-[#14182B]">{item.title}</p>
               <p className="mt-0.5 text-[8px] text-slate-400">{item.meta}</p>
             </div>
             <div className="flex shrink-0 flex-col items-end justify-between py-0.5">
@@ -132,8 +125,8 @@ const PreviewPhone = () => (
       </div>
 
       <div className="mt-1 flex items-center justify-between px-4">
-        <h5 className="text-[11px] font-bold text-[var(--pv-ink)]">People in Marrakech</h5>
-        <span className="text-[9px] font-semibold text-[var(--pv-accent)] underline underline-offset-2">
+        <h5 className="text-[11px] font-bold text-[#14182B]">People in Marrakech</h5>
+        <span className="text-[9px] font-semibold text-[var(--sw-accent)] underline underline-offset-2">
           See all
         </span>
       </div>
@@ -147,11 +140,11 @@ const PreviewPhone = () => (
         {NAV.map(({ icon: Icon, label, active }) => (
           <span key={label} className="flex flex-col items-center gap-0.5">
             <Icon
-              className={`h-3.5 w-3.5 ${active ? 'text-[var(--pv-accent)]' : 'text-slate-400'}`}
+              className={`h-3.5 w-3.5 ${active ? 'text-[var(--sw-accent)]' : 'text-slate-400'}`}
             />
             <span
               className={`text-[7.5px] font-medium ${
-                active ? 'text-[var(--pv-accent)]' : 'text-slate-400'
+                active ? 'text-[var(--sw-accent)]' : 'text-slate-400'
               }`}
             >
               {label}
@@ -163,4 +156,4 @@ const PreviewPhone = () => (
   </div>
 );
 
-export default PreviewPhone;
+export default HomePhone;

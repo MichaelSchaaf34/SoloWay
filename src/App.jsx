@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
-import LandingPreview from './pages/LandingPreview';
 import DestinationDetail from './pages/DestinationDetail';
 import ExperienceDetail from './pages/ExperienceDetail';
 import Reviews from './pages/Reviews';
@@ -36,7 +35,8 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/preview/home" element={<LandingPreview />} />
+        {/* The redesign shipped as the live home; keep old preview links working. */}
+        <Route path="/preview/home" element={<Navigate to="/" replace />} />
         <Route path="/destinations/:destinationSlug" element={<DestinationDetail />} />
         <Route
           path="/destinations/:destinationSlug/experiences/:experienceId"

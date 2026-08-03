@@ -1,4 +1,4 @@
-/** Shared static imagery for the visual-only home preview (`/preview/home`). */
+/** Shared static imagery for the home hero/inspiration components. */
 
 const face = (id, size = 64) =>
   `https://images.unsplash.com/${id}?auto=format&fit=facearea&facepad=2.5&w=${size}&h=${size}&q=60`;

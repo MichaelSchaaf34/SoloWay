@@ -11,7 +11,7 @@
 | Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
 | Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
 | Jul 2026 | 33–51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
-| Aug 2026 | 52–55 | Landing redesign preview (`/preview/home`): mock-matched design, promoted to full homepage draft (6 rotation cards + live sections), hero spacing fixes — live `/` unchanged |
+| Aug 2026 | 52–56 | Landing redesign: preview at `/preview/home`, then **promoted to the live `/` homepage** (branch `home-redesign`) with dark mode + working search |
 
 ---
 
@@ -313,6 +313,16 @@
 - Open tabs refresh rotation on `visibilitychange` (catches throttled midnight timers) as well as at Eastern midnight
 - Copy updated (“The atlas · refreshes daily”)
 - Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
+
+## 2026-08-01 - Interval 56 (redesign promoted to the live homepage)
+- `/` now renders the redesign. Promoted `landing-preview/Preview*` → `components/home/Home*` (Nav, Hero, DiscoveryCard, SearchBar, Phone, Inspiration, Features, homeAssets); CSS vars renamed `--pv-*` → `--sw-*`
+- Deleted the superseded `LandingPreview` page and `landing-preview/` folder so the two copies can't drift; `/preview/home` now redirects to `/`
+- Old landing components (`Hero`, `HeroSearchBar`, `Background`, `Navbar`, `Destinations` default export) left in place — `Navbar` is used by 17 other pages and `DESTINATIONS`/`Destinations` are still imported by the new home and detail pages
+- **Dark mode added** to all new home components. Required, not cosmetic: `html.dark` is global + persisted, and the retained sections (FeaturedExperiences/Safety/FieldNotes/CTA/Footer) already had `dark:` variants, so a light-only home would have rendered half-dark for anyone who had toggled the theme. Nav toggle is wired to `DarkModeContext` (was inert in the preview)
+- **Search bar made functional** (was visual-only in the preview): selecting a destination and submitting navigates to `/destinations/:id`; verified "lis" → Lisbon → `/destinations/lisbon`
+- Inspiration section carries `id="destinations"` so the nav's `/#destinations` anchor still resolves; hero's secondary CTA points there too
+- Validation: production build (zero errors), eslint clean, 34/34 frontend tests pass; light + dark verified by computed-contrast checks on page/nav/plan card/search/destination cards/features
+- Work is on branch `home-redesign`, committed locally, **not pushed** — `main` and `origin/main` still hold the old homepage
 
 ## 2026-08-01 - Interval 55 (preview spacing fix: discovery card vs phone mockup)
 - Fixed the hero plan card and phone mockup intersecting (measured 66×15px overlap at 1459px): pulled the card left (`min-[1440px]:mr-40`) and dropped the phone below it (`-top-16`, `right-0`)

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Background from '../components/Background';
-import Navbar from '../components/Navbar';
-import Hero from '../components/Hero';
-import HeroSearchBar from '../components/HeroSearchBar';
-import Destinations from '../components/Destinations';
+import HomeNav from '../components/home/HomeNav';
+import HomeHero from '../components/home/HomeHero';
+import HomeInspiration from '../components/home/HomeInspiration';
+import HomeFeatures from '../components/home/HomeFeatures';
 import FeaturedExperiences from '../components/FeaturedExperiences';
 import Safety from '../components/Safety';
 import FieldNotes from '../components/FieldNotes';
@@ -36,16 +35,23 @@ const Landing = () => {
   }, [rotationDate]);
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-slate-50 dark:bg-slate-900 font-sans text-slate-600 dark:text-slate-300">
-      <Background />
-      <Navbar />
-      <Hero rotationDate={rotationDate} />
-      <HeroSearchBar />
-      <Destinations rotationDate={rotationDate} />
-      <FeaturedExperiences rotationDate={rotationDate} />
-      <Safety />
-      <FieldNotes />
-      <CTA />
+    <div
+      className="min-h-screen overflow-x-clip bg-white font-sans text-slate-600 dark:bg-[#0f1220] dark:text-slate-300"
+      style={{
+        '--sw-ink': '#14182B',
+        '--sw-accent': '#6C70F2',
+      }}
+    >
+      <HomeNav />
+      <main>
+        <HomeHero />
+        <HomeInspiration rotationDate={rotationDate} />
+        <HomeFeatures />
+        <FeaturedExperiences rotationDate={rotationDate} />
+        <Safety />
+        <FieldNotes />
+        <CTA />
+      </main>
       <Footer />
     </div>
   );
