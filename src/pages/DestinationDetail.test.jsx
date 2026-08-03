@@ -6,6 +6,7 @@ import DestinationDetail from './DestinationDetail';
 import useAuth from '../hooks/useAuth';
 import { useTrip } from '../context/TripContext';
 import { listExperiences } from '../utils/experienceService';
+import { listDestinationEvents } from '../utils/eventsService';
 
 vi.mock('../components/Navbar', () => ({
   default: () => <nav>SoloWay navigation</nav>,
@@ -27,6 +28,10 @@ vi.mock('../utils/experienceService', () => ({
   listExperiences: vi.fn(),
 }));
 
+vi.mock('../utils/eventsService', () => ({
+  listDestinationEvents: vi.fn(),
+}));
+
 function renderDestination(path = '/destinations/lisbon') {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -42,10 +47,13 @@ function renderDestination(path = '/destinations/lisbon') {
 describe('DestinationDetail', () => {
   const setDestination = vi.fn();
   const addToCart = vi.fn();
+  const setDates = vi.fn();
 
   beforeEach(() => {
+    vi.clearAllMocks();
     useAuth.mockReturnValue({ isAuthenticated: false });
-    useTrip.mockReturnValue({ setDestination, addToCart });
+    useTrip.mockReturnValue({ setDestination, setDates, addToCart });
+    listDestinationEvents.mockResolvedValue({ data: { events: [] } });
     listExperiences.mockResolvedValue({
       data: {
         experiences: [{
@@ -88,6 +96,63 @@ describe('DestinationDetail', () => {
     await waitFor(() => expect(screen.getByText('Authentication page')).toBeInTheDocument());
     expect(setDestination).toHaveBeenCalledWith(expect.objectContaining({ id: 'lisbon' }));
     expect(addToCart).toHaveBeenCalledWith(expect.objectContaining({ id: 'experience-1' }));
+  });
+
+  it('scopes events to a trip window from the search bar and shows it', async () => {
+    renderDestination('/destinations/lisbon?start=2026-08-07&end=2026-08-12');
+
+    await waitFor(() =>
+      expect(listDestinationEvents).toHaveBeenCalledWith('lisbon', {
+        limit: 6,
+        startDate: '2026-08-07',
+        endDate: '2026-08-12',
+      })
+    );
+    expect(screen.getByText('Aug 7 – Aug 12')).toBeInTheDocument();
+    expect(setDates).toHaveBeenCalledWith({ start: '2026-08-07', end: '2026-08-12' });
+  });
+
+  it('ignores a malformed date range instead of rendering a broken window', async () => {
+    renderDestination('/destinations/lisbon?start=nonsense&end=2026-08-12');
+
+    await waitFor(() =>
+      expect(listDestinationEvents).toHaveBeenCalledWith('lisbon', {
+        limit: 6,
+        startDate: '',
+        endDate: '',
+      })
+    );
+    expect(screen.queryByLabelText('Clear trip dates')).not.toBeInTheDocument();
+  });
+
+  it('drops an end date that falls before the start date', async () => {
+    renderDestination('/destinations/lisbon?start=2026-08-12&end=2026-08-07');
+
+    await waitFor(() =>
+      expect(listDestinationEvents).toHaveBeenCalledWith('lisbon', {
+        limit: 6,
+        startDate: '2026-08-12',
+        endDate: '',
+      })
+    );
+    expect(screen.getByText('Aug 12')).toBeInTheDocument();
+  });
+
+  it('clearing the trip dates refetches events unscoped', async () => {
+    renderDestination('/destinations/lisbon?start=2026-08-07&end=2026-08-12');
+
+    const clear = await screen.findByLabelText('Clear trip dates');
+    fireEvent.click(clear);
+
+    await waitFor(() =>
+      expect(listDestinationEvents).toHaveBeenLastCalledWith('lisbon', {
+        limit: 6,
+        startDate: '',
+        endDate: '',
+      })
+    );
+    expect(screen.queryByLabelText('Clear trip dates')).not.toBeInTheDocument();
+    expect(setDates).toHaveBeenLastCalledWith({ start: '', end: '' });
   });
 
   it('shows a public not-found page for an unsupported destination slug', () => {

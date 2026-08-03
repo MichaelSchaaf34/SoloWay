@@ -2,13 +2,16 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, CalendarDays, MapPin, Search } from 'lucide-react';
 import { getLiveDestinations } from '../../utils/liveDestinations';
-import HomeDatePicker, { formatDateRange } from './HomeDatePicker';
+import { useTrip } from '../../context/TripContext';
+import { formatDateRange, toISODate } from '../../utils/tripDates';
+import HomeDatePicker from './HomeDatePicker';
 
 const TRIP_TYPES = ['Any duration', 'Weekend', 'A few days', 'Week+'];
 
 /** Hero search pill: pick a destination, then jump to its page. */
 const HomeSearchBar = () => {
   const navigate = useNavigate();
+  const { setDates: setTripDates } = useTrip();
   const destinations = useMemo(() => getLiveDestinations(), []);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(null);
@@ -44,7 +47,22 @@ const HomeSearchBar = () => {
   const handleSubmit = event => {
     event.preventDefault();
     const target = selected || suggestions[0];
-    if (target) navigate(`/destinations/${target.id}`);
+    if (!target) return;
+
+    const start = toISODate(dates.start);
+    const end = toISODate(dates.end);
+
+    // Shared with the booking flow, and put in the URL so a dated search
+    // survives a refresh and can be shared.
+    setTripDates({ start, end });
+
+    const params = new URLSearchParams();
+    if (start) {
+      params.set('start', start);
+      if (end) params.set('end', end);
+    }
+    const query = params.toString();
+    navigate(`/destinations/${target.id}${query ? `?${query}` : ''}`);
   };
 
   return (

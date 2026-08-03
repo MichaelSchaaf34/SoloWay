@@ -69,20 +69,35 @@ export function dedupeByName(events) {
   });
 }
 
-async function fetchTicketmasterEvents(location, limit) {
-  // Discovery API rejects fractional seconds in startDateTime.
-  const startDateTime = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+/** Discovery API rejects fractional seconds in its date params. */
+function toDiscoveryStamp(date) {
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
+async function fetchTicketmasterEvents(location, limit, { startDate, endDate } = {}) {
+  const now = new Date();
+  // Never ask for events that already happened, even if a stale trip start
+  // date is passed in.
+  const start = startDate && startDate > now ? startDate : now;
 
   const params = new URLSearchParams({
     apikey: config.externalApis.ticketmasterApiKey,
     city: location.city,
     countryCode: location.countryCode,
     classificationName: SOLO_FRIENDLY_CLASSIFICATIONS,
-    startDateTime,
+    startDateTime: toDiscoveryStamp(start),
     sort: 'date,asc',
     // Over-fetch so deduping repeat performances still fills the limit.
     size: String(Math.min(limit * 3, 60)),
   });
+
+  if (endDate) {
+    // The picker sends a calendar day; include everything up to its last
+    // moment so an event on the departure date still counts.
+    const end = new Date(endDate);
+    end.setUTCHours(23, 59, 59, 0);
+    params.set('endDateTime', toDiscoveryStamp(end));
+  }
 
   const response = await fetch(`${TICKETMASTER_BASE_URL}?${params}`);
   if (!response.ok) {
@@ -94,16 +109,21 @@ async function fetchTicketmasterEvents(location, limit) {
   return dedupeByName(events.map(formatTicketmasterEvent)).slice(0, limit);
 }
 
-export async function listDestinationEvents({ destination, limit = 8 }) {
+export async function listDestinationEvents({ destination, limit = 8, startDate, endDate }) {
   const location = DESTINATION_CITIES[destination];
   if (!location || !config.externalApis.ticketmasterApiKey) return [];
 
-  const cacheKey = `events:${destination}:${limit}`;
+  // Date-scoped results are a different result set, so they need their own
+  // cache entry — otherwise a trip window would serve the undated list.
+  const window = startDate
+    ? `${startDate.toISOString().slice(0, 10)}:${endDate ? endDate.toISOString().slice(0, 10) : 'open'}`
+    : 'any';
+  const cacheKey = `events:${destination}:${limit}:${window}`;
   const cached = await cache.get(cacheKey);
   if (cached !== null) return cached;
 
   try {
-    const events = await fetchTicketmasterEvents(location, limit);
+    const events = await fetchTicketmasterEvents(location, limit, { startDate, endDate });
     await cache.set(
       cacheKey,
       events,

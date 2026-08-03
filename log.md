@@ -11,7 +11,7 @@
 | Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
 | Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
 | Jul 2026 | 33–51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
-| Aug 2026 | 52–57 | Landing redesign: preview at `/preview/home`, then **promoted to the live `/` homepage** (branch `home-redesign`) with dark mode, working search, and a real date-range calendar |
+| Aug 2026 | 52–58 | Landing redesign **promoted to the live `/` homepage** with dark mode, working search, a real date-range calendar, and trip dates wired through to date-filtered events |
 
 ---
 
@@ -313,6 +313,15 @@
 - Open tabs refresh rotation on `visibilitychange` (catches throttled midnight timers) as well as at Eastern midnight
 - Copy updated (“The atlas · refreshes daily”)
 - Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
+
+## 2026-08-01 - Interval 58 (trip dates wired into results)
+- The calendar's dates are no longer dropped on submit. `HomeSearchBar` writes them to `TripContext` and navigates to `/destinations/:id?start=YYYY-MM-DD&end=YYYY-MM-DD`, so a dated search survives refresh and is shareable
+- **Backend:** `GET /events` accepts optional `startDate`/`endDate`, forwarded to Ticketmaster as `startDateTime`/`endDateTime`. `endDate` extends to 23:59:59 so an event on the departure day still counts; a past `startDate` is clamped to now; the trip window is part of the Redis cache key so a dated search can't be served the undated list
+- `endDate` is `Joi.forbidden()` without a `startDate`, and must be >= it
+- **DestinationDetail:** URL is the source of truth; shows a dates pill with a clear button, and the events section subtitle names the window. Malformed dates and reversed ranges are ignored rather than rendered as a broken window
+- New `src/utils/tripDates.js` — deliberately local-time conversion, **not** `toISOString()`, which shifts the calendar day backwards for anyone west of UTC. `formatDateRange` moved here from `HomeDatePicker`
+- **Scope limit (honest):** only *events* are date-filtered. Experiences carry a `scheduledTime` (time of day) with no date dimension at all — filtering them by date would need a schema/availability change, so the window is displayed but not applied to them
+- Validation: eslint, production build, frontend 44/44 (was 34), backend 60/60 (was 54); browser-verified Aug 10–14 → `?start=2026-08-10&end=2026-08-14` → API call carries both params → clearing refetches unscoped
 
 ## 2026-08-01 - Interval 57 (real calendar in the hero search bar)
 - Replaced the Dates preset dropdown (Anytime/This weekend/…) with `HomeDatePicker` — a real month-grid range picker; no new dependency (the only prior date UI was raw `<input type="date">` in the legacy `HeroSearchBar`)

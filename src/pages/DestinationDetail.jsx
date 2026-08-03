@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -13,6 +13,7 @@ import {
   Sparkles,
   Sun,
   Sunrise,
+  X,
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
@@ -28,6 +29,7 @@ import {
   groupSuggestionsByTimeSlot,
 } from '../utils/suggestedExperiences';
 import { resolveExperienceLocation } from '../utils/experienceLocation';
+import { formatDateRange, parseISODate } from '../utils/tripDates';
 
 const DAY_MOMENTS = [
   { label: 'Morning', icon: Sunrise },
@@ -70,9 +72,10 @@ function formatPrice(experience) {
 
 const DestinationDetail = () => {
   const { destinationSlug } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const destination = getLiveDestination(destinationSlug);
   const { isAuthenticated } = useAuth();
-  const { setDestination, addToCart } = useTrip();
+  const { setDestination, setDates, addToCart } = useTrip();
   const [experiences, setExperiences] = useState([]);
   const [loadState, setLoadState] = useState({ loading: true, error: '' });
   const [liveEvents, setLiveEvents] = useState([]);
@@ -80,12 +83,42 @@ const DestinationDetail = () => {
   const [visibleExperienceId, setVisibleExperienceId] = useState(null);
   const experienceCardRefs = useRef(new Map());
 
+  // Trip window from the home search bar. The URL is the source of truth so
+  // a dated search survives a refresh and can be shared; anything malformed
+  // is ignored rather than shown as a broken range.
+  const tripWindow = useMemo(() => {
+    const start = parseISODate(searchParams.get('start'));
+    if (!start) return null;
+    const end = parseISODate(searchParams.get('end'));
+    return { start, end: end && end >= start ? end : null };
+  }, [searchParams]);
+
+  const startParam = tripWindow ? searchParams.get('start') : '';
+  const endParam = tripWindow?.end ? searchParams.get('end') : '';
+
+  const clearTripWindow = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('start');
+    next.delete('end');
+    setSearchParams(next, { replace: true });
+    setDates({ start: '', end: '' });
+  }, [searchParams, setSearchParams, setDates]);
+
+  // Keep the booking flow in step with a window opened from a shared link.
+  useEffect(() => {
+    if (tripWindow) setDates({ start: startParam, end: endParam });
+  }, [tripWindow, startParam, endParam, setDates]);
+
   useEffect(() => {
     if (!destination) return undefined;
     let active = true;
 
     // Optional section: [] (no API key / no coverage / error) hides it entirely.
-    listDestinationEvents(destination.id, { limit: 6 })
+    listDestinationEvents(destination.id, {
+      limit: 6,
+      startDate: startParam,
+      endDate: endParam,
+    })
       .then(response => {
         if (active) setLiveEvents(response?.data?.events || []);
       })
@@ -96,7 +129,7 @@ const DestinationDetail = () => {
     return () => {
       active = false;
     };
-  }, [destination]);
+  }, [destination, startParam, endParam]);
 
   useEffect(() => {
     if (!destination) {
@@ -299,6 +332,26 @@ const DestinationDetail = () => {
                 {destination.desc}
               </p>
             </div>
+
+            {tripWindow && (
+              <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 py-2 pl-4 pr-2 text-sm font-semibold text-white backdrop-blur-md">
+                  <CalendarDays className="h-4 w-4 text-teal-300" />
+                  {formatDateRange(tripWindow.start, tripWindow.end)}
+                  <button
+                    type="button"
+                    onClick={clearTripWindow}
+                    aria-label="Clear trip dates"
+                    className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/30"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+                <span className="text-sm text-white/60">
+                  Local events are filtered to these dates.
+                </span>
+              </div>
+            )}
 
             <div className="mt-12 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/20 bg-black/20 p-4 backdrop-blur-md">
@@ -609,7 +662,9 @@ const DestinationDetail = () => {
                   Happening in {destination.name}
                 </h2>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                  Concerts and shows are some of the easiest plans to make alone — plenty of people go solo.
+                  {tripWindow
+                    ? `Between ${formatDateRange(tripWindow.start, tripWindow.end)} — concerts and shows are some of the easiest plans to make alone.`
+                    : 'Concerts and shows are some of the easiest plans to make alone — plenty of people go solo.'}
                 </p>
               </div>
 

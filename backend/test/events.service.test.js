@@ -122,6 +122,44 @@ describe('events service', () => {
     expect(calledUrl).toContain('apikey=test-key');
   });
 
+  it('scopes the search to a trip window when dates are given', async () => {
+    mocks.apiKey.value = 'test-key';
+    const fetchSpy = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ _embedded: { events: [] } }) });
+    vi.stubGlobal('fetch', fetchSpy);
+
+    await listDestinationEvents({
+      destination: 'barcelona',
+      startDate: new Date('2099-06-10T00:00:00Z'),
+      endDate: new Date('2099-06-14T00:00:00Z'),
+    });
+
+    const url = decodeURIComponent(fetchSpy.mock.calls[0][0]);
+    expect(url).toContain('startDateTime=2099-06-10T00:00:00Z');
+    // The departure day is inclusive, so the window runs to its last second.
+    expect(url).toContain('endDateTime=2099-06-14T23:59:59Z');
+  });
+
+  it('never asks for events before now, even with a stale start date', async () => {
+    mocks.apiKey.value = 'test-key';
+    const fetchSpy = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ _embedded: { events: [] } }) });
+    vi.stubGlobal('fetch', fetchSpy);
+
+    await listDestinationEvents({
+      destination: 'barcelona',
+      startDate: new Date('2000-01-01T00:00:00Z'),
+    });
+
+    const url = decodeURIComponent(fetchSpy.mock.calls[0][0]);
+    expect(url).not.toContain('startDateTime=2000-01-01');
+    expect(url).not.toContain('endDateTime=');
+    const sent = new Date(url.match(/startDateTime=([^&]+)/)[1]);
+    expect(sent.getTime()).toBeGreaterThan(new Date('2020-01-01').getTime());
+  });
+
   it('returns an empty list when Ticketmaster fails', async () => {
     mocks.apiKey.value = 'test-key';
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 429 }));

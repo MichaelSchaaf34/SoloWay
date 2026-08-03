@@ -29,13 +29,6 @@ const monthLabel = date =>
 const fullLabel = date =>
   date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-/** Short label for the search bar segment, e.g. "Mar 3 – Mar 9". */
-export const formatDateRange = (start, end) => {
-  if (!start) return 'Anytime';
-  const short = date => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return end ? `${short(start)} – ${short(end)}` : short(start);
-};
-
 /**
  * Range date picker for the hero search bar. Keyboard driven via roving
  * tabindex: arrows move by day/week, PageUp/PageDown by month, Enter selects.
