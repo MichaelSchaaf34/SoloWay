@@ -63,8 +63,6 @@ From that perfect rooftop bar at golden hour to the local cooking class that bec
 - **Payments**: Stripe Connect (commission-based bookings only)
 - **Email / SMS**: Resend / Twilio
 
-Operational docs: [DEPLOY.md](DEPLOY.md) (launch checklist), [BACKUPS.md](BACKUPS.md) (backup & restore), [MIGRATION.md](MIGRATION.md) (AWS migration strategy).
-
 ---
 
 ## License
