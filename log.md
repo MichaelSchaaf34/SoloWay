@@ -323,7 +323,9 @@
 - **Frontend is live at https://soloway.io** (Vercel, production branch `main`, `VITE_API_URL=https://api.soloway.io/api/v1`); `www` → 308 → apex
 - Cloudflare zone: SSL mode Full (strict), Always Use HTTPS on, min TLS 1.2; `A @ → 76.76.21.21`, `CNAME www → cname.vercel-dns.com`
 - Gotcha: both Vercel records must be **DNS only** (grey cloud). Proxied records produced Cloudflare 525 because Vercel could not issue its cert behind the proxy
-- Pending: Render API service → `CNAME api` (DNS only); Email Routing for `hello@`/`privacy@`
+- Render: Blueprint `soloway` deployed from `render.yaml` → web service `soloway-api` (Oregon, free tier, `https://soloway-api.onrender.com`). Custom domain `api.soloway.io` verified; Cloudflare `CNAME api → soloway-api.onrender.com` (DNS only)
+- Render env: all 20 production keys set (Supabase, JWT secrets generated, Resend, Ticketmaster, CORS/app URL, Stripe constants). `REDIS_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TWILIO_*` hold `REPLACE_ME` placeholders — API will not boot until filled (`validateConfig()` in production mode)
+- Pending: Upstash Redis, Stripe (test keys OK), Twilio trial → fill placeholders → deploy → `https://api.soloway.io/health`; Email Routing for `hello@`/`privacy@`; upgrade Render to Starter before real launch (free tier sleeps)
 
 ## 2026-08-04 - Interval 61 (events query was broken, not the coverage)
 - Ran the probe with a real key: 12 of 15 destinations showed zero events. Paris returning **1** was the tell — that is not credible for Paris, so the zeros were our query, not Ticketmaster's inventory
