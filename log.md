@@ -6,13 +6,13 @@
 
 | Month | Intervals | Highlights |
 |-------|-----------|------------|
-| Feb 2026 | 1–21 | Redis/JWT, auth + itinerary foundation, immersive UX |
-| Mar 2026 | 22–28 | Security hardening, booking flow, QR Buddy system |
-| Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
-| Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
-| Jul 2026 | 33–51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
-| Aug 2026 | 52–61 | Landing redesign **promoted to the live `/` homepage** with dark mode, working search, a real date-range calendar, trip dates wired through to date-filtered events, hero card/search bar spacing, Ticketmaster coverage probe + geo/locale query fix |
-| Sep 2026 | 62 | Production domain `soloway.io` replaces `soloway.app` across SEO metadata, legal pages, and deploy docs |
+| Feb 2026 | 1â21 | Redis/JWT, auth + itinerary foundation, immersive UX |
+| Mar 2026 | 22â28 | Security hardening, booking flow, QR Buddy system |
+| Apr 2026 | 29â30 | Deploy prep, design system, legal pages, SEO/PWA |
+| Jun 2026 | 31â32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
+| Jul 2026 | 33â51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
+| Aug 2026 | 52â61 | Landing redesign **promoted to the live `/` homepage** with dark mode, working search, a real date-range calendar, trip dates wired through to date-filtered events, hero card/search bar spacing, Ticketmaster coverage probe + geo/locale query fix |
+| Sep 2026 | 62 | **First public deploy**: `soloway.io` bought, frontend live on Vercel, API provisioned on Render at `api.soloway.io` (awaiting Redis/Stripe/Twilio creds), Cloudflare DNS + SSL hardened |
 
 ---
 
@@ -173,13 +173,13 @@
 - Backend listen binding: `httpServer.listen` now uses host `0.0.0.0` so Render/Railway/Fly and local LAN access receive connections correctly
 - Validation: frontend `npm run build` passed after the above frontend changes; `node --check backend/src/index.js` passed
 
-## 2026-04-16 - Interval 30 (production-readiness pass, steps 1–3)
-- Backend: added missing `POST /api/v1/waitlist` route (was referenced by landing CTA but returned 404) — new `backend/src/modules/waitlist/` module with Joi-validated body, idempotent insert, dedicated 5/10min rate limiter, and mounted in `backend/src/index.js`
+## 2026-04-16 - Interval 30 (production-readiness pass, steps 1â3)
+- Backend: added missing `POST /api/v1/waitlist` route (was referenced by landing CTA but returned 404) â new `backend/src/modules/waitlist/` module with Joi-validated body, idempotent insert, dedicated 5/10min rate limiter, and mounted in `backend/src/index.js`
 - Repo cleanup: deleted `SoloWay_bundle.md`; extended `.gitignore` to exclude Windows `nul` artifacts, `*.drawio.bkp` editor backups, and entire `.claude/` / `.cursor/` tool-state directories
 - SEO + social: rewrote `index.html` with Open Graph, Twitter Card, canonical URL, extended theme/PWA meta, JSON-LD `SoftwareApplication` schema, and a `<noscript>` fallback; added `public/robots.txt` (allows `/`, disallows authed routes, references sitemap) and `public/sitemap.xml` for `/`, `/privacy`, `/terms`
-- Branded assets: generated `public/og-image.jpg` (1200×630, 104 KB, editorial dark-mode brand composition) and `public/apple-touch-icon.png` + `public/icon-32.png` + `public/icon-192.png` + `public/icon-512.png` (maskable-ready) via center-cropped gradient brand mark; rewrote `public/manifest.json` with full PWA metadata, scope, categories, and icon purposes including `maskable`
+- Branded assets: generated `public/og-image.jpg` (1200Ã630, 104 KB, editorial dark-mode brand composition) and `public/apple-touch-icon.png` + `public/icon-32.png` + `public/icon-192.png` + `public/icon-512.png` (maskable-ready) via center-cropped gradient brand mark; rewrote `public/manifest.json` with full PWA metadata, scope, categories, and icon purposes including `maskable`
 - Legal skeleton: added `/privacy` (`src/pages/Privacy.jsx`) and `/terms` (`src/pages/Terms.jsx`) pages plus shared `src/components/LegalPage.jsx` wrapper with accessible header, canonical back link, and `.legal-prose` typography in `src/index.css`; wired footer links to real routes and registered routes in `src/App.jsx`
-- Design system: introduced `src/components/ui/` primitives — `Button` (6 variants, 3 sizes, loading/icon/disabled states, focus-visible ring), `Input`, `Select`, `FormField` (label/hint/error binding via `useId` + `aria-describedby`), `Card` (tones, padding, shadow, interactive), `EmptyState`, `LoadingSkeleton` (`Skeleton`, `SkeletonText`, `SkeletonCard`), `PageHeader`, `Alert` (4 tones); exported via `src/components/index.js` barrel
+- Design system: introduced `src/components/ui/` primitives â `Button` (6 variants, 3 sizes, loading/icon/disabled states, focus-visible ring), `Input`, `Select`, `FormField` (label/hint/error binding via `useId` + `aria-describedby`), `Card` (tones, padding, shadow, interactive), `EmptyState`, `LoadingSkeleton` (`Skeleton`, `SkeletonText`, `SkeletonCard`), `PageHeader`, `Alert` (4 tones); exported via `src/components/index.js` barrel
 - Refactor `src/pages/Auth.jsx`: replaced dark opaque panel with consistent light glass card, used `FormField + Input + Button + Alert`, added segmented role=tablist mode switcher, autocomplete attributes, `aria-invalid` wiring, and inline Privacy/Terms disclosure linking to the new legal routes
 - Refactor `src/pages/Itineraries.jsx`: replaced native `<select>`/`<input>` forms with design-system primitives, added proper `EmptyState` for zero-trips, `LoadingSkeleton` while fetching, structured status ring badges, and accessible per-card delete confirmation swap
 - Refactor `src/pages/ItineraryDetail.jsx`: replaced `window.confirm` destructive delete with an accessible modal dialog (role=dialog, aria-modal, aria-labelledby, backdrop click-to-dismiss), rebuilt planned-items list with keyboard-reachable action buttons, collapsed trip settings behind an explicit toggle, and wrapped loading/not-found states in Skeleton + EmptyState primitives
@@ -192,7 +192,7 @@
 
 ## 2026-06-10 - Interval 32 (Dune + Porcelain theme mockups)
 - Added two lead light-theme directions as interactive HTML previews: **Dune** (warm beige glass, Fraunces serif, terracotta accent) and **Porcelain** (ivory minimal, monochrome ink)
-- Mockups include modern travel-app patterns: destination search pill, boarding-pass itinerary card, safety score ring, QR buddy tile, and avatar nav — wired to real per-page Unsplash photos via Immersive Aqua follow-up
+- Mockups include modern travel-app patterns: destination search pill, boarding-pass itinerary card, safety score ring, QR buddy tile, and avatar nav â wired to real per-page Unsplash photos via Immersive Aqua follow-up
 - Added CSS photo color grading overlays (warm sepia/terracotta for Dune, ivory desaturation for Porcelain) with `?grade=off` escape hatch and `compare.html` for original-vs-graded previews
 
 ## 2026-07-11 - Interval 33 (auth + Stripe Connect MVP)
@@ -234,17 +234,17 @@
 - Added public browsing and booking-intent tests; frontend validation passes with 15/15 tests, a clean lint check on touched files, and a successful production build
 
 ## 2026-07-11 - Interval 38 (destination card photography)
-- Replaced the homepage destination cards' abstract gradient headers with location-specific Unsplash photography for Medellín, Lisbon, Kyoto, Cape Town, Barcelona, and Reykjavík
+- Replaced the homepage destination cards' abstract gradient headers with location-specific Unsplash photography for MedellÃ­n, Lisbon, Kyoto, Cape Town, Barcelona, and ReykjavÃ­k
 - Added accessible alt text, lazy loading, responsive center cropping, dark readability overlays, and a subtle hover zoom while retaining gradients as image-loading fallbacks
 - Verified all image URLs return JPEG content; the destination component has no lint errors and the production build passes
 
 ## 2026-07-11 - Interval 39 (destination theme controls)
 - Made the shared navigation visibly theme-aware before scrolling, with distinct light/dark glass surfaces, text, account controls, and theme-button treatments
-- Added dynamic theme-control labels and stronger light/dark overlays to public destination heroes so switching modes is immediately visible on pages such as Reykjavík
+- Added dynamic theme-control labels and stronger light/dark overlays to public destination heroes so switching modes is immediately visible on pages such as ReykjavÃ­k
 - Added navigation theme-toggle coverage; frontend validation passes with 16/16 tests, a clean lint check on touched files, and a successful production build
 
 ## 2026-07-11 - Interval 40 (destination page nature scenes)
-- Added per-destination animated nature scenes to public destination pages via a new `DestinationScene` component: aurora + twinkling stars (Reykjavík), falling cherry blossoms + mist (Kyoto), golden sun glow (Lisbon, Barcelona), drifting sea mist + ocean shimmer (Cape Town), and fireflies + canopy glow (Medellín)
+- Added per-destination animated nature scenes to public destination pages via a new `DestinationScene` component: aurora + twinkling stars (ReykjavÃ­k), falling cherry blossoms + mist (Kyoto), golden sun glow (Lisbon, Barcelona), drifting sea mist + ocean shimmer (Cape Town), and fireflies + canopy glow (MedellÃ­n)
 - Replaced the flat gradient hero on destination detail pages with the full-bleed destination photo, layered scene animation, and a scene caption badge (e.g. "Aurora over the harbor")
 - Redesigned the "A good day in ..." section as glassmorphism Morning/Afternoon/Evening cards over a blurred nature backdrop of the destination photo
 - All scene animations are pure CSS, respect `prefers-reduced-motion`, and add no extra network requests; production build passes with zero errors
@@ -262,12 +262,12 @@
 ## 2026-07-13 - Interval 43 (destination fallback content + live events)
 - Destination pages never look empty: when no live provider inventory exists, `DestinationDetail` now shows curated solo-friendly picks from `activityCatalog` grouped by the free time a work/solo traveler has (Free morning / Free afternoon / Evening after work), each with a solo-fit badge and a one-line reason it works alone; `Explore` and the homepage `FeaturedExperiences` got matching preview fallbacks
 - Extended `activityCatalog.js` with `soloTag`/`soloNote` for all six homepage destinations and added a `suggestedExperiences.js` adapter (category + time-slot mapping, category defaults); suggestions are preview-only and cannot reach checkout (no `providerId`)
-- Added a public `GET /api/v1/events?destination=` backend module (events.routes/controller/service/schemas) proxying the Ticketmaster Discovery API with solo-friendly classification filtering, name-deduping, and Redis caching (6h hits / 30m empties); optional `TICKETMASTER_API_KEY` — absent key returns `[]` and the frontend hides the "Happening in {city}" section entirely
+- Added a public `GET /api/v1/events?destination=` backend module (events.routes/controller/service/schemas) proxying the Ticketmaster Discovery API with solo-friendly classification filtering, name-deduping, and Redis caching (6h hits / 30m empties); optional `TICKETMASTER_API_KEY` â absent key returns `[]` and the frontend hides the "Happening in {city}" section entirely
 - Events are informational with plain external links (no affiliate params, no commission) per the commission-only revenue rule; Viator Partner API Merchant tier documented as the roadmap for real bookable third-party inventory
 - Created the previously missing `backend/src/shared/database/seed.js` (`npm run db:seed`): demo provider + 18 active experiences across the six destinations, idempotent, refuses to run in production
 - Validation: 6 new adapter tests and 7 new events-service tests; frontend 24/24 and backend 45/45 tests pass, `node --check` clean on new backend files, production build zero errors
 
-## Roadmap note - Viator Partner API (Merchant tier) — deferred, not started
+## Roadmap note - Viator Partner API (Merchant tier) â deferred, not started
 - Path to real bookable third-party inventory that fits the commission-only model: SoloWay would be merchant of record, checkout stays in-app, margin comes from marking up Viator's invoiced rates
 - Process when ready: (1) register SoloWay as a business entity with a business bank account, (2) create a Viator Partner Program account and apply for Merchant API (Viator qualifies all applicants; pre-launch apps typically start with free instant Basic Access to the Affiliate API for content/availability data), (3) pay a sales-volume-based security deposit before live bookings, (4) build against Partner API v2 (product content, availability, bookings/hold, bookings/book, mandatory automated cancellation workflow), (5) pass Viator's back-end and front-end certification before launch
 - Obligations to plan for: PCI compliance, chargeback risk, and a customer-support channel (merchant of record handles all support/cancellations/refunds)
@@ -278,20 +278,20 @@
 - API: public `GET /api/v1/reviews?destination=&limit=` (returns reviews with reviewer display names plus count/average stats when filtered), authenticated `POST /api/v1/reviews` (409 on duplicate per destination), authenticated `DELETE /api/v1/reviews/:reviewId` (owner-only)
 - New public `/reviews` page: destination filter chips, aggregate star rating, solo-framed review cards with trip-type badges (Solo trip / Work trip / First solo trip), a sticky write-a-review form for signed-in users (star picker, destination select, headline, body), sign-in CTA for guests, and owner delete
 - Added "Reviews" to the top navigation (desktop + mobile) between Destinations and Safety; nav now renders router links for page routes and anchors for landing-section hashes
-- Validation: 7 new reviews-service tests with a chainable Supabase stub; backend 52/52 tests pass, `node --check` clean, production build zero errors — run `npm run db:migrate` (backend) to apply the new table
+- Validation: 7 new reviews-service tests with a chainable Supabase stub; backend 52/52 tests pass, `node --check` clean, production build zero errors â run `npm run db:migrate` (backend) to apply the new table
 
 ## 2026-07-13 - Interval 45 (admin portal)
-- Added `007_admin.sql` migration: `is_admin` flag on `users` (no API grants it — flip manually in the database) plus an `admin_audit_log` table recording every mutating admin action
+- Added `007_admin.sql` migration: `is_admin` flag on `users` (no API grants it â flip manually in the database) plus an `admin_audit_log` table recording every mutating admin action
 - Added `requireAdmin` middleware in `shared/middleware/auth.js` (runs after `authenticate`, which now also selects `is_admin`); login and `getUserById` responses now include `isAdmin` so the frontend can gate routes
 - New `backend/src/modules/admin/` module mounted at `/api/v1/admin` (all routes behind authenticate + requireAdmin): dashboard stats, user list/detail/delete (self-delete blocked), waitlist list, provider list, experience list + activate/deactivate, order list/detail + full refund, review list/delete, audit log list
 - Refactored `payments.service.js` refund flow into a shared `executeFullRefund` helper; new `refundOrderAsAdmin` skips ownership and cancellation-window checks while reusing the same Stripe + refunds-table logic
-- Frontend: `AdminRoute` guard (redirects non-admins to `/`), `adminService.js` API client, and an `/admin` portal (sidebar layout with nested routes) with Dashboard, Users (search, detail panel, delete), Waitlist (CSV export), Providers & Experiences (activate/deactivate), Orders (status filter, detail panel, refund), and Reviews (moderate/delete) pages — intentionally a functional dark dashboard rather than the immersive traveler UI
-- Validation: backend 52/52 tests pass (refund refactor covered by existing payments tests), `node --check` clean on all touched backend files, production build zero errors — run `npm run db:migrate` then `UPDATE users SET is_admin = true WHERE email = '<your email>';` to get access
+- Frontend: `AdminRoute` guard (redirects non-admins to `/`), `adminService.js` API client, and an `/admin` portal (sidebar layout with nested routes) with Dashboard, Users (search, detail panel, delete), Waitlist (CSV export), Providers & Experiences (activate/deactivate), Orders (status filter, detail panel, refund), and Reviews (moderate/delete) pages â intentionally a functional dark dashboard rather than the immersive traveler UI
+- Validation: backend 52/52 tests pass (refund refactor covered by existing payments tests), `node --check` clean on all touched backend files, production build zero errors â run `npm run db:migrate` then `UPDATE users SET is_admin = true WHERE email = '<your email>';` to get access
 
 ## 2026-07-13 - Interval 46 (destination experience location map)
 - Added a dynamic GPS map to destination experience pages (`DestinationDetail`): sticky sidebar on desktop (top-right of the experiences section), inline above cards on mobile
-- Map updates as users hover, focus, or scroll experience cards — active card gets a teal highlight ring; includes a local OpenStreetMap embed plus a small world-context inset
-- New `ExperienceLocationMap` component, `destinationCoordinates.js` (city centers), `activityLocations.js` (landmark coords for curated catalog picks), and `resolveExperienceLocation` helper (catalog coords → jittered fallback for live provider inventory)
+- Map updates as users hover, focus, or scroll experience cards â active card gets a teal highlight ring; includes a local OpenStreetMap embed plus a small world-context inset
+- New `ExperienceLocationMap` component, `destinationCoordinates.js` (city centers), `activityLocations.js` (landmark coords for curated catalog picks), and `resolveExperienceLocation` helper (catalog coords â jittered fallback for live provider inventory)
 - Validation: production build zero errors; `DestinationDetail` tests 3/3 pass (IntersectionObserver guarded for jsdom)
 
 ## 2026-07-13 - Interval 47 (hero discovery card)
@@ -307,13 +307,13 @@
 - Validation: production build zero errors
 
 ## 2026-07-18 - Interval 50 (homepage atlas shows new cities daily)
-- **Root cause:** atlas “rotation” only reordered the same 6 hardcoded cities, so returning after a few days looked unchanged
+- **Root cause:** atlas ârotationâ only reordered the same 6 hardcoded cities, so returning after a few days looked unchanged
 - Expanded the atlas pool to 15 destinations (Florence, Bangkok, Bali, Marrakech, New York, Paris, Buenos Aires, Seoul, Prague + original six)
-- Added `selectForDate()` — each Eastern midnight advances a 6-card window through the pool so consecutive days surface mostly new cities (not a reshuffle of the same set)
+- Added `selectForDate()` â each Eastern midnight advances a 6-card window through the pool so consecutive days surface mostly new cities (not a reshuffle of the same set)
 - Hero discovery + featured experiences now use the same daily lead city; featured section no longer sticks when live inventory covers only one city
 - Open tabs refresh rotation on `visibilitychange` (catches throttled midnight timers) as well as at Eastern midnight
-- Copy updated (“The atlas · refreshes daily”)
-- Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
+- Copy updated (âThe atlas Â· refreshes dailyâ)
+- Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 â  Jul 19 city sets)
 
 ## 2026-09-14 - Interval 62 (first public deploy: soloway.io)
 
@@ -347,7 +347,7 @@
 - Environment (20 keys, imported via "Import from .env", saved without deploy):
   - Set: `NODE_ENV=production`, `APP_BASE_URL=https://soloway.io`, `CORS_ORIGIN=https://soloway.io,https://www.soloway.io`, `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY`/`DATABASE_URL` (from the existing dev Supabase project), `JWT_SECRET` + `JWT_REFRESH_SECRET` (two fresh 96-hex values generated locally, not the dev secret), `RESEND_API_KEY`, `EMAIL_FROM=SoloWay <onboarding@resend.dev>`, `TICKETMASTER_API_KEY`, `STRIPE_CONNECT_COUNTRY=US`, `STRIPE_DEFAULT_COMMISSION_BPS=1500`
   - **Placeholders (`REPLACE_ME`):** `REDIS_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`
-- First deploy failed as expected: `validateConfig()` in production mode requires all of the above. Decided **against** running non-production mode on a public URL � it disables `trust proxy` (breaks rate limiting behind Render), prints SMS codes to logs, and skips Postgres TLS
+- First deploy failed as expected: `validateConfig()` in production mode requires all of the above. Decided **against** running non-production mode on a public URL  it disables `trust proxy` (breaks rate limiting behind Render), prints SMS codes to logs, and skips Postgres TLS
 
 ### Open items carried forward
 1. Create Upstash Redis (US-West/Oregon, TLS `rediss://`) ? `REDIS_URL`
@@ -357,39 +357,39 @@
 5. Separate **production** Supabase project (Pro) instead of the dev one; run `npm run db:migrate` against it; set `DATABASE_CA_CERT`
 6. Resend: verify `soloway.io` sending domain (SPF/DKIM in Cloudflare); switch `EMAIL_FROM` to `hello@soloway.io`. Sandbox sender only delivers to the account owner
 7. Cloudflare Email Routing for `hello@` / `privacy@` (advertised on Privacy/Terms pages, currently undeliverable)
-8. Upgrade Render to Starter ($7/mo) before launch � free tier sleeps after 15 min idle (30�60 s cold start)
+8. Upgrade Render to Starter ($7/mo) before launch  free tier sleeps after 15 min idle (3060 s cold start)
 ## 2026-08-04 - Interval 61 (events query was broken, not the coverage)
-- Ran the probe with a real key: 12 of 15 destinations showed zero events. Paris returning **1** was the tell — that is not credible for Paris, so the zeros were our query, not Ticketmaster's inventory
+- Ran the probe with a real key: 12 of 15 destinations showed zero events. Paris returning **1** was the tell â that is not credible for Paris, so the zeros were our query, not Ticketmaster's inventory
 - **Bug 1, locale:** without `locale=*` the Discovery API returns English-locale listings only. Paris measured 1 event; with `locale=*`, 10,000
-- **Bug 2, text city matching:** `city=` matches the venue's own city label, so cities listed under a local name were invisible — `city=Prague` returned 0 (venues say "Praha") against 470 for the same coordinates, and `city=Florence` returned 0 ("Firenze") against 149. Search is now geographic
-- Replaced `DESTINATION_CITIES` (city + countryCode text) with `DESTINATION_EVENT_AREAS` (city-centre lat/lng, mirroring `src/data/destinationCoordinates.js` — separate packages can't share it). Query now sends `geoPoint` + `radius=25` + `unit=km` + `locale=*`
+- **Bug 2, text city matching:** `city=` matches the venue's own city label, so cities listed under a local name were invisible â `city=Prague` returned 0 (venues say "Praha") against 470 for the same coordinates, and `city=Florence` returned 0 ("Firenze") against 149. Search is now geographic
+- Replaced `DESTINATION_CITIES` (city + countryCode text) with `DESTINATION_EVENT_AREAS` (city-centre lat/lng, mirroring `src/data/destinationCoordinates.js` â separate packages can't share it). Query now sends `geoPoint` + `radius=25` + `unit=km` + `locale=*`
 - `geoPoint` takes a geohash, so added `backend/src/modules/events/geohash.js` + 5 unit tests against the canonical `u4pruydqqvj` vector. Chose `geoPoint` over `latlong` because Ticketmaster deprecates `latlong`, and measured them identical at precision 9 (precision 5 lost events: Florence 142 vs 149)
-- Radius 25km is deliberate: 75km dragged in neighbouring towns (Barcelona 22 → 144 events)
-- **Result: destinations with events this week went 3 → 6** (paris 1 → 20+, prague 0 → 20+, florence 0 → 11; barcelona/new-york/cape-town already worked)
-- **The remaining 9 are genuine gaps, not bugs:** medellin, lisbon, reykjavik, bangkok, bali, marrakech, buenos-aires, seoul have **zero Ticketmaster inventory country-wide**. kyoto is different — Japan has 643 listings but none within 75km of Kyoto
-- **Known defect, not yet fixed:** Paris's results are museum admissions, not events. Museum tickets are sold for *every day*, so with `sort=date,asc` they occupy every early slot — measured 59 of the first 60 Paris results as genre `Cultural` (Grévin wax museum, "CITE DES ENFANTS 2-6 ANS"), while a Music-only query for the same city and window returns 1,641 real concerts. Florence has the same pattern (52 of 60 `Fine Art`). Barcelona and Prague are unaffected. Post-filtering one date-sorted page cannot fix this; it needs per-classification queries merged by date
+- Radius 25km is deliberate: 75km dragged in neighbouring towns (Barcelona 22 â 144 events)
+- **Result: destinations with events this week went 3 â 6** (paris 1 â 20+, prague 0 â 20+, florence 0 â 11; barcelona/new-york/cape-town already worked)
+- **The remaining 9 are genuine gaps, not bugs:** medellin, lisbon, reykjavik, bangkok, bali, marrakech, buenos-aires, seoul have **zero Ticketmaster inventory country-wide**. kyoto is different â Japan has 643 listings but none within 75km of Kyoto
+- **Known defect, not yet fixed:** Paris's results are museum admissions, not events. Museum tickets are sold for *every day*, so with `sort=date,asc` they occupy every early slot â measured 59 of the first 60 Paris results as genre `Cultural` (GrÃ©vin wax museum, "CITE DES ENFANTS 2-6 ANS"), while a Music-only query for the same city and window returns 1,641 real concerts. Florence has the same pattern (52 of 60 `Fine Art`). Barcelona and Prague are unaffected. Post-filtering one date-sorted page cannot fix this; it needs per-classification queries merged by date
 - Verified through the running API, not just the service: `GET /api/v1/events?destination=prague&limit=3` returns Othello at Prague Castle, a hip-hop concert, and Prague Lions vs Frankfurt Galaxy
 - Validation: eslint clean, backend 67/67 tests (was 60), probe re-run end to end
 
 ## 2026-08-04 - Interval 60 (Ticketmaster coverage probe)
-- **Finding that prompted this:** `backend/.env` has no `TICKETMASTER_API_KEY`, so `listDestinationEvents` returns `[]` for every destination and `DestinationDetail` hides the events section — silently. Missing key, unsupported city, revoked key, 429, and a genuinely quiet week are all indistinguishable to users and to us
+- **Finding that prompted this:** `backend/.env` has no `TICKETMASTER_API_KEY`, so `listDestinationEvents` returns `[]` for every destination and `DestinationDetail` hides the events section â silently. Missing key, unsupported city, revoked key, 429, and a genuinely quiet week are all indistinguishable to users and to us
 - Added `npm run events:probe` (`backend/scripts/probe-events.js`): per destination it reports event counts for anytime / next 7d / next 30d, classifies each as healthy, thin-this-week, nothing-soon, no-coverage, or failed, and names the cities whose pages would render no events section at all
-- Probe calls the module's own `fetchTicketmasterEvents` (newly exported for this) rather than rebuilding the query, so it exercises the real request path — same city/country map, classifications, date stamps, dedupe — with the Redis cache out of the way. No behavior change to the API
+- Probe calls the module's own `fetchTicketmasterEvents` (newly exported for this) rather than rebuilding the query, so it exercises the real request path â same city/country map, classifications, date stamps, dedupe â with the Redis cache out of the way. No behavior change to the API
 - Probes at limit 20 (page asks 6) to separate "thin" from "rich"; `20+` means the ceiling was hit. Throttled to 250ms (Ticketmaster allows 5 req/s); 45 requests per run
-- Exits non-zero only for configuration faults — a rejected key makes every window fail, which the script calls out; thin coverage is a finding, not a failure. `--json` mode for later CI use
-- Verified end to end with a deliberately invalid key: 45 live requests, all classified `REQUEST FAILED`, `First error: Ticketmaster responded with 401`, exit 1; `--json` output parses. **Happy path is unverified** — needs a real key
+- Exits non-zero only for configuration faults â a rejected key makes every window fail, which the script calls out; thin coverage is a finding, not a failure. `--json` mode for later CI use
+- Verified end to end with a deliberately invalid key: 45 live requests, all classified `REQUEST FAILED`, `First error: Ticketmaster responded with 401`, exit 1; `--json` output parses. **Happy path is unverified** â needs a real key
 - `npm run lint` now covers `scripts/` as well as `src/`
 - Open question this probe exists to answer: the city map is text-based (`Denpasar`, `Marrakech`, `Medellin`, `Kyoto`) and Ticketmaster's inventory is thin outside the US/UK/EU, so some of the 15 destinations likely have no events at all
 - Validation: `node --check` on both touched backend files, eslint clean, backend 60/60 tests
 
 ## 2026-08-04 - Interval 59 (hero card no longer crowds the search bar)
-- The discovery card sat in the search bar's lane: measured 115px horizontal overlap with only 12px of vertical daylight at ≥1440px, and 130px overlap at 1024px
+- The discovery card sat in the search bar's lane: measured 115px horizontal overlap with only 12px of vertical daylight at â¥1440px, and 130px overlap at 1024px
 - Cause was Interval 55's `min-[1440px]:mr-40`, which pulled the card 160px left to dodge the phone mockup and parked it right on top of the bar
-- Card now hangs *past* the hero container instead (`min-[1440px]:-mr-28`): its right edge lands on the 1360px container's edge, so it is flush with the phone mockup below (verified identical right edge at 1440/1536/1920) — 158px clear of the bar, phone still 31px below it, no horizontal overflow at any width
-- 1024–1280px has no room for a 780px bar beside a 310px card, so the bar's wrapper reserves that lane (`lg:pr-[380px] xl:pr-8`): 38px gap at 1024–1200, 46px from 1280 up
-- Placeholder shortened to "Search cities" — the reserved lane leaves a 100px input at 1024px and the old copy needed 145px, so it clipped mid-word ("Search cities or plac")
+- Card now hangs *past* the hero container instead (`min-[1440px]:-mr-28`): its right edge lands on the 1360px container's edge, so it is flush with the phone mockup below (verified identical right edge at 1440/1536/1920) â 158px clear of the bar, phone still 31px below it, no horizontal overflow at any width
+- 1024â1280px has no room for a 780px bar beside a 310px card, so the bar's wrapper reserves that lane (`lg:pr-[380px] xl:pr-8`): 38px gap at 1024â1200, 46px from 1280 up
+- Placeholder shortened to "Search cities" â the reserved lane leaves a 100px input at 1024px and the old copy needed 145px, so it clipped mid-word ("Search cities or plac")
 - Mobile/tablet untouched by construction: the card is `hidden lg:block` and the `lg:` reserve starts above the stacked bar's range (verified 390px and 768px unchanged)
-- Measured with a throwaway CDP script (headless Chrome + `Emulation.setDeviceMetricsOverride`), not by eye — no browser tooling in the repo
+- Measured with a throwaway CDP script (headless Chrome + `Emulation.setDeviceMetricsOverride`), not by eye â no browser tooling in the repo
 - Known blemish spotted at 1024px, pre-existing and untouched: the highlights row wraps to two lines and the search bar covers "Cherish every memory"
 - Validation: eslint, production build zero errors, 44/44 tests; geometry checked at 390/768/1024/1100/1200/1280/1440/1536/1920
 
@@ -398,47 +398,47 @@
 - **Backend:** `GET /events` accepts optional `startDate`/`endDate`, forwarded to Ticketmaster as `startDateTime`/`endDateTime`. `endDate` extends to 23:59:59 so an event on the departure day still counts; a past `startDate` is clamped to now; the trip window is part of the Redis cache key so a dated search can't be served the undated list
 - `endDate` is `Joi.forbidden()` without a `startDate`, and must be >= it
 - **DestinationDetail:** URL is the source of truth; shows a dates pill with a clear button, and the events section subtitle names the window. Malformed dates and reversed ranges are ignored rather than rendered as a broken window
-- New `src/utils/tripDates.js` — deliberately local-time conversion, **not** `toISOString()`, which shifts the calendar day backwards for anyone west of UTC. `formatDateRange` moved here from `HomeDatePicker`
-- **Scope limit (honest):** only *events* are date-filtered. Experiences carry a `scheduledTime` (time of day) with no date dimension at all — filtering them by date would need a schema/availability change, so the window is displayed but not applied to them
-- Validation: eslint, production build, frontend 44/44 (was 34), backend 60/60 (was 54); browser-verified Aug 10–14 → `?start=2026-08-10&end=2026-08-14` → API call carries both params → clearing refetches unscoped
+- New `src/utils/tripDates.js` â deliberately local-time conversion, **not** `toISOString()`, which shifts the calendar day backwards for anyone west of UTC. `formatDateRange` moved here from `HomeDatePicker`
+- **Scope limit (honest):** only *events* are date-filtered. Experiences carry a `scheduledTime` (time of day) with no date dimension at all â filtering them by date would need a schema/availability change, so the window is displayed but not applied to them
+- Validation: eslint, production build, frontend 44/44 (was 34), backend 60/60 (was 54); browser-verified Aug 10â14 â `?start=2026-08-10&end=2026-08-14` â API call carries both params â clearing refetches unscoped
 
 ## 2026-08-01 - Interval 57 (real calendar in the hero search bar)
-- Replaced the Dates preset dropdown (Anytime/This weekend/…) with `HomeDatePicker` — a real month-grid range picker; no new dependency (the only prior date UI was raw `<input type="date">` in the legacy `HeroSearchBar`)
-- Range selection with hover preview, past dates disabled, prev-month disabled at the current month, "Anytime" clear + "Done"; segment label renders as `Aug 7 – Aug 12`
-- Accessible: `role="dialog"`, per-day `aria-label`/`aria-pressed`, roving tabindex with Arrow/Home/End/PageUp/PageDown/Escape (verified Aug 7 →→ Aug 8 →↓ Aug 15)
-- **Tailwind gotcha fixed:** `bg-[var(--sw-accent)]/10` emits nothing — an opacity modifier cannot be applied to a `var()` color. The in-range band was invisible. Now uses literal `bg-[#6C70F2]/10 dark:bg-[#6C70F2]/25` (constant `RANGE_BG`); same bug fixed on the date picker's Done hover and the discovery card's dark Event pill
-- Note for future debugging: newly created files can serve stale Tailwind CSS in the running dev server until a full reload — two "dark mode bugs" during this work were that artifact, not code
+- Replaced the Dates preset dropdown (Anytime/This weekend/â¦) with `HomeDatePicker` â a real month-grid range picker; no new dependency (the only prior date UI was raw `<input type="date">` in the legacy `HeroSearchBar`)
+- Range selection with hover preview, past dates disabled, prev-month disabled at the current month, "Anytime" clear + "Done"; segment label renders as `Aug 7 â Aug 12`
+- Accessible: `role="dialog"`, per-day `aria-label`/`aria-pressed`, roving tabindex with Arrow/Home/End/PageUp/PageDown/Escape (verified Aug 7 ââ Aug 8 ââ Aug 15)
+- **Tailwind gotcha fixed:** `bg-[var(--sw-accent)]/10` emits nothing â an opacity modifier cannot be applied to a `var()` color. The in-range band was invisible. Now uses literal `bg-[#6C70F2]/10 dark:bg-[#6C70F2]/25` (constant `RANGE_BG`); same bug fixed on the date picker's Done hover and the discovery card's dark Event pill
+- Note for future debugging: newly created files can serve stale Tailwind CSS in the running dev server until a full reload â two "dark mode bugs" during this work were that artifact, not code
 - Validation: eslint, production build, 34/34 tests; light + dark verified by computed color/contrast on panel, day text, disabled days, range band, endpoints
 
 ## 2026-08-01 - Interval 56 (redesign promoted to the live homepage)
-- `/` now renders the redesign. Promoted `landing-preview/Preview*` → `components/home/Home*` (Nav, Hero, DiscoveryCard, SearchBar, Phone, Inspiration, Features, homeAssets); CSS vars renamed `--pv-*` → `--sw-*`
+- `/` now renders the redesign. Promoted `landing-preview/Preview*` â `components/home/Home*` (Nav, Hero, DiscoveryCard, SearchBar, Phone, Inspiration, Features, homeAssets); CSS vars renamed `--pv-*` â `--sw-*`
 - Deleted the superseded `LandingPreview` page and `landing-preview/` folder so the two copies can't drift; `/preview/home` now redirects to `/`
-- Old landing components (`Hero`, `HeroSearchBar`, `Background`, `Navbar`, `Destinations` default export) left in place — `Navbar` is used by 17 other pages and `DESTINATIONS`/`Destinations` are still imported by the new home and detail pages
+- Old landing components (`Hero`, `HeroSearchBar`, `Background`, `Navbar`, `Destinations` default export) left in place â `Navbar` is used by 17 other pages and `DESTINATIONS`/`Destinations` are still imported by the new home and detail pages
 - **Dark mode added** to all new home components. Required, not cosmetic: `html.dark` is global + persisted, and the retained sections (FeaturedExperiences/Safety/FieldNotes/CTA/Footer) already had `dark:` variants, so a light-only home would have rendered half-dark for anyone who had toggled the theme. Nav toggle is wired to `DarkModeContext` (was inert in the preview)
-- **Search bar made functional** (was visual-only in the preview): selecting a destination and submitting navigates to `/destinations/:id`; verified "lis" → Lisbon → `/destinations/lisbon`
+- **Search bar made functional** (was visual-only in the preview): selecting a destination and submitting navigates to `/destinations/:id`; verified "lis" â Lisbon â `/destinations/lisbon`
 - Inspiration section carries `id="destinations"` so the nav's `/#destinations` anchor still resolves; hero's secondary CTA points there too
 - Validation: production build (zero errors), eslint clean, 34/34 frontend tests pass; light + dark verified by computed-contrast checks on page/nav/plan card/search/destination cards/features
-- Work is on branch `home-redesign`, committed locally, **not pushed** — `main` and `origin/main` still hold the old homepage
+- Work is on branch `home-redesign`, committed locally, **not pushed** â `main` and `origin/main` still hold the old homepage
 
 ## 2026-08-01 - Interval 55 (preview spacing fix: discovery card vs phone mockup)
-- Fixed the hero plan card and phone mockup intersecting (measured 66×15px overlap at 1459px): pulled the card left (`min-[1440px]:mr-40`) and dropped the phone below it (`-top-16`, `right-0`)
-- Result holds across widths since both containers are centered/fixed-max: 22px horizontal + 31px vertical gap card→phone, 68px grid→phone, no horizontal overflow
-- Phone now floats only at ≥1440px (`min-[1440px]:block`); between xl and 1440 there isn't room for a 250px lane beside a 1000px grid, so it hides and the cards use full width
+- Fixed the hero plan card and phone mockup intersecting (measured 66Ã15px overlap at 1459px): pulled the card left (`min-[1440px]:mr-40`) and dropped the phone below it (`-top-16`, `right-0`)
+- Result holds across widths since both containers are centered/fixed-max: 22px horizontal + 31px vertical gap cardâphone, 68px gridâphone, no horizontal overflow
+- Phone now floats only at â¥1440px (`min-[1440px]:block`); between xl and 1440 there isn't room for a 250px lane beside a 1000px grid, so it hides and the cards use full width
 - Validation: production build (zero errors) + eslint clean; verified at 1366/1440/1459px
 
 ## 2026-08-01 - Interval 54 (preview promoted to full homepage draft)
 - `/preview/home` is now a complete homepage: new hero/search/discovery design on top, then FeaturedExperiences, Safety, FieldNotes, CTA, Footer from the live landing
-- Inspiration section now shows six destination cards (3×2) fed by the daily atlas rotation (`selectForDate` + `ATLAS_CARD_COUNT`) with vibe badges, replacing the four static mock cards; removed the carousel arrow
+- Inspiration section now shows six destination cards (3Ã2) fed by the daily atlas rotation (`selectForDate` + `ATLAS_CARD_COUNT`) with vibe badges, replacing the four static mock cards; removed the carousel arrow
 - Scaled the design up for ~1536px viewports (wider containers 1200/1360, 60px hero heading, larger search pill/discovery card/nav text) after feedback that it looked "zoomed out"
 - Rotation state restored in `LandingPreview` (midnight-Eastern refresh + visibility catch-up), passed to inspiration + featured sections
 - Git note: user's push `7f60d2d` already contains the earlier preview work; local is in sync with `origin/main`, only this session's edits are uncommitted
 - Validation: production build (zero errors) + eslint clean
 
 ## 2026-08-01 - Interval 53 (preview rebuilt 1:1 against the approved mock)
-- Rebuilt all `/preview/home` components to replicate the mock exactly: static "Discover today" Barcelona card (underline tabs, Event/Meetup/Experience pills, avatar clusters, "View full plan"), Marrakech phone mockup overlapping hero→inspiration, icon-led 3-segment search pill straddling the hero photo edge, Tokyo/Bali/New York/Lisbon inspiration cards with mock badges/copy/counts, icon-circle features row
+- Rebuilt all `/preview/home` components to replicate the mock exactly: static "Discover today" Barcelona card (underline tabs, Event/Meetup/Experience pills, avatar clusters, "View full plan"), Marrakech phone mockup overlapping heroâinspiration, icon-led 3-segment search pill straddling the hero photo edge, Tokyo/Bali/New York/Lisbon inspiration cards with mock badges/copy/counts, icon-circle features row
 - Dropped daily rotation/live data on the preview (content is pinned to the mock); dropped the purple banner; page is intentionally light-only so it always matches the snapshot regardless of theme
-- New: `PreviewPhone.jsx`, `previewAssets.js` (shared avatar/photo helpers); fixed lucide-react 0.263 compat (`UserRound` → `User`)
-- Iterated against the mock via headless-Chrome screenshots at 1440×1024 + mobile 375 overflow check
+- New: `PreviewPhone.jsx`, `previewAssets.js` (shared avatar/photo helpers); fixed lucide-react 0.263 compat (`UserRound` â `User`)
+- Iterated against the mock via headless-Chrome screenshots at 1440Ã1024 + mobile 375 overflow check
 - Validation: production build (zero errors) + eslint clean
 
 ## 2026-08-01 - Interval 52 (landing redesign preview)
@@ -456,16 +456,16 @@
 
 ## 2026-07-18 - Interval 49 (production launch readiness)
 - **Git hygiene:** committed intervals 46-48 (`7-13-changes`), merged to `main` along with remote README edits, pushed both branches
-- **QR Buddy fixed for production:** `GuestJoin.jsx` now consumes the real flat `joinPreview` payload (`event_title`/`event_time`/`event_location`) and maps the API's 400 reason codes (`invite_expired`, `party_full`, `invite_cancelled`, `invite_not_found`) to the dedicated expired/full/error cards — previously dead code paths; guest-entered phone numbers are normalized to E.164 before submit
+- **QR Buddy fixed for production:** `GuestJoin.jsx` now consumes the real flat `joinPreview` payload (`event_title`/`event_time`/`event_location`) and maps the API's 400 reason codes (`invite_expired`, `party_full`, `invite_cancelled`, `invite_not_found`) to the dedicated expired/full/error cards â previously dead code paths; guest-entered phone numbers are normalized to E.164 before submit
 - **Real SMS:** new `shared/sms/sms.js` sends buddy verification codes via Twilio's REST API (`TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_FROM_NUMBER`, required in production by `validateConfig`); development still prints `[DEV SMS]` codes to the console; send failures surface as a friendly 502 without leaking provider details
 - **AI stub gated:** `/ai-preferences` and `/ai-itinerary` (hardcoded Kyoto sample) now redirect to `/start`; added a catch-all route redirecting unknown URLs to `/`; `BookingCart` back button always returns to `/explore`
 - **No more silent-localhost builds:** deploy builds (Vercel/Render/Netlify/CI) fail hard when `VITE_API_URL` is unset (vite.config.js); local builds warn; a production bundle without it refuses to boot (`src/utils/env.js`)
 - **Backend ops hardening:** pino structured JSON logging replaces console/morgan (`shared/logging/logger.js`, pino-http request logs, redaction of auth headers/tokens); `errorHandler` now always logs (error for 5xx with stack, warn for 4xx) with method/url/userId context; `/health` probes Postgres and Redis with a 2.5s timeout and returns 503 when unhealthy; graceful shutdown closes Socket.io, HTTP, DB pool, and Redis with a 10s failsafe; `uncaughtException`/`unhandledRejection` log fatal and exit for a clean platform restart; Postgres TLS now verifies the Supabase CA via `DATABASE_CA_CERT` (raw-PEM-with-\n or base64) instead of `rejectUnauthorized: false`, with a loud boot warning if unset
-- **Error monitoring:** Sentry on both tiers (`@sentry/react` via `src/utils/monitoring.js`, `@sentry/node` via `backend/src/instrument.js` + Express error handler for 5xx only) — enabled only when `VITE_SENTRY_DSN`/`SENTRY_DSN` are set
-- **CI:** `.github/workflows/ci.yml` runs frontend lint/test/build and backend lint/test on PRs and pushes to `main`; added the missing backend `.eslintrc.cjs` and a root `.eslintrc.cjs` (react + hooks presets) — `npm run lint` now actually works in both packages; fixed two pre-existing dead-code lint errors (`safety.service.js` unused import, `social.service.js` unused variable)
+- **Error monitoring:** Sentry on both tiers (`@sentry/react` via `src/utils/monitoring.js`, `@sentry/node` via `backend/src/instrument.js` + Express error handler for 5xx only) â enabled only when `VITE_SENTRY_DSN`/`SENTRY_DSN` are set
+- **CI:** `.github/workflows/ci.yml` runs frontend lint/test/build and backend lint/test on PRs and pushes to `main`; added the missing backend `.eslintrc.cjs` and a root `.eslintrc.cjs` (react + hooks presets) â `npm run lint` now actually works in both packages; fixed two pre-existing dead-code lint errors (`safety.service.js` unused import, `social.service.js` unused variable)
 - **Off-platform backups:** `.github/workflows/db-backup.yml` runs a nightly `pg_dump --format=custom --schema=public` of the production database and uploads to S3 (versioned, encrypted, put-only IAM key); `BACKUPS.md` documents the 15-minute AWS setup (bucket, lifecycle to Glacier, IAM policy, GitHub secrets), the restore runbook, and the secrets-backup procedure
-- **Launch + migration docs:** `DEPLOY.md` rewritten as an ordered launch checklist (domain/DNS, Supabase Pro, Upstash, Render, Vercel-vs-Cloudflare-Pages licensing note, Resend domain verification, Stripe Connect + webhooks, Twilio A2P 10DLC note, Sentry, final end-to-end verification pass, ~$35-55/mo cost estimate); new `MIGRATION.md` documents the phased AWS path (lift-and-shift compute → optional frontend/data moves), the Supabase-JS-client data-layer caveat (9 modules would need SQL rewrites before RDS), cutover mechanics, and cost comparison
-- Validation: frontend 24/24 tests + lint + build clean (with and without Sentry DSN); backend 52/52 tests + lint clean (also with `backend/.env` absent, proving CI-safety); smoke-booted the API — health returns `database: ok`, structured logs verified, and the EADDRINUSE crash handler exercised the new fatal-log + graceful-exit path in the wild
+- **Launch + migration docs:** `DEPLOY.md` rewritten as an ordered launch checklist (domain/DNS, Supabase Pro, Upstash, Render, Vercel-vs-Cloudflare-Pages licensing note, Resend domain verification, Stripe Connect + webhooks, Twilio A2P 10DLC note, Sentry, final end-to-end verification pass, ~$35-55/mo cost estimate); new `MIGRATION.md` documents the phased AWS path (lift-and-shift compute â optional frontend/data moves), the Supabase-JS-client data-layer caveat (9 modules would need SQL rewrites before RDS), cutover mechanics, and cost comparison
+- Validation: frontend 24/24 tests + lint + build clean (with and without Sentry DSN); backend 52/52 tests + lint clean (also with `backend/.env` absent, proving CI-safety); smoke-booted the API â health returns `database: ok`, structured logs verified, and the EADDRINUSE crash handler exercised the new fatal-log + graceful-exit path in the wild
 
 ---
 
@@ -474,7 +474,7 @@
 - **Auth & accounts:** JWT access/refresh with rotation, email verification, password reset, Resend transactional email, protected routes, profile
 - **Booking & commerce:** server-authoritative experience catalog, Stripe Connect checkout, webhook-confirmed fulfillment, booking return page, provider onboarding, admin portal for users/orders/catalog/reviews
 - **Trips:** itinerary CRUD, dual-path AI/manual booking flow, TripContext cart, destination catalog selectors
-- **QR Buddy:** full backend + frontend (invite modal, guest join, history, connection requests) — Twilio SMS wired; set `TWILIO_*` env vars in production, dev prints codes to console
+- **QR Buddy:** full backend + frontend (invite modal, guest join, history, connection requests) â Twilio SMS wired; set `TWILIO_*` env vars in production, dev prints codes to console
 - **Ops:** waitlist API, DB seed script, CI (`.github/workflows/ci.yml`), nightly S3 database backups (`db-backup.yml` + `BACKUPS.md`), structured logging, deep health check, graceful shutdown, Sentry hooks, launch checklist (`DEPLOY.md`), AWS migration strategy (`MIGRATION.md`), PWA/SEO assets, legal pages
 
 ### Known gaps / not yet consumed
@@ -482,7 +482,7 @@
 - Safety Guardian and Social Radar backend APIs exist but have no frontend wiring yet
 - WebSocket/realtime backend exists but no frontend Socket.io client
 - Public itinerary endpoints (`GET /itineraries/public`, `GET /itineraries/nearby`) unused
-- Design-preview themes (Dune/Porcelain/Aqua) are exploratory HTML only — production app still uses the immersive light-glass traveler UI
+- Design-preview themes (Dune/Porcelain/Aqua) are exploratory HTML only â production app still uses the immersive light-glass traveler UI
 - Viator Partner API merchant inventory deferred (see roadmap note above)
 - Buddy/waitlist rate limiters are in-memory (fine single-instance; move to the Redis store when scaling out)
 
