@@ -315,18 +315,49 @@
 - Copy updated (“The atlas · refreshes daily”)
 - Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
 
-## 2026-09-14 - Interval 62 (production domain: soloway.io)
-- Purchased `soloway.io` via Cloudflare Registrar (same account as existing DNS); repo previously assumed `soloway.app`
-- Replaced every `soloway.app` reference with `soloway.io`: `index.html` (canonical, og:url, og:image, twitter:image, JSON-LD), `public/robots.txt`, `public/sitemap.xml`, `src/pages/Privacy.jsx` + `Terms.jsx` (contact emails), `src/components/HeroDiscoveryCard.jsx`, `DEPLOY.md`, `MIGRATION.md`, `.env.example`
-- Layout unchanged: `soloway.io` + `www` → frontend, `api.soloway.io` → backend
-- Validation: production build zero errors; `rg --hidden soloway\.app` returns nothing
-- **Frontend is live at https://soloway.io** (Vercel, production branch `main`, `VITE_API_URL=https://api.soloway.io/api/v1`); `www` → 308 → apex
-- Cloudflare zone: SSL mode Full (strict), Always Use HTTPS on, min TLS 1.2; `A @ → 76.76.21.21`, `CNAME www → cname.vercel-dns.com`
-- Gotcha: both Vercel records must be **DNS only** (grey cloud). Proxied records produced Cloudflare 525 because Vercel could not issue its cert behind the proxy
-- Render: Blueprint `soloway` deployed from `render.yaml` → web service `soloway-api` (Oregon, free tier, `https://soloway-api.onrender.com`). Custom domain `api.soloway.io` verified; Cloudflare `CNAME api → soloway-api.onrender.com` (DNS only)
-- Render env: all 20 production keys set (Supabase, JWT secrets generated, Resend, Ticketmaster, CORS/app URL, Stripe constants). `REDIS_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TWILIO_*` hold `REPLACE_ME` placeholders — API will not boot until filled (`validateConfig()` in production mode)
-- Pending: Upstash Redis, Stripe (test keys OK), Twilio trial → fill placeholders → deploy → `https://api.soloway.io/health`; Email Routing for `hello@`/`privacy@`; upgrade Render to Starter before real launch (free tier sleeps)
+## 2026-09-14 - Interval 62 (first public deploy: soloway.io)
 
+**Outcome:** frontend live at https://soloway.io; API service provisioned at `api.soloway.io` and waiting on three third-party credentials before it boots.
+
+### Domain
+- Bought `soloway.io` via Cloudflare Registrar ($32/yr; WHOIS privacy, DNSSEC included). Chosen over `solo-way.app` (hyphen) and `soloway.app` (taken). Same Cloudflare account as the existing portfolio site, so DNS was live immediately
+- Repo assumed `soloway.app`; replaced every reference with `soloway.io`: `index.html` (canonical, og:url, og:image, twitter:image, JSON-LD), `public/robots.txt`, `public/sitemap.xml`, `src/pages/Privacy.jsx` + `Terms.jsx` (`privacy@`/`hello@` emails), `src/components/HeroDiscoveryCard.jsx`, `DEPLOY.md`, `MIGRATION.md`, `.env.example`. Verified `rg --hidden soloway\.app` is empty; production build zero errors
+
+### Git
+- `trip-dates` branch had two unmerged commits (trip-dates?events wiring + tonight's domain swap). Fast-forwarded `main` to match and pushed; `main` is now the production branch for both Vercel and Render
+
+### Cloudflare (zone `soloway.io`)
+- SSL/TLS: encryption mode **Full (strict)** (was Full); **Always Use HTTPS** on; **Minimum TLS 1.2** (was 1.0); Automatic HTTPS Rewrites already on
+- DNS (all **DNS only / grey cloud**):
+  - `A @ ? 76.76.21.21` (Vercel)
+  - `CNAME www ? cname.vercel-dns.com` (Vercel)
+  - `CNAME api ? soloway-api.onrender.com` (Render)
+- **Gotcha:** with the Vercel records proxied (orange cloud), `https://soloway.io` returned Cloudflare **525**. Vercel could not complete cert issuance behind the proxy, so Cloudflare's strict-mode handshake to origin failed. Switching both records to DNS only fixed it within seconds. Cloudflare's SSL settings are therefore dormant for now; Vercel and Render each terminate their own TLS
+- Email Routing deliberately deferred (no destination inbox chosen yet)
+
+### Vercel (frontend)
+- Project `soloway` imported from `MichaelSchaaf34/SoloWay`, framework Vite, root `./`, production branch `main`. `vercel.json` SPA rewrite already in repo
+- Env: `VITE_API_URL=https://api.soloway.io/api/v1` (build fails without it, by design in `vite.config.js`)
+- Domains: `soloway.io` ? Production; `www.soloway.io` ? **308** ? `soloway.io`. Vercel initially defaulted to the reverse (apex?www); corrected because canonical/sitemap/OG all use the bare apex
+- Verified: `curl -I https://soloway.io` ? 200, `Server: Vercel`, title "SoloWay | Travel Solo, Not Alone"; `www` ? 308 `Location: https://soloway.io/`
+
+### Render (API)
+- Blueprint `soloway` from `render.yaml` ? web service **`soloway-api`**, Node, **Oregon**, **free** plan, root `backend`, `npm install` / `npm start`, health check `/health`, auto-deploy on commit to `main`. Public host `https://soloway-api.onrender.com`
+- Custom domain `api.soloway.io` added and **verified**; Render issuing cert
+- Environment (20 keys, imported via "Import from .env", saved without deploy):
+  - Set: `NODE_ENV=production`, `APP_BASE_URL=https://soloway.io`, `CORS_ORIGIN=https://soloway.io,https://www.soloway.io`, `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY`/`DATABASE_URL` (from the existing dev Supabase project), `JWT_SECRET` + `JWT_REFRESH_SECRET` (two fresh 96-hex values generated locally, not the dev secret), `RESEND_API_KEY`, `EMAIL_FROM=SoloWay <onboarding@resend.dev>`, `TICKETMASTER_API_KEY`, `STRIPE_CONNECT_COUNTRY=US`, `STRIPE_DEFAULT_COMMISSION_BPS=1500`
+  - **Placeholders (`REPLACE_ME`):** `REDIS_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`
+- First deploy failed as expected: `validateConfig()` in production mode requires all of the above. Decided **against** running non-production mode on a public URL � it disables `trust proxy` (breaks rate limiting behind Render), prints SMS codes to logs, and skips Postgres TLS
+
+### Open items carried forward
+1. Create Upstash Redis (US-West/Oregon, TLS `rediss://`) ? `REDIS_URL`
+2. Stripe test keys ? `STRIPE_SECRET_KEY`; webhook endpoint `https://api.soloway.io/api/v1/webhooks/stripe` ? `STRIPE_WEBHOOK_SECRET`
+3. Twilio trial ? `TWILIO_*`
+4. Fill placeholders in Render ? "Save, rebuild, and deploy" ? confirm `https://api.soloway.io/health` green ? register/login round-trip on soloway.io
+5. Separate **production** Supabase project (Pro) instead of the dev one; run `npm run db:migrate` against it; set `DATABASE_CA_CERT`
+6. Resend: verify `soloway.io` sending domain (SPF/DKIM in Cloudflare); switch `EMAIL_FROM` to `hello@soloway.io`. Sandbox sender only delivers to the account owner
+7. Cloudflare Email Routing for `hello@` / `privacy@` (advertised on Privacy/Terms pages, currently undeliverable)
+8. Upgrade Render to Starter ($7/mo) before launch � free tier sleeps after 15 min idle (30�60 s cold start)
 ## 2026-08-04 - Interval 61 (events query was broken, not the coverage)
 - Ran the probe with a real key: 12 of 15 destinations showed zero events. Paris returning **1** was the tell — that is not credible for Paris, so the zeros were our query, not Ticketmaster's inventory
 - **Bug 1, locale:** without `locale=*` the Discovery API returns English-locale listings only. Paris measured 1 event; with `locale=*`, 10,000
