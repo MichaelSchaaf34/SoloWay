@@ -81,7 +81,7 @@ const HomeSearchBar = () => {
           <input
             type="text"
             value={query}
-            placeholder="Search cities or places"
+            placeholder="Search cities"
             autoComplete="off"
             onFocus={() => setOpen('where')}
             onChange={event => {

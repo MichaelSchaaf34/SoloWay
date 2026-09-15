@@ -33,17 +33,17 @@ Sentry, and S3 are free or pennies at launch scale).
 
 ## 1. Domain [You]
 
-1. Buy the domain. The repo's SEO metadata assumes **soloway.app** — check
+1. Buy the domain. The repo's SEO metadata assumes **soloway.io** — check
    availability at Cloudflare Registrar or Porkbun (at-cost pricing). `.app`
    domains force HTTPS everywhere, which Vercel/Render provide automatically.
 2. Decide the layout (recommended):
-   - `soloway.app` + `www.soloway.app` → frontend
-   - `api.soloway.app` → backend API
-3. **If you buy a different domain**, replace `soloway.app` in:
+   - `soloway.io` + `www.soloway.io` → frontend
+   - `api.soloway.io` → backend API
+3. **If you buy a different domain**, replace `soloway.io` in:
    [index.html](index.html) (canonical, og:url, og:image, JSON-LD),
    [public/robots.txt](public/robots.txt) (Sitemap line),
    [public/sitemap.xml](public/sitemap.xml) (all `<loc>` entries).
-   Search the repo for `soloway.app` to catch them all.
+   Search the repo for `soloway.io` to catch them all.
 
 ## 2. Supabase (database) [You]
 
@@ -81,8 +81,8 @@ Do **not** run `npm run db:seed` in production (it refuses anyway).
    30–60s cold start on someone's first visit is not launch-quality.
 3. Environment variables — every name below (see [backend/.env.example](backend/.env.example)):
    - `NODE_ENV=production`
-   - `APP_BASE_URL=https://soloway.app` (exact frontend origin)
-   - `CORS_ORIGIN=https://soloway.app,https://www.soloway.app` (no trailing slashes)
+   - `APP_BASE_URL=https://soloway.io` (exact frontend origin)
+   - `CORS_ORIGIN=https://soloway.io,https://www.soloway.io` (no trailing slashes)
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
    - `DATABASE_URL`, `DATABASE_CA_CERT`
    - `REDIS_URL`
@@ -94,9 +94,9 @@ Do **not** run `npm run db:seed` in production (it refuses anyway).
      `STRIPE_DEFAULT_COMMISSION_BPS` (step 7)
    - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` (step 8)
    - `SENTRY_DSN` (step 10), optional `LOG_LEVEL`, optional `TICKETMASTER_API_KEY`
-4. Custom domain: add `api.soloway.app` in Render → copy the CNAME record into
+4. Custom domain: add `api.soloway.io` in Render → copy the CNAME record into
    your DNS. Render issues the TLS certificate automatically.
-5. Verify: `https://api.soloway.app/health` returns
+5. Verify: `https://api.soloway.io/health` returns
    `{"status":"healthy", ... "checks":{"database":"ok","redis":"ok"}}`.
 
 ## 5. Vercel (frontend) [You]
@@ -109,21 +109,21 @@ Do **not** run `npm run db:seed` in production (it refuses anyway).
 1. **Add New → Project** → import the repo. Framework preset: Vite. Root:
    repository root (not `backend`). SPA rewrites come from `vercel.json`.
 2. Environment variables (Production + Preview):
-   - `VITE_API_URL=https://api.soloway.app/api/v1` (no trailing slash —
+   - `VITE_API_URL=https://api.soloway.io/api/v1` (no trailing slash —
      builds fail without this, by design)
    - `VITE_SENTRY_DSN` (step 10, optional)
-3. Domains: add `soloway.app` and `www.soloway.app`, follow Vercel's DNS
+3. Domains: add `soloway.io` and `www.soloway.io`, follow Vercel's DNS
    instructions at your registrar (A/ALIAS for apex, CNAME for www).
 4. Verify: site loads on the domain; register/login round-trips (proves CORS
    and API URL are right).
 
 ## 6. Resend (email) [You]
 
-1. In [Resend](https://resend.com): **Domains → Add Domain** (`soloway.app`)
+1. In [Resend](https://resend.com): **Domains → Add Domain** (`soloway.io`)
    and add the SPF/DKIM DNS records it gives you. Wait for "Verified" —
    without this, verification and password-reset emails land in spam or fail.
 2. Set `EMAIL_FROM` to a sender on that domain, e.g.
-   `SoloWay <hello@soloway.app>`, and copy the API key → `RESEND_API_KEY`.
+   `SoloWay <hello@soloway.io>`, and copy the API key → `RESEND_API_KEY`.
 3. Verify: register a fresh account on production → the verification email
    arrives in a normal inbox (check spam scoring via mail-tester.com if unsure).
 
@@ -134,7 +134,7 @@ setup with live keys.
 
 1. Enable **Stripe Connect** (Express) in the dashboard.
 2. **Developers → Webhooks → Add endpoint**:
-   `https://api.soloway.app/api/v1/webhooks/stripe`, subscribed to:
+   `https://api.soloway.io/api/v1/webhooks/stripe`, subscribed to:
    - `account.updated`
    - `checkout.session.completed`
    - `checkout.session.async_payment_succeeded`
@@ -194,13 +194,13 @@ On the production domain, end to end:
 - [ ] Waitlist signup from the landing page → appears in `/admin/waitlist`
 - [ ] `/admin` reachable only for an admin user
       (`UPDATE users SET is_admin = true WHERE email = '...';`)
-- [ ] `https://api.soloway.app/health` green; Sentry shows no unexpected errors
+- [ ] `https://api.soloway.io/health` green; Sentry shows no unexpected errors
 - [ ] Lighthouse pass on `/` (mobile) for a performance/SEO baseline
 
 ## 12. Post-launch [You]
 
 - Uptime monitoring: [UptimeRobot](https://uptimerobot.com) or BetterStack
-  free tier pinging `https://api.soloway.app/health` + the frontend URL.
+  free tier pinging `https://api.soloway.io/health` + the frontend URL.
 - Watch Sentry + Render logs during the first days.
 - Backup restore drill within the first month ([BACKUPS.md](BACKUPS.md) runbook).
 - When traffic justifies it, revisit [MIGRATION.md](MIGRATION.md) for the AWS path.

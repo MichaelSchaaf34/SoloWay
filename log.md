@@ -11,7 +11,8 @@
 | Apr 2026 | 29–30 | Deploy prep, design system, legal pages, SEO/PWA |
 | Jun 2026 | 31–32 | Landing refresh (`Destinations`, `FieldNotes`), design-preview mockups |
 | Jul 2026 | 33–51 | Stripe commerce, public destinations, reviews, admin portal, production readiness, atlas daily city window, experience detail URLs |
-| Aug 2026 | 52–58 | Landing redesign **promoted to the live `/` homepage** with dark mode, working search, a real date-range calendar, and trip dates wired through to date-filtered events |
+| Aug 2026 | 52–61 | Landing redesign **promoted to the live `/` homepage** with dark mode, working search, a real date-range calendar, trip dates wired through to date-filtered events, hero card/search bar spacing, Ticketmaster coverage probe + geo/locale query fix |
+| Sep 2026 | 62 | Production domain `soloway.io` replaces `soloway.app` across SEO metadata, legal pages, and deploy docs |
 
 ---
 
@@ -313,6 +314,47 @@
 - Open tabs refresh rotation on `visibilitychange` (catches throttled midnight timers) as well as at Eastern midnight
 - Copy updated (“The atlas · refreshes daily”)
 - Validation: `destinationRotation` 12/12 + full frontend 31/31 tests; confirmed sample windows (e.g. Jul 18 ≠ Jul 19 city sets)
+
+## 2026-09-14 - Interval 62 (production domain: soloway.io)
+- Purchased `soloway.io` via Cloudflare Registrar (same account as existing DNS); repo previously assumed `soloway.app`
+- Replaced every `soloway.app` reference with `soloway.io`: `index.html` (canonical, og:url, og:image, twitter:image, JSON-LD), `public/robots.txt`, `public/sitemap.xml`, `src/pages/Privacy.jsx` + `Terms.jsx` (contact emails), `src/components/HeroDiscoveryCard.jsx`, `DEPLOY.md`, `MIGRATION.md`, `.env.example`
+- Layout unchanged: `soloway.io` + `www` → frontend, `api.soloway.io` → backend
+- Validation: production build zero errors; `rg --hidden soloway\.app` returns nothing
+
+## 2026-08-04 - Interval 61 (events query was broken, not the coverage)
+- Ran the probe with a real key: 12 of 15 destinations showed zero events. Paris returning **1** was the tell — that is not credible for Paris, so the zeros were our query, not Ticketmaster's inventory
+- **Bug 1, locale:** without `locale=*` the Discovery API returns English-locale listings only. Paris measured 1 event; with `locale=*`, 10,000
+- **Bug 2, text city matching:** `city=` matches the venue's own city label, so cities listed under a local name were invisible — `city=Prague` returned 0 (venues say "Praha") against 470 for the same coordinates, and `city=Florence` returned 0 ("Firenze") against 149. Search is now geographic
+- Replaced `DESTINATION_CITIES` (city + countryCode text) with `DESTINATION_EVENT_AREAS` (city-centre lat/lng, mirroring `src/data/destinationCoordinates.js` — separate packages can't share it). Query now sends `geoPoint` + `radius=25` + `unit=km` + `locale=*`
+- `geoPoint` takes a geohash, so added `backend/src/modules/events/geohash.js` + 5 unit tests against the canonical `u4pruydqqvj` vector. Chose `geoPoint` over `latlong` because Ticketmaster deprecates `latlong`, and measured them identical at precision 9 (precision 5 lost events: Florence 142 vs 149)
+- Radius 25km is deliberate: 75km dragged in neighbouring towns (Barcelona 22 → 144 events)
+- **Result: destinations with events this week went 3 → 6** (paris 1 → 20+, prague 0 → 20+, florence 0 → 11; barcelona/new-york/cape-town already worked)
+- **The remaining 9 are genuine gaps, not bugs:** medellin, lisbon, reykjavik, bangkok, bali, marrakech, buenos-aires, seoul have **zero Ticketmaster inventory country-wide**. kyoto is different — Japan has 643 listings but none within 75km of Kyoto
+- **Known defect, not yet fixed:** Paris's results are museum admissions, not events. Museum tickets are sold for *every day*, so with `sort=date,asc` they occupy every early slot — measured 59 of the first 60 Paris results as genre `Cultural` (Grévin wax museum, "CITE DES ENFANTS 2-6 ANS"), while a Music-only query for the same city and window returns 1,641 real concerts. Florence has the same pattern (52 of 60 `Fine Art`). Barcelona and Prague are unaffected. Post-filtering one date-sorted page cannot fix this; it needs per-classification queries merged by date
+- Verified through the running API, not just the service: `GET /api/v1/events?destination=prague&limit=3` returns Othello at Prague Castle, a hip-hop concert, and Prague Lions vs Frankfurt Galaxy
+- Validation: eslint clean, backend 67/67 tests (was 60), probe re-run end to end
+
+## 2026-08-04 - Interval 60 (Ticketmaster coverage probe)
+- **Finding that prompted this:** `backend/.env` has no `TICKETMASTER_API_KEY`, so `listDestinationEvents` returns `[]` for every destination and `DestinationDetail` hides the events section — silently. Missing key, unsupported city, revoked key, 429, and a genuinely quiet week are all indistinguishable to users and to us
+- Added `npm run events:probe` (`backend/scripts/probe-events.js`): per destination it reports event counts for anytime / next 7d / next 30d, classifies each as healthy, thin-this-week, nothing-soon, no-coverage, or failed, and names the cities whose pages would render no events section at all
+- Probe calls the module's own `fetchTicketmasterEvents` (newly exported for this) rather than rebuilding the query, so it exercises the real request path — same city/country map, classifications, date stamps, dedupe — with the Redis cache out of the way. No behavior change to the API
+- Probes at limit 20 (page asks 6) to separate "thin" from "rich"; `20+` means the ceiling was hit. Throttled to 250ms (Ticketmaster allows 5 req/s); 45 requests per run
+- Exits non-zero only for configuration faults — a rejected key makes every window fail, which the script calls out; thin coverage is a finding, not a failure. `--json` mode for later CI use
+- Verified end to end with a deliberately invalid key: 45 live requests, all classified `REQUEST FAILED`, `First error: Ticketmaster responded with 401`, exit 1; `--json` output parses. **Happy path is unverified** — needs a real key
+- `npm run lint` now covers `scripts/` as well as `src/`
+- Open question this probe exists to answer: the city map is text-based (`Denpasar`, `Marrakech`, `Medellin`, `Kyoto`) and Ticketmaster's inventory is thin outside the US/UK/EU, so some of the 15 destinations likely have no events at all
+- Validation: `node --check` on both touched backend files, eslint clean, backend 60/60 tests
+
+## 2026-08-04 - Interval 59 (hero card no longer crowds the search bar)
+- The discovery card sat in the search bar's lane: measured 115px horizontal overlap with only 12px of vertical daylight at ≥1440px, and 130px overlap at 1024px
+- Cause was Interval 55's `min-[1440px]:mr-40`, which pulled the card 160px left to dodge the phone mockup and parked it right on top of the bar
+- Card now hangs *past* the hero container instead (`min-[1440px]:-mr-28`): its right edge lands on the 1360px container's edge, so it is flush with the phone mockup below (verified identical right edge at 1440/1536/1920) — 158px clear of the bar, phone still 31px below it, no horizontal overflow at any width
+- 1024–1280px has no room for a 780px bar beside a 310px card, so the bar's wrapper reserves that lane (`lg:pr-[380px] xl:pr-8`): 38px gap at 1024–1200, 46px from 1280 up
+- Placeholder shortened to "Search cities" — the reserved lane leaves a 100px input at 1024px and the old copy needed 145px, so it clipped mid-word ("Search cities or plac")
+- Mobile/tablet untouched by construction: the card is `hidden lg:block` and the `lg:` reserve starts above the stacked bar's range (verified 390px and 768px unchanged)
+- Measured with a throwaway CDP script (headless Chrome + `Emulation.setDeviceMetricsOverride`), not by eye — no browser tooling in the repo
+- Known blemish spotted at 1024px, pre-existing and untouched: the highlights row wraps to two lines and the search bar covers "Cherish every memory"
+- Validation: eslint, production build zero errors, 44/44 tests; geometry checked at 390/768/1024/1100/1200/1280/1440/1536/1920
 
 ## 2026-08-01 - Interval 58 (trip dates wired into results)
 - The calendar's dates are no longer dropped on submit. `HomeSearchBar` writes them to `TripContext` and navigates to `/destinations/:id?start=YYYY-MM-DD&end=YYYY-MM-DD`, so a dated search survives refresh and is shareable

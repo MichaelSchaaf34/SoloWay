@@ -130,7 +130,7 @@ Secrets Manager. The same phases apply unchanged.
 ## Cutover mechanics (any phase)
 
 1. **Days before:** lower the DNS TTL on the record being moved (e.g.
-   `api.soloway.app`) to 300s.
+   `api.soloway.io`) to 300s.
 2. **Blue/green:** run old and new stacks simultaneously; both point at the
    same database/Redis, so there is no data divergence risk for compute moves.
 3. Smoke-test the new stack directly via its platform URL (health, login,

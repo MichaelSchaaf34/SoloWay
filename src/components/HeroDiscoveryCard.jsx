@@ -37,7 +37,7 @@ const HeroDiscoveryCard = ({ rotationDate }) => {
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
           <span className="ml-3 text-[11px] font-medium text-slate-400 dark:text-slate-500 tracking-wide">
-            soloway.app / explore / {destination.id}
+            soloway.io / explore / {destination.id}
           </span>
         </div>
 

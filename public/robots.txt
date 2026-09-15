@@ -12,4 +12,4 @@ Disallow: /buddy/
 Disallow: /join/
 
 # NOTE: update host below to the production domain
-Sitemap: https://soloway.app/sitemap.xml
+Sitemap: https://soloway.io/sitemap.xml

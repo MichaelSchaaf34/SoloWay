@@ -119,7 +119,7 @@ const Terms = () => {
 
       <h2>14. Contact</h2>
       <p>
-        Reach us at <a href="mailto:hello@soloway.app">hello@soloway.app</a>.
+        Reach us at <a href="mailto:hello@soloway.io">hello@soloway.io</a>.
       </p>
 
       <p className="disclaimer">

@@ -16,10 +16,12 @@ vi.mock('../src/config/index.js', () => ({
 }));
 
 import {
+  DESTINATION_EVENT_AREAS,
   dedupeByName,
   formatTicketmasterEvent,
   listDestinationEvents,
 } from '../src/modules/events/events.service.js';
+import { encodeGeohash } from '../src/modules/events/geohash.js';
 
 function makeTicketmasterEvent(overrides = {}) {
   return {
@@ -117,9 +119,38 @@ describe('events service', () => {
 
     expect(events.map(event => event.id)).toEqual(['a', 'b']);
     const calledUrl = fetchSpy.mock.calls[0][0];
-    expect(calledUrl).toContain('city=Reykjavik');
-    expect(calledUrl).toContain('countryCode=IS');
+    expect(calledUrl).toContain(`geoPoint=${encodeGeohash(64.1466, -21.9426)}`);
+    expect(calledUrl).toContain('radius=25');
+    expect(calledUrl).toContain('unit=km');
     expect(calledUrl).toContain('apikey=test-key');
+  });
+
+  // Searching by Ticketmaster's text `city` param returned nothing for cities
+  // whose venues carry a local name (Praha, Firenze), and the default locale
+  // filter hid most non-English listings. Both are easy to reintroduce.
+  it('searches by coordinates across every locale, not by city name', async () => {
+    mocks.apiKey.value = 'test-key';
+    const fetchSpy = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ _embedded: { events: [] } }) });
+    vi.stubGlobal('fetch', fetchSpy);
+
+    await listDestinationEvents({ destination: 'prague' });
+
+    const url = decodeURIComponent(fetchSpy.mock.calls[0][0]);
+    expect(url).toContain('locale=*');
+    expect(url).toContain(`geoPoint=${encodeGeohash(50.0755, 14.4378)}`);
+    expect(url).not.toContain('city=');
+    expect(url).not.toContain('countryCode=');
+  });
+
+  it('covers every shipped destination with coordinates', () => {
+    for (const [slug, area] of Object.entries(DESTINATION_EVENT_AREAS)) {
+      expect(Number.isFinite(area.lat), `${slug} lat`).toBe(true);
+      expect(Number.isFinite(area.lng), `${slug} lng`).toBe(true);
+      expect(Math.abs(area.lat), `${slug} lat range`).toBeLessThanOrEqual(90);
+      expect(Math.abs(area.lng), `${slug} lng range`).toBeLessThanOrEqual(180);
+    }
   });
 
   it('scopes the search to a trip window when dates are given', async () => {

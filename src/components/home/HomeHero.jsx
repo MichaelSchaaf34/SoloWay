@@ -86,17 +86,21 @@ const HomeHero = () => {
               </div>
             </div>
 
-            {/* Right margin clears the lane the phone mockup floats in below. */}
-            <div className="hidden justify-self-end lg:-mt-8 lg:block min-[1440px]:mr-40">
+            {/* At >=1440px the card hangs 112px past the hero container so its right
+                edge lands on the 1360px container's edge — flush with the phone
+                mockup below, and clear of the search bar's lane. */}
+            <div className="hidden justify-self-end lg:-mt-8 lg:block min-[1440px]:-mr-28">
               <HomeDiscoveryCard />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Search bar straddles the hero photo's bottom edge. */}
+      {/* Search bar straddles the hero photo's bottom edge. The lg right padding
+          reserves the discovery card's lane on desktops too narrow for both at
+          full width; it stops binding once the container hits its max width. */}
       <div className="relative z-30 -mt-9">
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-8 lg:pr-[380px] xl:pr-8">
           <HomeSearchBar />
         </div>
       </div>

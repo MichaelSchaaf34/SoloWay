@@ -66,7 +66,7 @@ const Privacy = () => {
         <li>Object to or restrict certain uses of your data.</li>
       </ul>
       <p>
-        To exercise any of these rights, email <a href="mailto:privacy@soloway.app">privacy@soloway.app</a>.
+        To exercise any of these rights, email <a href="mailto:privacy@soloway.io">privacy@soloway.io</a>.
       </p>
 
       <h2>5. Security</h2>
@@ -96,7 +96,7 @@ const Privacy = () => {
 
       <h2>9. Contact</h2>
       <p>
-        Questions? Reach us at <a href="mailto:privacy@soloway.app">privacy@soloway.app</a>.
+        Questions? Reach us at <a href="mailto:privacy@soloway.io">privacy@soloway.io</a>.
       </p>
 
       <p className="disclaimer">
