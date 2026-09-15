@@ -320,6 +320,10 @@
 - Replaced every `soloway.app` reference with `soloway.io`: `index.html` (canonical, og:url, og:image, twitter:image, JSON-LD), `public/robots.txt`, `public/sitemap.xml`, `src/pages/Privacy.jsx` + `Terms.jsx` (contact emails), `src/components/HeroDiscoveryCard.jsx`, `DEPLOY.md`, `MIGRATION.md`, `.env.example`
 - Layout unchanged: `soloway.io` + `www` → frontend, `api.soloway.io` → backend
 - Validation: production build zero errors; `rg --hidden soloway\.app` returns nothing
+- **Frontend is live at https://soloway.io** (Vercel, production branch `main`, `VITE_API_URL=https://api.soloway.io/api/v1`); `www` → 308 → apex
+- Cloudflare zone: SSL mode Full (strict), Always Use HTTPS on, min TLS 1.2; `A @ → 76.76.21.21`, `CNAME www → cname.vercel-dns.com`
+- Gotcha: both Vercel records must be **DNS only** (grey cloud). Proxied records produced Cloudflare 525 because Vercel could not issue its cert behind the proxy
+- Pending: Render API service → `CNAME api` (DNS only); Email Routing for `hello@`/`privacy@`
 
 ## 2026-08-04 - Interval 61 (events query was broken, not the coverage)
 - Ran the probe with a real key: 12 of 15 destinations showed zero events. Paris returning **1** was the tell — that is not credible for Paris, so the zeros were our query, not Ticketmaster's inventory
